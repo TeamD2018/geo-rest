@@ -33,6 +33,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
       parameters:
       - in: query
@@ -87,12 +93,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        default:
-          description: Error
+        '500':
+          description: Server internal error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
   '/couriers/{courier_id}':
     get:
       description: Get complete courier description
@@ -110,6 +117,12 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
+          content: 
+            application/json: 
+              schema: 
                 $ref: '#/components/schemas/Error'
     put:
       parameters:
@@ -133,6 +146,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       parameters:
       - $ref: '#/components/parameters/DeliveryClubId'
@@ -145,6 +164,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
   '/couriers/{courier_id}/orders/{order_id}':
     post:
       parameters:
@@ -162,6 +188,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         default:
           description: Error
           content:
@@ -185,6 +217,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         default:
           description: Error
           content:
@@ -208,6 +246,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Order'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         default:
           description: Error
           content:
@@ -223,6 +267,12 @@ paths:
           description: Ok
         '404':
           description: Courier not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
           content:
             application/json:
               schema:
@@ -250,6 +300,12 @@ paths:
                 $ref: '#/components/schemas/Orders'
         '404':
           description: Courier not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
           content:
             application/json:
               schema:
@@ -351,15 +407,17 @@ components:
           format: int32
           enum:
           - 9
+          - 13
           - 15
           - 17
         message:
           type: string
       enum:
       - Courier already exists
+      - Sorry, server error
       - One of parameters not found
       - One of parameter have incorrect format
+
 servers:
 - description: SwaggerHub API Auto Mocking
-  url: >-
-    https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
+  url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
