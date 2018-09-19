@@ -21,8 +21,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Courier"
-        default:
-          description: Error
+        '409':
+          description: Courier already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '400':
+          description: Incorrect data for courier
           content:
             application/json:
               schema:
@@ -48,20 +54,20 @@ paths:
             type: string
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Couriers"
-        default:
-          description: Error
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
             
           
-  /couriers/{courier_id}:
+  /courier/{id}:
     get:
       description: Get complete courier description
       parameters:
@@ -73,8 +79,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Courier"
-        default:
-          description: Error
+        '404':
+          description: Courier not found
           content:
             application/json:
               schema:
@@ -91,13 +97,13 @@ paths:
                 
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Courier"
-        default:
-          description: Error
+        '404':
+          description: Courier not found
           content:
             application/json:
               schema:
@@ -108,103 +114,16 @@ paths:
        - $ref: '#/components/parameters/DeliveryClubId'
       responses:
         '200':
-          description: Ok
-        default:
-          description: Error
+          description: OK
+        '404':
+          description: Courier not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
  
   
-  /couriers/{courier_id}/orders/{order_id}:
-    post:
-      parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-      responses:
-        '201':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    patch:
-      description: Update parameters of existing order
-      parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref:  '#/components/schemas/OrderBase'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'    
-    
-    put:
-      description: Transfer order to another courier
-      parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'    
-      
-    delete:
-      parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
-      responses:
-        '204':
-          description: Ok
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          
-        
-  
-  /courier/{courier_id}/orders:
+  /courier/{id}/orders:
     get:
       parameters:
       - $ref: '#/components/parameters/DeliveryClubId' 
@@ -221,19 +140,19 @@ paths:
           default: true
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Orders'
-              
-        default:  
-          description: Error
+            
+        '404':  
+          description: Courier not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            
+          
           
           
         
@@ -247,18 +166,10 @@ components:
         type: integer
         format: int64
       in: path
-      name: courier_id
+      name: id
       required: true
       description: Delivery Club courier id
       
-    OrderId:
-      schema:
-        type: integer
-        format: int64
-      in: path
-      name: order_id
-      required: true
-      description: Delivery Club order id  
       
   schemas:
     CourierBase:
@@ -266,16 +177,21 @@ components:
         id:
           type: integer
           format: int64
+          example: 42
         name:
           type: string
+          example: "Ахмед"
         location:
           $ref: "#/components/schemas/Location"
         phone:
+          description: "Phone number in international format (without '+')"
           type: string
-          
+          example: "79012345678"
         last_seen:
+          description: "Time in UTC format"
           type: integer
           format: int64
+          example: 1234567891
           
     Courier:
       allOf: 
@@ -292,34 +208,42 @@ components:
         id: 
           type: integer
           format: int64
-        courier_id:
-          type: integer
-          format: int64
+        courier:
+          $ref: "#/components/schemas/Courier"
         destination:
           $ref: "#/components/schemas/Location"
         soruce:
           $ref: "#/components/schemas/Location"
-      
+            
     Order:
       allOf:
         - $ref:  '#/components/schemas/OrderBase'
-      properties:  
-        courier:
-          $ref: "#/components/schemas/Courier"  
       required:
         - id
-        - courier_id
+        - courier
         - destination
         - source
         
+    Circle:
+      properties:
+        center:
+          $ref: '#/components/schemas/Location'
+        radius:
+          type: number
+          format: float
+          example: 1000
+    
+          
     Location:
       properties:
         lat: 
           type: number
           format: float
+          example: 55.797270
         lon:
           type: number
           format: float
+          example: 37.537789
         
         
     Couriers:
@@ -341,8 +265,10 @@ components:
         code:
           type: integer
           format: int32
+          enum: [9, 15, 17]
         message:
           type: string
+          enum: ["Courier already exists", "One of parameters not found", "One of parameter have incorrect format"]
         
       
 # Added by API Auto Mocking Plugin
