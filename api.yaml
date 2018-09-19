@@ -91,6 +91,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 
   /couriers/{courier_id}:
@@ -123,7 +129,7 @@ paths:
 
       responses:
         '200':
-          description: OK
+          description: Ok
           content:
             application/json:
               schema:
@@ -140,10 +146,10 @@ paths:
       - $ref: '#/components/parameters/DeliveryClubId'
       responses:
         '200':
-          description: Ok
-        default:
-          description: Error
-          content:
+          description: OK
+        '404':
+          description: Courier not found
+        content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
@@ -227,9 +233,6 @@ paths:
       responses:
         '204':
           description: Ok
-        default:
-          description: Error
-          description: OK
         '404':
           description: Courier not found
           content:
@@ -268,12 +271,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        default:
-          description: Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+
+          
+          
+        
+    
+      
+          
 
 
 
@@ -349,7 +353,7 @@ components:
           $ref: "#/components/schemas/Location"
         soruce:
           $ref: "#/components/schemas/Location"
-
+      
     Order:
       allOf:
       - $ref:  '#/components/schemas/OrderBase'
@@ -397,5 +401,5 @@ components:
       enum: ["Courier already exists", "One of parameters not found", "One of parameter have incorrect format"]
       # Added by API Auto Mocking Plugin
 servers:
-- description: SwaggerHub API Auto Mocking
-  url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
