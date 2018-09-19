@@ -1,9 +1,8 @@
 openapi: 3.0.0
 info:
-  version: '0.0.1'
-  title: 'delivery-club-courier-monitor'
-  description: 'Delivery Club Courier Monitor'
-  
+  version: "0.0.1"
+  title: delivery-club-courier-monitor
+  description: Delivery Club Courier Monitor
 paths:
   /couriers:
     post:
@@ -14,106 +13,148 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Courier"
+              $ref: '#/components/schemas/Courier'
       responses:
         '201':
           description: Courier created
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Courier"
-        '409':
-          description: Courier already exists
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Courier'
         '400':
           description: Incorrect data for courier
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-            
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Courier already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     get:
-      summary: Get list of couriers by geolocation 
       parameters:
-        - in: query
-          name: lat
-          schema:
-            type: number
-            format: float
-            
-        - in: query
-          name: lon
-          schema:
-            type: number
-            format: float
-            
-        - in: query
-          name: address
-          schema:
-            type: string
+      - in: query
+        name: lat
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: lon
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: address
+        schema:
+          type: string
+      - in: query
+        name: radius
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: viewport_down_lat
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: viewport_down_lon
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: viewport_up_lat
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: viewport_up_lon
+        schema:
+          type: number
+          format: float
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Couriers"
+                $ref: '#/components/schemas/Couriers'
         '400':
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
-            
-          
-  /courier/{id}:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  '/couriers/{courier_id}':
     get:
-      summary: Get list of couriers by id
+      description: Get complete courier description
       parameters:
       - $ref: '#/components/parameters/DeliveryClubId'
       responses:
         '200':
           description: Ok
-          content: 
+          content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Courier"
+                $ref: '#/components/schemas/Courier'
         '404':
           description: Courier not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:   
+        '500':
+          description: Server internal error
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Error'
+    put:
       parameters:
-       - $ref: '#/components/parameters/DeliveryClubId'
+      - $ref: '#/components/parameters/DeliveryClubId'
       requestBody:
         description: Courier fields to update
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CourierBase'
-                
       responses:
         '200':
-          description: OK
+          description: Ok
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Courier"
+                $ref: '#/components/schemas/Courier'
         '404':
           description: Courier not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       parameters:
-       - $ref: '#/components/parameters/DeliveryClubId'
+      - $ref: '#/components/parameters/DeliveryClubId'
       responses:
         '200':
           description: OK
@@ -123,18 +164,128 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
- 
-  
-  /courier/{id}/orders:
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+  '/couriers/{courier_id}/orders/{order_id}':
+    post:
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      - $ref: '#/components/parameters/DeliveryClubId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      description: Update parameters of existing order
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      - $ref: '#/components/parameters/DeliveryClubId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderBase'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      description: Transfer order to another courier
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      - $ref: '#/components/parameters/DeliveryClubId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      - $ref: '#/components/parameters/DeliveryClubId'
+      responses:
+        '204':
+          description: Ok
+        '404':
+          description: Courier not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/courier/{courier_id}/orders':
     get:
       parameters:
-      - $ref: '#/components/parameters/DeliveryClubId' 
+      - $ref: '#/components/parameters/DeliveryClubId'
       - name: since
         in: query
         schema:
           type: integer
           format: int64
-          
       - name: asc
         in: query
         schema:
@@ -147,20 +298,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Orders'
-            
-        '404':  
+        '404':
           description: Courier not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          
-          
-          
-        
-    
-      
-          
+        '500':
+          description: Server internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   parameters:
     DeliveryClubId:
@@ -168,11 +317,17 @@ components:
         type: integer
         format: int64
       in: path
-      name: id
+      name: courier_id
       required: true
       description: Delivery Club courier id
-      
-      
+    OrderId:
+      schema:
+        type: integer
+        format: int64
+      in: path
+      name: order_id
+      required: true
+      description: Delivery Club order id
   schemas:
     CourierBase:
       properties:
@@ -182,97 +337,87 @@ components:
           example: 42
         name:
           type: string
-          example: "Ахмед"
+          example: Ахмед
         location:
-          $ref: "#/components/schemas/Location"
+          $ref: '#/components/schemas/Location'
         phone:
-          description: "Phone number in international format (without '+')"
+          description: Phone number in international format (without '+')
           type: string
-          example: "79012345678"
+          example: '79012345678'
         last_seen:
-          description: "Time in UTC format"
+          description: Time in UTC format
           type: integer
           format: int64
           example: 1234567891
-          
     Courier:
-      allOf: 
-         - $ref: '#/components/schemas/CourierBase'
+      allOf:
+      - $ref: '#/components/schemas/CourierBase'
       required:
-        - id
-        - name
-        - phone
-    
-          
-          
+      - id
+      - name
+      - phone
     OrderBase:
       properties:
-        id: 
+        id:
           type: integer
           format: int64
-        courier:
-          $ref: "#/components/schemas/Courier"
+        courier_id:
+          type: integer
+          format: int64
         destination:
-          $ref: "#/components/schemas/Location"
+          $ref: '#/components/schemas/Location'
         soruce:
-          $ref: "#/components/schemas/Location"
-            
+          $ref: '#/components/schemas/Location'
     Order:
       allOf:
-        - $ref:  '#/components/schemas/OrderBase'
-      required:
-        - id
-        - courier
-        - destination
-        - source
-        
-    Circle:
+      - $ref: '#/components/schemas/OrderBase'
       properties:
-        center:
-          $ref: '#/components/schemas/Location'
-        radius:
-          type: number
-          format: float
-          example: 1000
-    
-          
+        courier:
+          $ref: '#/components/schemas/Courier'
+      required:
+      - id
+      - courier_id
+      - destination
+      - source
     Location:
       properties:
-        lat: 
+        lat:
           type: number
           format: float
-          example: 55.797270
+          example: 55.79727
         lon:
           type: number
           format: float
           example: 37.537789
-        
-        
     Couriers:
       type: array
       items:
-        $ref: "#/components/schemas/Courier"
-
-
+        $ref: '#/components/schemas/Courier'
     Orders:
       type: array
       items:
-        $ref: "#/components/schemas/Order"
-
+        $ref: '#/components/schemas/Order'
     Error:
       required:
-        - code
-        - message
+      - code
+      - message
       properties:
         code:
           type: integer
           format: int32
-          enum: [9, 15, 17]
+          enum:
+          - 9
+          - 13
+          - 15
+          - 17
         message:
           type: string
-          enum: ["Courier already exists", "One of parameters not found", "One of parameter have incorrect format"]
-        
-      
+      enum:
+      - Courier already exists
+      - Sorry, server error
+      - One of parameters not found
+      - One of parameter have incorrect format
+
 servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
