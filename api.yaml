@@ -21,8 +21,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Courier"
-        default:
-          description: Error
+        '409':
+          description: Courier already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '400':
+          description: Incorrect data for courier
           content:
             application/json:
               schema:
@@ -74,13 +80,13 @@ paths:
             format: float
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Couriers"
-        default:
-          description: Error
+        '400':
+          description: Bad request
           content:
             application/json:
               schema:
@@ -99,8 +105,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Courier"
-        default:
-          description: Error
+        '404':
+          description: Courier not found
           content:
             application/json:
               schema:
@@ -117,13 +123,13 @@ paths:
 
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Courier"
-        default:
-          description: Error
+        '404':
+          description: Courier not found
           content:
             application/json:
               schema:
@@ -223,6 +229,9 @@ paths:
           description: Ok
         default:
           description: Error
+          description: OK
+        '404':
+          description: Courier not found
           content:
             application/json:
               schema:
@@ -247,12 +256,18 @@ paths:
           default: true
       responses:
         '200':
-          description: Ok
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Orders'
 
+        '404':
+          description: Courier not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         default:
           description: Error
           content:
@@ -286,22 +301,31 @@ components:
       required: true
       description: Delivery Club order id
 
+
+
   schemas:
     CourierBase:
       properties:
         id:
           type: integer
           format: int64
+          example: 42
         name:
           type: string
+          example: "Ахмед"
         location:
           $ref: "#/components/schemas/Location"
         phone:
+          description: "Phone number in international format (without '+')"
           type: string
+          example: "79012345678"
 
         last_seen:
+          description: "Time in UTC format"
           type: integer
           format: int64
+          example: 1234567891
+
 
     Courier:
       allOf:
@@ -343,11 +367,11 @@ components:
         lat:
           type: number
           format: float
+          example: 55.797270
         lon:
           type: number
           format: float
-
-
+          example: 37.537789
     Couriers:
       type: array
       items:
@@ -367,11 +391,11 @@ components:
         code:
           type: integer
           format: int32
+          enum: [9, 15, 17]
         message:
           type: string
-
-
-# Added by API Auto Mocking Plugin
+      enum: ["Courier already exists", "One of parameters not found", "One of parameter have incorrect format"]
+      # Added by API Auto Mocking Plugin
 servers:
 - description: SwaggerHub API Auto Mocking
   url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
