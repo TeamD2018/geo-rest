@@ -27,25 +27,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-            
+
     get:
       parameters:
-        - in: query
-          name: lat
+      - in: query
+        name: lat
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: lon
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: address
+        schema:
+          type: string
+      - in: query
+        name: radius
+        schema:
+          type: number
+          format: float
+
+      - in: query
+        name: viewport_down_lat
+        schema:
+          type: number
+          format: float
+
+      - in: query
+        name: viewport_down_lon
+        schema:
+          type: number
+          format: float
+
+      - in: query
+          name: viewport_up_lat
           schema:
             type: number
             format: float
-            
-        - in: query
-          name: lon
+      - in: query
+          name: viewport_up_lon
           schema:
             type: number
             format: float
-            
-        - in: query
-          name: address
-          schema:
-            type: string
       responses:
         '200':
           description: Ok
@@ -59,8 +85,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-            
-          
+
+
   /couriers/{courier_id}:
     get:
       description: Get complete courier description
@@ -69,7 +95,7 @@ paths:
       responses:
         '200':
           description: Ok
-          content: 
+          content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Courier"
@@ -79,16 +105,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-    put:   
+    put:
       parameters:
-       - $ref: '#/components/parameters/DeliveryClubId'
+      - $ref: '#/components/parameters/DeliveryClubId'
       requestBody:
         description: Courier fields to update
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CourierBase'
-                
+
       responses:
         '200':
           description: Ok
@@ -102,10 +128,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-                
+
     delete:
       parameters:
-       - $ref: '#/components/parameters/DeliveryClubId'
+      - $ref: '#/components/parameters/DeliveryClubId'
       responses:
         '200':
           description: Ok
@@ -115,13 +141,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
- 
-  
+
+
   /couriers/{courier_id}/orders/{order_id}:
     post:
       parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
+      - $ref:  '#/components/parameters/OrderId'
+      - $ref:  '#/components/parameters/DeliveryClubId'
       requestBody:
         content:
           application/json:
@@ -143,8 +169,8 @@ paths:
     patch:
       description: Update parameters of existing order
       parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
+      - $ref:  '#/components/parameters/OrderId'
+      - $ref:  '#/components/parameters/DeliveryClubId'
       requestBody:
         content:
           application/json:
@@ -162,13 +188,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'    
-    
+                $ref: '#/components/schemas/Error'
+
     put:
       description: Transfer order to another courier
       parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
+      - $ref:  '#/components/parameters/OrderId'
+      - $ref:  '#/components/parameters/DeliveryClubId'
       requestBody:
         content:
           application/json:
@@ -186,12 +212,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'    
-      
+                $ref: '#/components/schemas/Error'
+
     delete:
       parameters:
-        - $ref:  '#/components/parameters/OrderId'
-        - $ref:  '#/components/parameters/DeliveryClubId'
+      - $ref:  '#/components/parameters/OrderId'
+      - $ref:  '#/components/parameters/DeliveryClubId'
       responses:
         '204':
           description: Ok
@@ -201,19 +227,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          
-        
-  
+
+
+
   /courier/{courier_id}/orders:
     get:
       parameters:
-      - $ref: '#/components/parameters/DeliveryClubId' 
+      - $ref: '#/components/parameters/DeliveryClubId'
       - name: since
         in: query
         schema:
           type: integer
           format: int64
-          
+
       - name: asc
         in: query
         schema:
@@ -226,20 +252,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Orders'
-              
-        default:  
+
+        default:
           description: Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            
-          
-          
-        
-    
-      
-          
+
+
+
+
+
+
+
 components:
   parameters:
     DeliveryClubId:
@@ -250,7 +276,7 @@ components:
       name: courier_id
       required: true
       description: Delivery Club courier id
-      
+
     OrderId:
       schema:
         type: integer
@@ -258,8 +284,8 @@ components:
       in: path
       name: order_id
       required: true
-      description: Delivery Club order id  
-      
+      description: Delivery Club order id
+
   schemas:
     CourierBase:
       properties:
@@ -272,24 +298,24 @@ components:
           $ref: "#/components/schemas/Location"
         phone:
           type: string
-          
+
         last_seen:
           type: integer
           format: int64
-          
+
     Courier:
-      allOf: 
-         - $ref: '#/components/schemas/CourierBase'
+      allOf:
+      - $ref: '#/components/schemas/CourierBase'
       required:
-        - id
-        - name
-        - phone
-    
-          
-          
+      - id
+      - name
+      - phone
+
+
+
     OrderBase:
       properties:
-        id: 
+        id:
           type: integer
           format: int64
         courier_id:
@@ -299,29 +325,29 @@ components:
           $ref: "#/components/schemas/Location"
         soruce:
           $ref: "#/components/schemas/Location"
-      
+
     Order:
       allOf:
-        - $ref:  '#/components/schemas/OrderBase'
-      properties:  
+      - $ref:  '#/components/schemas/OrderBase'
+      properties:
         courier:
-          $ref: "#/components/schemas/Courier"  
+          $ref: "#/components/schemas/Courier"
       required:
-        - id
-        - courier_id
-        - destination
-        - source
-        
+      - id
+      - courier_id
+      - destination
+      - source
+
     Location:
       properties:
-        lat: 
+        lat:
           type: number
           format: float
         lon:
           type: number
           format: float
-        
-        
+
+
     Couriers:
       type: array
       items:
@@ -335,17 +361,17 @@ components:
 
     Error:
       required:
-        - code
-        - message
+      - code
+      - message
       properties:
         code:
           type: integer
           format: int32
         message:
           type: string
-        
-      
+
+
 # Added by API Auto Mocking Plugin
 servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
