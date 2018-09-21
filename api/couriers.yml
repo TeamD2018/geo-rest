@@ -1,6 +1,7 @@
 post:
   summary: Creates courier
-  operationId: createCourier
+  description: |
+    Creates courier with specified parameters. It's
   requestBody:
     description: Courier add to system
     content:
@@ -20,12 +21,6 @@ post:
         application/json:
           schema:
             $ref: 'schemas.yml#/Error'
-    '409':
-      description: Courier already exists
-      content:
-        application/json:
-          schema:
-            $ref: 'schemas.yml#/Error'
     '500':
       description: Server internal error
       content:
@@ -33,46 +28,11 @@ post:
           schema:
             $ref: 'schemas.yml#/Error'
 get:
+  summary: Get couriers in area
+  description: |
+    Search all couriers in the specific area. There are 3 options: circle, box and circle around adress.
   parameters:
-  - in: query
-    name: lat
-    schema:
-      type: number
-      format: float
-  - in: query
-    name: lon
-    schema:
-      type: number
-      format: float
-  - in: query
-    name: address
-    schema:
-      type: string
-  - in: query
-    name: radius
-    schema:
-      type: number
-      format: float
-  - in: query
-    name: viewport_down_lat
-    schema:
-      type: number
-      format: float
-  - in: query
-    name: viewport_down_lon
-    schema:
-      type: number
-      format: float
-  - in: query
-    name: viewport_up_lat
-    schema:
-      type: number
-      format: float
-  - in: query
-    name: viewport_up_lon
-    schema:
-      type: number
-      format: float
+    - $ref: 'parameters.yml#/GeoFilter'
   responses:
     '200':
       description: OK
