@@ -1,16 +1,25 @@
 get:
+  summary: Get orders for courier
   parameters:
   - $ref: 'parameters.yml#/DeliveryClubID'
   - name: since
+    description: |
+      Time marker in UTC format(ms)
     in: query
     schema:
       type: integer
       format: int64
+    required: true
+
   - name: asc
+    description: |
+      Should time marker be threated as lower bound(true) or upper bound(false)
     in: query
+    required: true
     schema:
       type: boolean
       default: true
+
   responses:
     '200':
       description: OK
