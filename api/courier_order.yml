@@ -1,4 +1,7 @@
 post:
+  summary: Create new order
+  description: |
+    Create new order. The courier with courier_id MUST be created before this operation.
   parameters:
   - $ref: 'parameters.yml#/OrderID'
   - $ref: 'parameters.yml#/DeliveryClubID'
@@ -26,8 +29,11 @@ post:
         application/json:
           schema:
             $ref: 'schemas.yml#/Error'
-patch:
-  description: Update parameters of existing order
+
+put:
+  summary: Update existing order
+  description: |
+    Update parameters of existing order. It's impossible to assign order to another courier with this method.
   parameters:
   - $ref: 'parameters.yml#/OrderID'
   - $ref: 'parameters.yml#/DeliveryClubID'
@@ -43,6 +49,12 @@ patch:
         application/json:
           schema:
             $ref: 'schemas.yml#/Order'
+    '400':
+      description: Invalid or unacceptable query
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
     '500':
       description: Server internal error
       content:
@@ -55,16 +67,15 @@ patch:
         application/json:
           schema:
             $ref: 'schemas.yml#/Error'
-put:
-  description: Transfer order to another courier
+
+patch:
+  summary: Assign order to courier
+  description: |
+    Assign existing order to another courier. If order with such order_id assign to courier with courier_id alredy then
+    no error will be returned.
   parameters:
   - $ref: 'parameters.yml#/OrderID'
   - $ref: 'parameters.yml#/DeliveryClubID'
-  requestBody:
-    content:
-      application/json:
-        schema:
-          $ref: 'schemas.yml#/Order'
   responses:
     '200':
       description: Ok
@@ -72,6 +83,12 @@ put:
         application/json:
           schema:
             $ref: 'schemas.yml#/Order'
+    '404':
+      description: Any of courier_id or order_id wasn't found
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
     '500':
       description: Server internal error
       content:
@@ -84,7 +101,11 @@ put:
         application/json:
           schema:
             $ref: 'schemas.yml#/Error'
+
 delete:
+  summary: Delete order
+  description: |
+    Delete order from service completely.
   parameters:
   - $ref: 'parameters.yml#/OrderID'
   - $ref: 'parameters.yml#/DeliveryClubID'
