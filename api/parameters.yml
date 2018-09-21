@@ -6,6 +6,7 @@ DeliveryClubID:
   name: courier_id
   required: true
   description: Delivery Club courier id
+
 OrderID:
   schema:
     type: integer
@@ -14,3 +15,16 @@ OrderID:
   name: order_id
   required: true
   description: Delivery Club order id
+
+GeoFilter:
+  in: query
+  style: form
+  explode: true
+  description: Search area
+  name: filter
+  schema:
+    type: object
+    oneOf:
+    - $ref: 'schemas.yml#/Circle'
+    - $ref: 'schemas.yml#/Box'
+    - $ref: 'schemas.yml#/Zone'
