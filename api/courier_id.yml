@@ -1,5 +1,7 @@
 get:
-  description: Get complete courier description
+  summary: Get courier by id
+  description: |
+    Get relevant information about courier by id.
   parameters:
   - $ref: 'parameters.yml#/DeliveryClubID'
   responses:
@@ -22,6 +24,9 @@ get:
           schema:
             $ref: 'schemas.yml#/Error'
 put:
+  summary: Update existing courier
+  description: |
+    Updates courier parameters. It's the only way to update courier location.
   parameters:
   - $ref: 'parameters.yml#/DeliveryClubID'
   requestBody:
@@ -50,11 +55,14 @@ put:
           schema:
             $ref: 'schemas.yml#/Error'
 delete:
+  summary: Delete courier from service
+  description: |
+    Delete all information about courier from the service, including orders history.
   parameters:
   - $ref: 'parameters.yml#/DeliveryClubID'
   responses:
-    '200':
-      description: OK
+    '204':
+      description: Successfull delete
     '404':
       description: Courier not found
       content:
