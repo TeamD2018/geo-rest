@@ -1,0 +1,32 @@
+get:
+  parameters:
+  - $ref: 'parameters.yml#/DeliveryClubID'
+  - name: since
+    in: query
+    schema:
+      type: integer
+      format: int64
+  - name: asc
+    in: query
+    schema:
+      type: boolean
+      default: true
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Orders'
+    '404':
+      description: Courier not found
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+    '500':
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'

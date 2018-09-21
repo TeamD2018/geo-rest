@@ -1,0 +1,105 @@
+post:
+  parameters:
+  - $ref: 'parameters.yml#/OrderID'
+  - $ref: 'parameters.yml#/DeliveryClubID'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: 'schemas.yml#/Order'
+  responses:
+    '201':
+      description: Ok
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Order'
+    '500':
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+    default:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+patch:
+  description: Update parameters of existing order
+  parameters:
+  - $ref: 'parameters.yml#/OrderID'
+  - $ref: 'parameters.yml#/DeliveryClubID'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: 'schemas.yml#/OrderBase'
+  responses:
+    '200':
+      description: Ok
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Order'
+    '500':
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+    default:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+put:
+  description: Transfer order to another courier
+  parameters:
+  - $ref: 'parameters.yml#/OrderID'
+  - $ref: 'parameters.yml#/DeliveryClubID'
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: 'schemas.yml#/Order'
+  responses:
+    '200':
+      description: Ok
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Order'
+    '500':
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+    default:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+delete:
+  parameters:
+  - $ref: 'parameters.yml#/OrderID'
+  - $ref: 'parameters.yml#/DeliveryClubID'
+  responses:
+    '204':
+      description: OK
+    '404':
+      description: Courier not found
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'
+    '500':
+      description: Server internal error
+      content:
+        application/json:
+          schema:
+            $ref: 'schemas.yml#/Error'

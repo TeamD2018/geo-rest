@@ -1,0 +1,16 @@
+DeliveryClubID:
+  schema:
+    type: integer
+    format: int64
+  in: path
+  name: courier_id
+  required: true
+  description: Delivery Club courier id
+OrderID:
+  schema:
+    type: integer
+    format: int64
+  in: path
+  name: order_id
+  required: true
+  description: Delivery Club order id
