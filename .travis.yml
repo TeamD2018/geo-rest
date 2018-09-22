@@ -1,20 +1,30 @@
-matrix:
+jobs:
   include:
   - language: node.js
     nodejs:
     - "10.11"
-    services:
-    - docker
+    stage: test
     before_install:
     - npm install -g swagger-cli
     before_script:
     - cd api/
     script:
     - swagger-cli validate api.yaml
-    - cd .. && docker build -t swagger-ui-geo-rest -f Dockerfile.swagger-ui
-    - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_NAME" --password-stdin
 
+  - stage: deploy
+    language: bash
+    services:
+    - docker
+    install:
+    - docker build -t swagger-ui-geo-rest -f Dockerfile.swagger-ui .
     deploy:
-    - docker tag swagger-ui-geo-rest $DOCKERHUB_NAME/swagger-ui-geo-rest
-    - docker push $DOCKERHUB_NAME/swagger-ui-geo-rest
+      - provider: script
+        script: >
+        echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_NAME" --password-stdin &&
+        docker tag swagger-ui-geo-rest $DOCKERHUB_NAME/swagger-ui-geo-rest &&
+        docker push $DOCKERHUB_NAME/swagger-ui-geo-rest
+        on:
+          branches:
+            - master
+            - develop
 
