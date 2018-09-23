@@ -2,7 +2,7 @@ jobs:
   include:
   - language: node.js
     nodejs:
-    - "10.11"
+    - '10.11'
     stage: test
     before_install:
     - npm install -g swagger-cli
@@ -10,11 +10,13 @@ jobs:
     - cd api/
     script:
     - swagger-cli validate api.yaml
-
   - stage: deploy
     language: bash
     services:
     - docker
+    before_install:
+    - openssl aes-256-cbc -K $encrypted_5cf62b557dad_key -iv $encrypted_5cf62b557dad_iv
+      -in travis_key.enc -out travis_key -d
     install:
     - docker build -t swagger-ui-geo-rest -f Dockerfile.swagger-ui .
     deploy:
@@ -22,10 +24,8 @@ jobs:
       script: bash deploy.sh
       on:
         branch: master
-
     - provider: script
       script: bash deploy.sh
       on:
         branch: develop
-
 
