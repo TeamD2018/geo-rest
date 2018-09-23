@@ -1,5 +1,5 @@
 SWARM_MANAGER_IP=$1
-DEPLOY_USER=travis-user
+DEPLOY_USER=travis
 
 echo "Deploying to DockerHub"
 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_NAME" --password-stdin
