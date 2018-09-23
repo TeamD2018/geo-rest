@@ -27,7 +27,6 @@ Courier:
   allOf:
   - $ref: '#/CourierBase'
   required:
-  - id
   - name
   - phone
 
@@ -43,6 +42,7 @@ OrderBase:
       description: Courier id
       type: integer
       format: int64
+      readOnly: true
     created:
       description: Order creation time in UTC format(ms)
       type: integer
@@ -62,8 +62,6 @@ Order:
   allOf:
   - $ref: '#/OrderBase'
   required:
-  - id
-  - courier_id
   - destination
   - source
 
