@@ -10,7 +10,7 @@ echo "Deploying to $SERVER_IP"
 
 echo "Setting up ssh..."
 eval "$(ssh-agent -s)"
-ssh-keyscan -H SWARM_MANAGER_IP >> ~/.ssh/known_hosts
+ssh-keyscan -H $SWARM_MANAGER_IP >> ~/.ssh/known_hosts
 chmod 600 travis_key
 ssh-add travis_key
 
