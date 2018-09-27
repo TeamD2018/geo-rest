@@ -15,8 +15,10 @@ jobs:
     services:
     - docker
     install:
-    - docker build -t swagger-ui-geo-rest -f Dockerfile.swagger-ui .
-    - docker build -t geo-rest -f Dockerfile .
+    - docker pull teamd2018/swagger-ui-geo-rest:latest
+    - docker build -t swagger-ui-geo-rest -f Dockerfile.swagger-ui --cache-from teamd2018/swagger-ui-geo-rest:latest .
+    - docker pull teamd2018/geo-rest:latest
+    - docker build -t geo-rest -f Dockerfile --cache-from teamd2018/geo-rest:latest .
     deploy:
     - provider: script
       skip_cleanup: true
