@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 SWARM_MANAGER_IP=$1
 DEPLOY_USER=travis
 
