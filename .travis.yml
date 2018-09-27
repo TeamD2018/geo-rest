@@ -16,6 +16,7 @@ jobs:
     - docker
     install:
     - docker build -t swagger-ui-geo-rest -f Dockerfile.swagger-ui .
+    - docker build -t geo-rest -f Dockerfile .
     deploy:
     - provider: script
       skip_cleanup: true
