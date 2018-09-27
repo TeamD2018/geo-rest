@@ -9,3 +9,11 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+  elastic:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    ports:
+      - 9200:9200
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
