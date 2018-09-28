@@ -10,6 +10,9 @@ jobs:
     - cd api/
     script:
     - swagger-cli validate api.yaml
+    cache:
+      directories:
+      - node_modules
 
   - stage: test
     language: go
@@ -18,6 +21,10 @@ jobs:
     env:
     - GO111MODULE=on
     script: go test
+    cache:
+      directories:
+      - $HOME/.cache/go-build
+      - $GOPATH/pkg/mod
 
   - stage: build docker images
     install:
