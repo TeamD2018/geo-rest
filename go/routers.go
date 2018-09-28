@@ -10,10 +10,8 @@
 package openapi
 
 import (
-	"net/http"
-	"strings"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 // Route is the information for every URI.
@@ -58,77 +56,77 @@ func Index(c *gin.Context) {
 var routes = Routes{
 	{
 		"Index",
-		"GET",
+		http.MethodGet,
 		"/",
 		Index,
 	},
 
 	{
 		"CourierCourierIdOrdersGet",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/courier/{courier_id}/orders",
 		CourierCourierIdOrdersGet,
 	},
 
 	{
 		"CouriersCourierIdDelete",
-		strings.ToUpper("Delete"),
+		http.MethodDelete,
 		"/couriers/{courier_id}",
 		CouriersCourierIdDelete,
 	},
 
 	{
 		"CouriersCourierIdGet",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/couriers/{courier_id}",
 		CouriersCourierIdGet,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdDelete",
-		strings.ToUpper("Delete"),
+		http.MethodDelete,
 		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdDelete,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdPatch",
-		strings.ToUpper("Patch"),
+		http.MethodPatch,
 		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdPatch,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdPost",
-		strings.ToUpper("Post"),
+		http.MethodPost,
 		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdPost,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdPut",
-		strings.ToUpper("Put"),
+		http.MethodPut,
 		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdPut,
 	},
 
 	{
 		"CouriersCourierIdPut",
-		strings.ToUpper("Put"),
+		http.MethodPut,
 		"/couriers/{courier_id}",
 		CouriersCourierIdPut,
 	},
 
 	{
 		"CouriersGet",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/couriers",
 		CouriersGet,
 	},
 
 	{
 		"CouriersPost",
-		strings.ToUpper("Post"),
+		http.MethodPost,
 		"/couriers",
 		CouriersPost,
 	},
