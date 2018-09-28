@@ -46,8 +46,8 @@ jobs:
     install:
     - docker pull teamd2018/swagger-ui-geo-rest:latest
     script:
-    - docker build -t $DOCKERHUB_OWNER/swagger-ui-geo-rest:$TRAVIS_PULL_REQUEST -f Dockerfile.swagger-ui --cache-from teamd2018/swagger-ui-geo-rest:latest .
-    - docker tag $DOCKERHUB_OWNER/swagger-ui-geo-rest:$TRAVIS_PULL_REQUEST $DOCKERHUB_OWNER/swagger-ui-geo-rest:latest
+    - docker build -t $DOCKERHUB_OWNER/swagger-ui-geo-rest:$TRAVIS_COMMIT -f Dockerfile.swagger-ui --cache-from teamd2018/swagger-ui-geo-rest:latest .
+    - docker tag $DOCKERHUB_OWNER/swagger-ui-geo-rest:$TRAVIS_COMMIT $DOCKERHUB_OWNER/swagger-ui-geo-rest:latest
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_NAME" --password-stdin
     - docker push $DOCKERHUB_OWNER/swagger-ui-geo-rest
 
@@ -58,8 +58,8 @@ jobs:
     install:
     - docker pull teamd2018/geo-rest:latest
     script:
-    - docker build -t $DOCKERHUB_OWNER/geo-rest:$TRAVIS_PULL_REQUEST -f Dockerfile --cache-from teamd2018/geo-rest:latest .
-    - docker tag $DOCKERHUB_OWNER/geo-rest:$TRAVIS_PULL_REQUEST $DOCKERHUB_OWNER/geo-rest:latest
+    - docker build -t $DOCKERHUB_OWNER/geo-rest:$TRAVIS_COMMIT -f Dockerfile --cache-from teamd2018/geo-rest:latest .
+    - docker tag $DOCKERHUB_OWNER/geo-rest:$TRAVIS_COMMIT $DOCKERHUB_OWNER/geo-rest:latest
     - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_NAME" --password-stdin
     - docker push $DOCKERHUB_OWNER/geo-rest
 
