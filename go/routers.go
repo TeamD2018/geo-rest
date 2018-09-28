@@ -34,13 +34,13 @@ func NewRouter() *gin.Engine {
 	router := gin.Default()
 	for _, route := range routes {
 		switch route.Method {
-		case "GET":
+		case http.MethodGet:
 			router.GET(route.Pattern, route.HandlerFunc)
-		case "POST":
+		case http.MethodPost:
 			router.POST(route.Pattern, route.HandlerFunc)
-		case "PUT":
+		case http.MethodPut:
 			router.PUT(route.Pattern, route.HandlerFunc)
-		case "DELETE":
+		case http.MethodDelete:
 			router.DELETE(route.Pattern, route.HandlerFunc)
 		}
 	}
