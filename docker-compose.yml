@@ -13,6 +13,11 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
+    environment:
+      - http.cors.allow-origin="*"
+      - http.cors.enabled=true
+      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization,Access-Control-Request-Method,Access-Control-Request-Headers
+      - http.cors.allow-credentials=true
     deploy:
       replicas: 1
       restart_policy:
@@ -29,6 +34,22 @@ services:
     image: appbaseio/dejavu:2.0.0
     ports:
       - 1358:1358
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  tarantool:
+    image: tarantool/tarantool:2
+    ports:
+      - 3301:3301
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  tarantool-admin:
+    image: quay.io/basis-company/tarantool-admin
+    ports:
+      - 3310:80
     deploy:
       replicas: 1
       restart_policy:
