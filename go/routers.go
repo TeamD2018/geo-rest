@@ -59,77 +59,77 @@ var routes = Routes{
 	{
 		"Index",
 		"GET",
-		"/oleggator/delivery-club-courier-monitor/0.0.1/",
+		"/",
 		Index,
 	},
 
 	{
 		"CourierCourierIdOrdersGet",
 		strings.ToUpper("Get"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/courier/{courier_id}/orders",
+		"/courier/{courier_id}/orders",
 		CourierCourierIdOrdersGet,
 	},
 
 	{
 		"CouriersCourierIdDelete",
 		strings.ToUpper("Delete"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers/{courier_id}",
+		"/couriers/{courier_id}",
 		CouriersCourierIdDelete,
 	},
 
 	{
 		"CouriersCourierIdGet",
 		strings.ToUpper("Get"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers/{courier_id}",
+		"/couriers/{courier_id}",
 		CouriersCourierIdGet,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdDelete",
 		strings.ToUpper("Delete"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers/{courier_id}/orders/{order_id}",
+		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdDelete,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdPatch",
 		strings.ToUpper("Patch"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers/{courier_id}/orders/{order_id}",
+		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdPatch,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdPost",
 		strings.ToUpper("Post"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers/{courier_id}/orders/{order_id}",
+		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdPost,
 	},
 
 	{
 		"CouriersCourierIdOrdersOrderIdPut",
 		strings.ToUpper("Put"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers/{courier_id}/orders/{order_id}",
+		"/couriers/{courier_id}/orders/{order_id}",
 		CouriersCourierIdOrdersOrderIdPut,
 	},
 
 	{
 		"CouriersCourierIdPut",
 		strings.ToUpper("Put"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers/{courier_id}",
+		"/couriers/{courier_id}",
 		CouriersCourierIdPut,
 	},
 
 	{
 		"CouriersGet",
 		strings.ToUpper("Get"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers",
+		"/couriers",
 		CouriersGet,
 	},
 
 	{
 		"CouriersPost",
 		strings.ToUpper("Post"),
-		"/oleggator/delivery-club-courier-monitor/0.0.1/couriers",
+		"/couriers",
 		CouriersPost,
 	},
 }
