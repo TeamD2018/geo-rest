@@ -40,6 +40,9 @@ jobs:
       ./bin/golangci-lint run
 
   - stage: build docker images
+    language: minimal
+    services:
+    - docker
     install:
     - docker pull teamd2018/swagger-ui-geo-rest:latest
     script:
@@ -49,6 +52,9 @@ jobs:
     - docker push $DOCKERHUB_OWNER/swagger-ui-geo-rest
 
   - stage: build docker images
+    language: minimal
+    services:
+    - docker
     install:
     - docker pull teamd2018/geo-rest:latest
     script:
