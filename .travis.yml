@@ -26,6 +26,12 @@ jobs:
       - $HOME/.cache/go-build
       - $GOPATH/pkg/mod
 
+  - stage: test
+    install:
+      curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s v1.10.2
+    script:
+      ./bin/golangci-lint run
+
   - stage: build docker images
     install:
     - docker pull teamd2018/swagger-ui-geo-rest:latest
