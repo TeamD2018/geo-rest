@@ -4,8 +4,13 @@ DEPLOY_USER=travis
 
 echo "Deploying to DockerHub"
 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_NAME" --password-stdin
-docker tag swagger-ui-geo-rest $DOCKERHUB_NAME/swagger-ui-geo-rest
-docker push $DOCKERHUB_NAME/swagger-ui-geo-rest
+
+docker tag swagger-ui-geo-rest $DOCKERHUB_OWNER/swagger-ui-geo-rest
+docker push $DOCKERHUB_OWNER/swagger-ui-geo-rest
+
+docker tag geo-rest $DOCKERHUB_OWNER/geo-rest
+docker push $DOCKERHUB_OWNER/geo-rest
+
 
 echo "Deploying to $SERVER_IP"
 
