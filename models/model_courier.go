@@ -4,7 +4,7 @@ package models
 type Courier struct {
 	ID string `json:"id"`
 
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	Location *Location `json:"location,omitempty"`
 
