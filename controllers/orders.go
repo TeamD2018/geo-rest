@@ -88,3 +88,18 @@ func (api *APIService) DeleteOrder(ctx *gin.Context) {
 	}
 	ctx.Status(http.StatusNoContent)
 }
+
+func (api *APIService) CreateCourier(ctx *gin.Context) {
+	courier := &models.CourierCreate{}
+	if err := ctx.ShouldBind(&courier); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		return
+	}
+	if res, err := api.CouriersDAO.Create(courier); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
+		return
+	} else {
+		ctx.JSON(http.StatusCreated, res)
+		return
+	}
+}
