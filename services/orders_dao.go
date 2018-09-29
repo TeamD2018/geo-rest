@@ -6,6 +6,7 @@ import (
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 	"time"
 )
 
@@ -14,15 +15,17 @@ const OrdersIndex = "order"
 type OrdersElasticDAO struct {
 	Elastic *elastic.Client
 	Index   string
+	Logger  *zap.Logger
 }
 
-func NewOrdersElasticDAO(client *elastic.Client, index string) *OrdersElasticDAO {
+func NewOrdersElasticDAO(client *elastic.Client, logger *zap.Logger, index string) *OrdersElasticDAO {
 	if index == "" {
 		index = OrdersIndex
 	}
 	return &OrdersElasticDAO{
 		Elastic: client,
 		Index:   index,
+		Logger:  logger,
 	}
 }
 
@@ -35,6 +38,7 @@ func (od *OrdersElasticDAO) Get(orderID string) (*models.Order, error) {
 
 	var order models.Order
 	if err != nil {
+
 		return nil, err
 	}
 	json.Unmarshal(*orderRaw.Source, &order)
@@ -61,13 +65,16 @@ func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Ord
 
 func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, error) {
 	db := od.Elastic
+	id := *update.ID
+	update.ID = nil
 	orderRaw, err := db.Update().
 		Index(od.Index).
-		Id(*update.ID).
+		Id(id).
 		Doc(*update).
 		FetchSource(true).
 		Do(context.Background())
 	if err != nil {
+		od.Logger.Sugar().Errorw("order update failed", *update)
 		return nil, err
 	}
 	var order models.Order
