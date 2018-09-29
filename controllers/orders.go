@@ -135,3 +135,15 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 		return
 	}
 }
+
+func (api *APIService) DeleteCourier(ctx *gin.Context) {
+	courierID := ctx.Param("courier_id")
+	if _, err := uuid.FromString(courierID); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		return
+	}
+	if err := api.CouriersDAO.Delete(courierID); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
+	}
+	ctx.Status(http.StatusNoContent)
+}
