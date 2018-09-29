@@ -13,6 +13,7 @@ require (
 	github.com/olivere/elastic v6.2.7+incompatible // indirect
 	github.com/pkg/errors v0.8.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ugorji/go/codec v0.0.0-20180927125128-99ea80c8b19a // indirect
 	golang.org/x/net v0.0.0-20180926154720-4dfa2610cdf3 // indirect
