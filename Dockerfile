@@ -5,9 +5,9 @@ COPY . .
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 
-RUN go build -a -installsuffix cgo -tags=jsoniter -o openapi .
+RUN go build -a -installsuffix cgo -tags=jsoniter -o geo-rest .
 
 FROM scratch AS runtime
-COPY --from=build . ./
+COPY --from=build geo-rest ./
 EXPOSE 8080/tcp
 ENTRYPOINT ["./openapi"]
