@@ -18,9 +18,11 @@ jobs:
     language: go
     go:
     - '1.11'
+    services:
+    - docker
     env:
     - GO111MODULE=on
-    script: go test
+    script: go test ...
     cache:
       directories:
       - $HOME/.cache/go-build

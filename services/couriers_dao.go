@@ -105,8 +105,29 @@ func (c *CouriersElasticDAO) Delete(courierID string) error {
 	return nil
 }
 
-func (cd *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {
-	return "courier", `{
+func (c *CouriersElasticDAO) EnsureMapping() error {
+	indexName, mapping := c.GetMapping()
+
+	ctx := context.Background()
+	exists, err := c.client.IndexExists(indexName).Do(ctx)
+	if err != nil {
+		c.l.Sugar().Error(err)
+		return err
+	}
+
+	if exists == false {
+		_, err := c.client.CreateIndex(indexName).BodyString(mapping).Do(ctx)
+		if err != nil {
+			c.l.Sugar().Error(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (c *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {
+	return c.index, `{
 		"mappings": {
 			"_doc": {
 				"properties": {

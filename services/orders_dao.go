@@ -124,8 +124,29 @@ func (od *OrdersElasticDAO) GetOrdersForCourier(courierID string, since int64, a
 
 }
 
+func (od *OrdersElasticDAO) EnsureMapping() error {
+	indexName, mapping := od.GetMapping()
+
+	ctx := context.Background()
+	exists, err := od.Elastic.IndexExists(indexName).Do(ctx)
+	if err != nil {
+		od.Logger.Sugar().Error(err)
+		return err
+	}
+
+	if exists == false {
+		_, err := od.Elastic.CreateIndex(indexName).BodyString(mapping).Do(ctx)
+		if err != nil {
+			od.Logger.Sugar().Error(err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
-	return "order", `{
+	return od.Index, `{
 		"mappings": {
 			"_doc": {
 				"properties": {
