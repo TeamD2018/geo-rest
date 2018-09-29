@@ -13,7 +13,7 @@ services:
     ports:
       - 9200:9200
       - 9300:9300
-    command: elasticsearch -Ecluster.name=catalog -Ebootstrap.memory_lock=true -Ehttp.port=9200 -Ehttp.cors.allow-origin="http://35.204.198.186:1358" -Ehttp.cors.enabled=true -Ehttp.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization -Ehttp.cors.allow-credentials=true -Ediscovery.zen.unicast.hosts=elasticsearch
+    command: elasticsearch -Ehttp.port=9200 -Ehttp.cors.allow-origin="http://35.204.198.186:1358" -Ehttp.cors.enabled=true -Ehttp.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization -Ehttp.cors.allow-credentials=true
     deploy:
       replicas: 1
       restart_policy:
