@@ -1,4 +1,4 @@
-package openapi
+package models
 
 // Location - Geo-point (longitude, latitude)
 type Location struct {

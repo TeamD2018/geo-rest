@@ -1,4 +1,4 @@
-package openapi
+package models
 
 // OrderBase - Basic courier fields
 type OrderBase struct {

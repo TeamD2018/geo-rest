@@ -1,4 +1,4 @@
-package openapi
+package models
 
 // CourierBase - Basic courier properties
 type CourierBase struct {

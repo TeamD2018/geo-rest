@@ -1,4 +1,4 @@
-package openapi
+package models
 
 // Order - Strict order schema
 type Order struct {

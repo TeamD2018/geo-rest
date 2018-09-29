@@ -1,4 +1,4 @@
-package openapi
+package models
 
 // Courier - Strict courier schema
 type Courier struct {
