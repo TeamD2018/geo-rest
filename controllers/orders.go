@@ -103,3 +103,18 @@ func (api *APIService) CreateCourier(ctx *gin.Context) {
 		return
 	}
 }
+
+func (api *APIService) GetCourierByID(ctx *gin.Context) {
+	courierID := ctx.Param("courier_id")
+	if _, err := uuid.FromString(courierID); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, models.EntityNotFound)
+		return
+	}
+	if courier, err := api.CouriersDAO.GetByID(courierID); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, models.EntityNotFound)
+		return
+	} else {
+		ctx.JSON(http.StatusOK, courier)
+		return
+	}
+}
