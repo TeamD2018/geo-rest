@@ -118,3 +118,18 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 		return
 	}
 }
+
+func (api *APIService) UpdateCourier(ctx *gin.Context) {
+	courier := &models.CourierUpdate{}
+	if err := ctx.ShouldBind(courier); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		return
+	}
+	if updated, err := api.CouriersDAO.Update(courier); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
+		return
+	} else {
+		ctx.JSON(http.StatusOK, updated)
+		return
+	}
+}
