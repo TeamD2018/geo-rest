@@ -7,4 +7,5 @@ type IOrdersDao interface {
 	Create(order *models.OrderCreate) (*models.Order, error)
 	Update(order *models.OrderUpdate) (*models.Order, error)
 	Delete(orderID string) error
+	GetOrdersForCourier(courierID string, since int64, asc bool) (models.Orders, error)
 }

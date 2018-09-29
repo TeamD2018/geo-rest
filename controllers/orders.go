@@ -90,3 +90,20 @@ func (api *APIService) DeleteOrder(ctx *gin.Context) {
 	}
 	ctx.Status(http.StatusNoContent)
 }
+
+func (api *APIService) GetOrdersForCourier(ctx *gin.Context) {
+	courierID := ctx.Param("courier_id")
+	_, err := uuid.FromString(courierID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		return
+	}
+	asc := ctx.Query("asc")
+
+	orders, err := api.OrdersDAO.GetOrdersForCourier(courierID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusNotFound, models.EntityNotFound)
+		return
+	}
+	ctx.JSON(http.StatusOK, orders)
+}

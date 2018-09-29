@@ -98,6 +98,32 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 	return nil
 }
 
+func (od *OrdersElasticDAO) GetOrdersForCourier(courierID string, since int64, asc bool) (models.Orders, error) {
+	db := od.Elastic
+	courierIDQuery := elastic.NewTermsQuery("courier_id", courierID)
+	var sinceRangeQuery elastic.Query
+	if asc {
+		sinceRangeQuery = elastic.NewRangeQuery("created_at").Gt(since)
+	} else {
+		sinceRangeQuery = elastic.NewRangeQuery("created_at").Lt(since)
+	}
+	ordersQuery := elastic.NewBoolQuery().Must(courierIDQuery, sinceRangeQuery)
+	res, err := db.Search(od.Index).Query(ordersQuery).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	orders := make(models.Orders, res.Hits.TotalHits)
+	for _, hit := range res.Hits.Hits {
+		var order models.Order
+		if err := json.Unmarshal(*hit.Source, &order); err != nil {
+			return nil, err
+		}
+		orders = append(orders, &order)
+	}
+	return orders, nil
+
+}
+
 func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
 	return "order", `{
 		"mappings": {
