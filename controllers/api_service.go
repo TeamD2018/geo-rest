@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type ApiService struct {
+type APIService struct {
 	OrdersDAO interfaces.IOrdersDao
 	Logger    *zap.Logger
 }

@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (api *ApiService) GetOrder(ctx *gin.Context) {
+func (api *APIService) GetOrder(ctx *gin.Context) {
 	orderID := ctx.Param("order_id")
 	_, err := uuid.FromString(orderID)
 	if err != nil {
@@ -22,7 +22,7 @@ func (api *ApiService) GetOrder(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, order)
 }
 
-func (api *ApiService) UpdateOrder(ctx *gin.Context) {
+func (api *APIService) UpdateOrder(ctx *gin.Context) {
 	orderID := ctx.Param("order_id")
 	_, err := uuid.FromString(orderID)
 	if err != nil {
@@ -44,7 +44,7 @@ func (api *ApiService) UpdateOrder(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, created)
 }
 
-func (api *ApiService) CreateOrder(ctx *gin.Context) {
+func (api *APIService) CreateOrder(ctx *gin.Context) {
 	orderID := ctx.Param("order_id")
 	_, err := uuid.FromString(orderID)
 	if err != nil {
@@ -65,7 +65,7 @@ func (api *ApiService) CreateOrder(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, created)
 }
 
-func (api *ApiService) DeleteOrder(ctx *gin.Context) {
+func (api *APIService) DeleteOrder(ctx *gin.Context) {
 	orderID := ctx.Param("order_id")
 	_, err := uuid.FromString(orderID)
 	if err != nil {
