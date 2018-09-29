@@ -29,6 +29,7 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
 		return
 	}
+
 	var order models.OrderUpdate
 
 	if err := ctx.ShouldBind(&order); err != nil {
@@ -36,6 +37,7 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		return
 	}
 	order.ID = &orderID
+	order.CourierID = nil
 	created, err := api.OrdersDAO.Update(&order)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
