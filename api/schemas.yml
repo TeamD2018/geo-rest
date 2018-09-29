@@ -114,8 +114,8 @@ Circle:
       format: float
       example: 500
   required:
-    - center
-    - radius
+  - center
+  - radius
 
 
 Box:
@@ -128,8 +128,8 @@ Box:
     top_left:
       $ref: '#/Location'
   required:
-    - bottom_right
-    - top_left
+  - bottom_right
+  - top_left
 
 Zone:
   type: object
