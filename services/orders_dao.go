@@ -97,3 +97,43 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 	}
 	return nil
 }
+
+func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
+	return "order", `{
+		"mappings": {
+			"_doc": {
+				"properties": {
+					"courier_id": {
+						"type": "keyword"
+					},
+					"created_at": {
+						"type": "long"
+					},
+					"delivered_at": {
+						"type": "long"
+					},
+					"destination": {
+						"properties": {
+							"geo_point": {
+								"type": "geo_point"
+							},
+							"address": {
+								"type": "completion"
+							}
+						}
+					},
+					"source": {
+						"properties": {
+							"geo_point": {
+								"type": "geo_point"
+							},
+							"address": {
+								"type": "completion"
+							}
+						}
+					}
+				}	
+			}
+		}		
+	}`
+}

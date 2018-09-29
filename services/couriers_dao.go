@@ -99,3 +99,35 @@ func (c *CouriersElasticDAO) Delete(courierID string) error {
 	c.l.Sugar().Debug(zap.Any("res", res))
 	return nil
 }
+
+func (cd *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {
+	return "courier", `{
+		"mappings": {
+			"_doc": {
+				"properties": {
+					"name": {
+						"type": "keyword"
+					},
+					"location": {
+						"properties": {
+							"geo_point": {
+								"type": "geo_point"
+							},
+							"address": {
+								"type": "completion"
+							}
+						}
+					},
+					"phone": {
+						"type": "keyword",
+						"index": false
+					},
+					"last_seen": {
+						"type": "long",
+						"index": false
+					}
+				}
+			}
+		}		
+	}`
+}
