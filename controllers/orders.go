@@ -59,6 +59,22 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, created)
 }
 
+func (api *APIService) AssignNewCourier(ctx *gin.Context) {
+	courierID := ctx.Param("courier_id")
+	orderID := ctx.Param("order_id")
+	_, err := uuid.FromString(orderID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		return
+	}
+	updated, err := api.OrdersDAO.Update(&models.OrderUpdate{CourierID: &courierID})
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
+		return
+	}
+	ctx.JSON(http.StatusOK, updated)
+}
+
 func (api *APIService) DeleteOrder(ctx *gin.Context) {
 	orderID := ctx.Param("order_id")
 	_, err := uuid.FromString(orderID)
