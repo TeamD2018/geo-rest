@@ -1,4 +1,4 @@
-package models
+package interfaces
 
 type Mapper interface {
 	GetMapping() (indexName string, mapping string)
