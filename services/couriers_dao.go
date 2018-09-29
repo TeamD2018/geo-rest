@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
+	"time"
 )
 
 const CourierIndex = "couriers"
@@ -72,6 +73,10 @@ func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Cour
 func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Courier, error) {
 	id := *courier.ID
 	courier.ID = nil
+	if courier.Location != nil {
+		now := time.Now().Unix()
+		courier.LastSeen = &now
+	}
 	res, err := c.client.Update().
 		Index(c.index).
 		Id(id).
