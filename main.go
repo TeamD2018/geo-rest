@@ -28,5 +28,7 @@ func main() {
 	router.PUT("/couriers/:courier_id/orders/:order_id", api.UpdateOrder)
 	router.PATCH("/couriers/:courier_id/orders/:order_id", api.AssignNewCourier)
 	router.DELETE("/couriers/:courier_id/orders/:order_id", api.DeleteOrder)
-	router.Run(":8080")
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal(err)
+	}
 }
