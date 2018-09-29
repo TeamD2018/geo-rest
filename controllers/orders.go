@@ -45,12 +45,6 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 }
 
 func (api *APIService) CreateOrder(ctx *gin.Context) {
-	orderID := ctx.Param("order_id")
-	_, err := uuid.FromString(orderID)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
-		return
-	}
 	courierID := ctx.Param("courier_id")
 	var order models.OrderCreate
 	if err := ctx.ShouldBind(&order); err != nil {
