@@ -41,7 +41,9 @@ func (od *OrdersElasticDAO) Get(orderID string) (*models.Order, error) {
 
 		return nil, err
 	}
-	json.Unmarshal(*orderRaw.Source, &order)
+	if err := json.Unmarshal(*orderRaw.Source, &order); err != nil {
+		return nil, err
+	}
 	return &order, nil
 }
 
@@ -78,7 +80,9 @@ func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, e
 		return nil, err
 	}
 	var order models.Order
-	json.Unmarshal(*orderRaw.GetResult.Source, &order)
+	if err := json.Unmarshal(*orderRaw.GetResult.Source, &order); err != nil {
+		return nil, err
+	}
 	return &order, nil
 }
 
