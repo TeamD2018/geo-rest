@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/TeamD2018/geo-rest/controllers/parameters"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
@@ -98,9 +99,12 @@ func (api *APIService) GetOrdersForCourier(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
 		return
 	}
-	asc := ctx.Query("asc")
-
-	orders, err := api.OrdersDAO.GetOrdersForCourier(courierID)
+	var params parameters.GetOrdersForCourierParams
+	if err := ctx.ShouldBindQuery(&params); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		return
+	}
+	orders, err := api.OrdersDAO.GetOrdersForCourier(courierID, params.Since, params.Asc)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, models.EntityNotFound)
 		return
