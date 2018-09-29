@@ -1,6 +1,7 @@
 package models
 
 type CourierUpdate struct {
+	ID       *string   `json:"id"`
 	Name     *string   `json:"name"`
 	Location *Location `json:"location"`
 	Phone    *string   `json:"phone"`
@@ -8,6 +9,6 @@ type CourierUpdate struct {
 }
 
 type CourierCreate struct {
-	Name     string    `json:"name",binding:"required"`
-	Phone    *string   `json:"phone"`
+	Name  string  `json:"name",binding:"required"`
+	Phone *string `json:"phone"`
 }

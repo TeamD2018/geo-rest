@@ -1,5 +1,7 @@
 package models
 
+import "github.com/olivere/elastic"
+
 // Location - Geo-point (longitude, latitude)
 type GeoPoint struct {
 	// Latitude
@@ -11,8 +13,8 @@ type GeoPoint struct {
 
 type Location struct {
 	//Geopoint for location
-	GeoPoint *GeoPoint `json:"point"`
+	GeoPoint *elastic.GeoPoint `json:"point"`
 
 	//Address for location
-	Address *string `json:"address"`
+	Address *string `json:"address,omitempty"`
 }
