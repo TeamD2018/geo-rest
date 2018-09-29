@@ -30,6 +30,7 @@ func main() {
 	g.PUT("/:courier_id/orders/:order_id", api.UpdateOrder)
 	g.PATCH("/:courier_id/orders/:order_id", api.AssignNewCourier)
 	g.DELETE("/:courier_id/orders/:order_id", api.DeleteOrder)
+	g.GET("/:courier_id/orders", api.GetOrdersForCourier)
 
 	//couriers endpoints
 	g.POST("/", api.CreateCourier)
