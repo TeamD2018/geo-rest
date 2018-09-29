@@ -23,11 +23,20 @@ func main() {
 		Logger:    logger,
 	}
 	router := gin.Default()
-	router.POST("/couriers/:courier_id/orders", api.CreateOrder)
-	router.GET("/couriers/:courier_id/orders/:order_id", api.GetOrder)
-	router.PUT("/couriers/:courier_id/orders/:order_id", api.UpdateOrder)
-	router.PATCH("/couriers/:courier_id/orders/:order_id", api.AssignNewCourier)
-	router.DELETE("/couriers/:courier_id/orders/:order_id", api.DeleteOrder)
+	g := router.Group(`/couriers`)
+	//orders endpoints
+	g.POST("/:courier_id/orders", api.CreateOrder)
+	g.GET("/:courier_id/orders/:order_id", api.GetOrder)
+	g.PUT("/:courier_id/orders/:order_id", api.UpdateOrder)
+	g.PATCH("/:courier_id/orders/:order_id", api.AssignNewCourier)
+	g.DELETE("/:courier_id/orders/:order_id", api.DeleteOrder)
+
+	//couriers endpoints
+	g.POST("/", api.CreateCourier)
+	g.GET("/:courier_id", api.GetCourierByID)
+	g.PUT("/:courier_id", api.UpdateCourier)
+	g.DELETE("/:courier_id", api.DeleteCourier)
+
 	if err := router.Run(":8080"); err != nil {
 		log.Fatal(err)
 	}
