@@ -1,4 +1,3 @@
 package models
 
-type Couriers struct {
-}
+type Couriers []*Courier

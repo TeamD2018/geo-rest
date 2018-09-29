@@ -2,8 +2,7 @@ package models
 
 // Courier - Strict courier schema
 type Courier struct {
-
-	Id int64 `json:"id,omitempty"`
+	ID string `json:"id"`
 
 	Name string `json:"name,omitempty"`
 
@@ -13,5 +12,5 @@ type Courier struct {
 	Phone string `json:"phone,omitempty"`
 
 	// Time in UTC format(ms)
-	LastSeen int64 `json:"last_seen,omitempty"`
+	LastSeen *int64 `json:"last_seen,omitempty"`
 }

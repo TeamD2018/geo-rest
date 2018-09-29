@@ -1,11 +1,18 @@
 package models
 
 // Location - Geo-point (longitude, latitude)
-type Location struct {
-
+type GeoPoint struct {
 	// Latitude
 	Lat float32 `json:"lat"`
 
 	// Longitude
 	Lon float32 `json:"lon"`
+}
+
+type Location struct {
+	//Geopoint for location
+	GeoPoint *GeoPoint `json:"point"`
+
+	//Address for location
+	Address *string `json:"address"`
 }

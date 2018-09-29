@@ -2,20 +2,21 @@ package models
 
 // OrderBase - Basic courier fields
 type OrderBase struct {
-
 	// Order id
-	Id int64 `json:"id,omitempty"`
+	ID *string `json:"id,omitempty"`
 
 	// Courier id
-	CourierId int64 `json:"courier_id,omitempty"`
+	CourierID *string `json:"courier_id,omitempty"`
 
 	// Order creation time in UTC format(ms)
-	Created int64 `json:"created,omitempty"`
+	Created *int64 `json:"created,omitempty"`
 
 	// Order cancellation time in UTC format(ms)
-	Done int64 `json:"done,omitempty"`
+	EndTime *int64 `json:"end_time,omitempty"`
 
+	//Destination of order
 	Destination *Location `json:"destination,omitempty"`
 
-	Soruce *Location `json:"soruce,omitempty"`
+	//Source of order
+	Source *Location `json:"source,omitempty"`
 }

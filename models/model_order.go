@@ -3,18 +3,18 @@ package models
 // Order - Strict order schema
 type Order struct {
 	// Order id
-	Id int64 `json:"id,omitempty"`
+	ID string `json:"id"`
 
 	// Courier id
-	CourierId int64 `json:"courier_id,omitempty"`
+	CourierID string `json:"courier_id"`
 
 	// Order creation time in UTC format(ms)
 	Created int64 `json:"created,omitempty"`
 
 	// Order cancellation time in UTC format(ms)
-	Done int64 `json:"done,omitempty"`
+	EndTime int64 `json:"end_time"`
 
 	Destination *Location `json:"destination,omitempty"`
 
-	Soruce *Location `json:"soruce,omitempty"`
+	Source *Location `json:"source,omitempty"`
 }

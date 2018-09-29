@@ -1,4 +1,3 @@
 package models
 
-type Orders struct {
-}
+type Orders []*Order
