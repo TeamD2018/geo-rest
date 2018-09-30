@@ -14,19 +14,19 @@ jobs:
       directories:
       - node_modules
 
-  - stage: test
-    language: go
-    go:
-    - '1.11'
-    services:
-    - docker
-    env:
-    - GO111MODULE=on
-    script: go test ...
-    cache:
-      directories:
-      - $HOME/.cache/go-build
-      - $GOPATH/pkg/mod
+  # - stage: test
+  #   language: go
+  #   go:
+  #   - '1.11'
+  #   services:
+  #   - docker
+  #   env:
+  #   - GO111MODULE=on
+  #   script: go test ...
+  #   cache:
+  #     directories:
+  #     - $HOME/.cache/go-build
+  #     - $GOPATH/pkg/mod
 
   - stage: test
     env:
