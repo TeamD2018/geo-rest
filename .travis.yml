@@ -14,32 +14,32 @@ jobs:
       directories:
       - node_modules
 
-  # - stage: test
-  #   language: go
-  #   go:
-  #   - '1.11'
-  #   services:
-  #   - docker
-  #   env:
-  #   - GO111MODULE=on
-  #   script: go test ...
-  #   cache:
-  #     directories:
-  #     - $HOME/.cache/go-build
-  #     - $GOPATH/pkg/mod
-
   - stage: test
-    env:
-    - GO111MODULE=on
-    - GOFLAGS=-mod=vendor
     language: go
     go:
     - '1.11'
-    install:
-    - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s v1.10.2
-    - go mod vendor
-    script:
-      ./bin/golangci-lint run
+    services:
+    - docker
+    env:
+    - GO111MODULE=on
+    script: go test ./services
+    cache:
+      directories:
+      - $HOME/.cache/go-build
+      - $GOPATH/pkg/mod
+
+  # - stage: test
+  #   env:
+  #   - GO111MODULE=on
+  #   - GOFLAGS=-mod=vendor
+  #   language: go
+  #   go:
+  #   - '1.11'
+  #   install:
+  #   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s v1.10.2
+  #   - go mod vendor
+  #   script:
+  #     ./bin/golangci-lint run
 
   - stage: build docker images
     language: minimal
