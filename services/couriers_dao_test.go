@@ -7,7 +7,7 @@ import (
 )
 
 func TestCouriersElasticDAO_EnsureMapping(t *testing.T) {
-	c := NewCouriersDAO(client, CourierIndex)
+	c := NewCouriersDAO(client, CourierIndex, nil)
 
 	err := c.EnsureMapping()
 	assert.Nil(t, err)
