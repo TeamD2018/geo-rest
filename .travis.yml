@@ -22,8 +22,7 @@ jobs:
     - docker
     env:
     - GO111MODULE=on
-#    script: go test ...
-    script: go test ./services
+    script: go test ...
     cache:
       directories:
       - $HOME/.cache/go-build
