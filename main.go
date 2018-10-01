@@ -28,7 +28,7 @@ func main() {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://dc.utkin.xyz", "http://35.204.198.186"}
+	config.AllowOrigins = []string{"http://dc.utkin.xyz:8080", "http://35.204.198.186:8080"}
 	router.Use(cors.New(config))
 
 	g := router.Group(`/couriers`)
