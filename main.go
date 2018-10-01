@@ -41,7 +41,7 @@ func main() {
 	g.GET("/:courier_id/orders", api.GetOrdersForCourier)
 
 	//couriers endpoints
-	g.POST("/", api.CreateCourier)
+	g.POST("", api.CreateCourier)
 	g.GET("/:courier_id", api.GetCourierByID)
 	g.PUT("/:courier_id", api.UpdateCourier)
 	g.DELETE("/:courier_id", api.DeleteCourier)
