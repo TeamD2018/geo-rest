@@ -8,12 +8,12 @@ import (
 )
 
 func (api *APIService) CreateCourier(ctx *gin.Context) {
-	courier := &models.CourierCreate{}
+	var courier models.CourierCreate
 	if err := ctx.BindJSON(&courier); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
 		return
 	}
-	if res, err := api.CouriersDAO.Create(courier); err != nil {
+	if res, err := api.CouriersDAO.Create(&courier); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
 		return
 	} else {
