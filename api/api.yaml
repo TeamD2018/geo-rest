@@ -39,4 +39,4 @@ components:
 
 servers:
 - description: SwaggerHub API Auto Mocking
-  url: https://virtserver.swaggerhub.com/oleggator/delivery-club-courier-monitor/0.0.1
+  url: http://dc.utkin.xyz:8081
