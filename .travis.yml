@@ -21,7 +21,7 @@ jobs:
     - '1.11'
     env:
     - GO111MODULE=on
-    script: go test ./services -v
+    script: go test ./services ./controllers -v
     cache:
       directories:
       - $HOME/.cache/go-build
