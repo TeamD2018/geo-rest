@@ -19,9 +19,12 @@ type CouriersElasticDAO struct {
 	l      *zap.Logger
 }
 
-func NewCouriersDAO(client *elastic.Client, index string, logger *zap.Logger) *CouriersElasticDAO {
+func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index string) *CouriersElasticDAO {
 	if logger == nil {
 		logger, _ = zap.NewDevelopment()
+	}
+	if index == "" {
+		index = CourierIndex
 	}
 	return &CouriersElasticDAO{client: client, index: index, l: logger}
 }

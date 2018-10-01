@@ -19,8 +19,9 @@ func main() {
 		log.Fatal(err)
 	}
 	api := controllers.APIService{
-		OrdersDAO: services.NewOrdersElasticDAO(elasticClient, logger, ""),
-		Logger:    logger,
+		OrdersDAO:   services.NewOrdersElasticDAO(elasticClient, logger, ""),
+		CouriersDAO: services.NewCouriersElasticDAO(elasticClient, logger, ""),
+		Logger:      logger,
 	}
 	router := gin.Default()
 	g := router.Group(`/couriers`)
