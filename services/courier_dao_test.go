@@ -30,10 +30,12 @@ var (
 	testsWithCreateIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
 		"TestCreateCourierWithName",
+		"TestGetCourierByID",
 	}
 	testsWithDeleteIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
 		"TestCreateCourierWithName",
+		"TestGetCourierByID",
 		"TestCouriersElasticDAO_EnsureMapping",
 	}
 )
@@ -167,7 +169,7 @@ func (s *CourierTestSuite) TestCouriersElasticDAO_EnsureMapping() {
 	s.Assert().True(exists)
 }
 
-func (s *CourierTestSuite) TestGetCourierByName() {
+func (s *CourierTestSuite) TestGetCourierByID() {
 	service := s.GetService()
 	name := "Vasya"
 	courier := &models.CourierCreate{
@@ -175,8 +177,10 @@ func (s *CourierTestSuite) TestGetCourierByName() {
 	}
 	id := s.CreateCourier(courier)
 	res, err := service.GetByID(id)
-	s.Assert().NoError(err)
-	s.Assert().Equal(name, res.Name)
+	if !s.NoError(err) {
+		s.Assert().FailNowf("error", "error: %s", err)
+	}
+ 	s.Assert().Equal(name, res.Name)
 }
 
 func TestIntegrationCouriersDAO(t *testing.T) {

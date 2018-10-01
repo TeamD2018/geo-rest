@@ -30,7 +30,7 @@ func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index str
 }
 
 func (c *CouriersElasticDAO) GetByID(courierID string) (*models.Courier, error) {
-	res, err := c.client.Get().Index(c.index).Type("_doc").Do(context.Background())
+	res, err := c.client.Get().Index(c.index).Type("_doc").Id(courierID).Do(context.Background())
 	if err != nil {
 		c.l.Sugar().Error(zap.Error(err))
 		return nil, err
