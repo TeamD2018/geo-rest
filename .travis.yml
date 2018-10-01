@@ -101,8 +101,6 @@ jobs:
 
   - stage: deploy
     language: bash
-    services:
-    - docker
     deploy:
     - provider: script
       skip_cleanup: true
