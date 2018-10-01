@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/TeamD2018/geo-rest/controllers"
 	"github.com/TeamD2018/geo-rest/services"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
 	"go.uber.org/zap"
@@ -23,7 +24,13 @@ func main() {
 		CouriersDAO: services.NewCouriersElasticDAO(elasticClient, logger, ""),
 		Logger:      logger,
 	}
+
 	router := gin.Default()
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://dc.utkin.xyz", "http://35.204.198.186"}
+	router.Use(cors.New(config))
+
 	g := router.Group(`/couriers`)
 	//orders endpoints
 	g.POST("/:courier_id/orders", api.CreateOrder)
