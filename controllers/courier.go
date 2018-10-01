@@ -9,7 +9,7 @@ import (
 
 func (api *APIService) CreateCourier(ctx *gin.Context) {
 	courier := &models.CourierCreate{}
-	if err := ctx.ShouldBind(&courier); err != nil {
+	if err := ctx.BindJSON(&courier); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
 		return
 	}
@@ -39,7 +39,7 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 
 func (api *APIService) UpdateCourier(ctx *gin.Context) {
 	courier := &models.CourierUpdate{}
-	if err := ctx.ShouldBind(courier); err != nil {
+	if err := ctx.BindJSON(courier); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
 		return
 	}
