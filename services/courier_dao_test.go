@@ -159,6 +159,6 @@ func (s *CourierTestSuite) TestCouriersElasticDAO_EnsureMapping() {
 	s.Assert().True(exists)
 }
 
-func TestSimpleTestSuite(t *testing.T) {
+func TestIntegrationCouriersDAO(t *testing.T) {
 	suite.Run(t, new(CourierTestSuite))
 }

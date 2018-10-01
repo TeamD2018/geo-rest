@@ -15,14 +15,28 @@ jobs:
       - node_modules
 
   - stage: test
+    name: "Unit Tests"
     language: go
     go:
     - '1.11'
-    services:
-    - docker
     env:
     - GO111MODULE=on
-    script: go test -tags=elastic ./services -v
+    script: go test ./services -v
+    cache:
+      directories:
+      - $HOME/.cache/go-build
+      - $GOPATH/pkg/mod
+
+  - stage: test
+    name: "Integration Tests"
+    language: go
+    go:
+    - '1.11'
+    env:
+    - GO111MODULE=on
+    services:
+    - docker
+    script: go test -tags=elastic -run -run 'Integration' ./services -v
     cache:
       directories:
       - $HOME/.cache/go-build

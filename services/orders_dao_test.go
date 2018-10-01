@@ -1,3 +1,5 @@
+// +build elastic
+
 package services
 
 import (
@@ -70,6 +72,6 @@ func (s OrdersCreateSuite) TestOrdersElasticDAO_EnsureMapping() {
 	s.Assert().True(exists)
 }
 
-func TestOrdersCreateSuite(t *testing.T) {
+func TestIntegrationOrdersSuite(t *testing.T) {
 	suite.Run(t, new(OrdersCreateSuite))
 }
