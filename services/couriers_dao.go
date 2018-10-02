@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
-	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"time"
@@ -32,14 +31,17 @@ func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index str
 func (c *CouriersElasticDAO) GetByID(courierID string) (*models.Courier, error) {
 	res, err := c.client.Get().Index(c.index).Type("_doc").Id(courierID).Do(context.Background())
 	if err != nil {
-		c.l.Sugar().Error(zap.Error(err))
+		c.l.Sugar().Errorw("", zap.Error(err))
+		if err.(*elastic.Error).Status == 404 {
+			return nil, models.ErrCourierNotFound.SetParameter(courierID)
+		}
 		return nil, err
 	}
 	c.l.Sugar().Debug(res)
 	result := &models.Courier{}
 	if err := json.Unmarshal(*res.Source, &result); err != nil {
-		c.l.Sugar().Error(zap.Error(err))
-		return nil, errors.Errorf("error due to unmarshaling json: %s", err)
+		c.l.Sugar().Errorw("", zap.Error(err))
+		return nil, models.ErrUnmarshalJSON.SetParameter(err)
 	}
 	return result, nil
 }
@@ -69,10 +71,10 @@ func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Cour
 		BodyJson(m).
 		Do(context.Background())
 	if err != nil {
-		c.l.Sugar().Error(zap.Error(err))
+		c.l.Sugar().Errorw("", zap.Error(err))
 		return nil, err
 	}
-	c.l.Sugar().Debug(zap.Any("res", res))
+	c.l.Sugar().Debugw("", zap.Any("res", res))
 	return m, nil
 }
 
@@ -95,19 +97,23 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 	}
 	result := &models.Courier{}
 	if err := json.Unmarshal(*res.GetResult.Source, &result); err != nil {
-		c.l.Sugar().Error(zap.Error(err))
-		return nil, errors.New("error due to unmarshaling json")
+		c.l.Sugar().Errorw("", zap.Error(err))
+		return nil, models.ErrUnmarshalJSON.SetParameter(err)
 	}
+	c.l.Sugar().Debugw("", zap.Any("res", res))
 	return result, nil
 }
 
 func (c *CouriersElasticDAO) Delete(courierID string) error {
 	res, err := c.client.Delete().Index(c.index).Type("_doc").Do(context.Background())
 	if err != nil {
-		c.l.Sugar().Error(err)
+		if err.(*elastic.Error).Status == 404 {
+			return models.ErrCourierNotFound.SetParameter(courierID)
+		}
+		c.l.Sugar().Errorw("", zap.Error(err))
 		return err
 	}
-	c.l.Sugar().Debug(zap.Any("res", res))
+	c.l.Sugar().Debugw("", zap.Any("res", res))
 	return nil
 }
 
@@ -117,14 +123,14 @@ func (c *CouriersElasticDAO) EnsureMapping() error {
 	ctx := context.Background()
 	exists, err := c.client.IndexExists(indexName).Do(ctx)
 	if err != nil {
-		c.l.Sugar().Error(err)
+		c.l.Sugar().Errorw("", zap.Error(err))
 		return err
 	}
 
 	if exists == false {
 		_, err := c.client.CreateIndex(indexName).BodyString(mapping).Do(ctx)
 		if err != nil {
-			c.l.Sugar().Error(err)
+			c.l.Sugar().Errorw("", zap.Error(err))
 			return err
 		}
 	}
