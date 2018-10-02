@@ -10,7 +10,7 @@ chmod 600 travis_key
 ssh-add travis_key
 
 echo "Uploading..."
-scp -r docker-compose.yml $DEPLOY_USER@$SWARM_MANAGER_IP:/tmp/
+scp -P228 -r docker-compose.yml $DEPLOY_USER@$SWARM_MANAGER_IP:/tmp/
 
 echo "Pushing stack to swarm..."
-ssh $DEPLOY_USER@$SWARM_MANAGER_IP "docker stack deploy --compose-file /tmp/docker-compose.yml geo-rest"
+ssh -p228 $DEPLOY_USER@$SWARM_MANAGER_IP "docker stack deploy --compose-file /tmp/docker-compose.yml geo-rest"
