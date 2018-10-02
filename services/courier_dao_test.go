@@ -9,6 +9,7 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/ory/dockertest"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 	"log"
 	"testing"
 )
@@ -112,7 +113,7 @@ func (s *CourierTestSuite) SetupSuite() {
 }
 
 func (s *CourierTestSuite) GetService() *CouriersElasticDAO {
-	return NewCouriersElasticDAO(s.client, nil, "")
+	return NewCouriersElasticDAO(s.client, zap.NewNop(), "")
 }
 
 func (s *CourierTestSuite) ClearCouriersFromElastic(couriersIDs ...string) error {
