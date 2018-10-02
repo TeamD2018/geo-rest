@@ -32,18 +32,20 @@ var (
 		"TestCreateCourierWithNameAndPhone",
 		"TestCreateCourierWithName",
 		"TestGetCourierByIDOK",
-		"TestGetCourierByIDBadID",
+		"TestGetCourierByIDNoExistID",
 		"TestUpdateCourierWithoutLocationOK",
 		"TestUpdateCourierWithLocationOK",
+		"TestUpdateCourierNoExistID",
 		"TestGetCourierByID",
 	}
 	testsWithDeleteIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
 		"TestCreateCourierWithName",
 		"TestGetCourierByIDOK",
-		"TestGetCourierByIDBadID",
+		"TestGetCourierByIDNoExistID",
 		"TestUpdateCourierWithoutLocationOK",
 		"TestUpdateCourierWithLocationOK",
+		"TestUpdateCourierNoExistID",
 		"TestCouriersElasticDAO_EnsureMapping",
 	}
 )
@@ -193,7 +195,7 @@ func (s *CourierTestSuite) TestGetCourierByIDOK() {
 	s.Assert().Equal(name, res.Name)
 }
 
-func (s *CourierTestSuite) TestGetCourierByIDBadID() {
+func (s *CourierTestSuite) TestGetCourierByIDNoExistID() {
 	service := s.GetService()
 	id := "bad id"
 	res, err := service.GetByID(id)
@@ -222,6 +224,29 @@ func (s *CourierTestSuite) TestUpdateCourierWithoutLocationOK() {
 	s.Assert().IsType(&models.Courier{}, res)
 	s.Assert().Equal(name, res.Name)
 	s.Assert().Equal(phone, *res.Phone)
+}
+
+func (s *CourierTestSuite) TestUpdateCourierNoExistID() {
+	service := s.GetService()
+	name := "Vasya"
+	courier := &models.CourierCreate{
+		Name: name,
+	}
+	s.CreateCourier(courier)
+	phone := "79031234512"
+	name = "NewVasya"
+	id := "NoExistID"
+	courierUpd := &models.CourierUpdate{
+		ID:    &id,
+		Name:  &name,
+		Phone: &phone,
+	}
+	res, err := service.Update(courierUpd)
+	if !s.Assert().Error(err) {
+		s.FailNow(err.Error())
+	}
+	s.Assert().IsType(models.Error{}, err)
+	s.Assert().Nil(res)
 }
 
 func (s *CourierTestSuite) TestUpdateCourierWithLocationOK() {
