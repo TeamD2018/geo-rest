@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/TeamD2018/geo-rest/models"
+	"github.com/TeamD2018/geo-rest/services/interfaces"
 	"github.com/olivere/elastic"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
@@ -13,19 +14,27 @@ import (
 const OrdersIndex = "order"
 
 type OrdersElasticDAO struct {
-	Elastic *elastic.Client
-	Index   string
-	Logger  *zap.Logger
+	Elastic     *elastic.Client
+	couriersDAO interfaces.ICouriersDAO
+	Index       string
+	Logger      *zap.Logger
 }
 
-func NewOrdersElasticDAO(client *elastic.Client, logger *zap.Logger, index string) *OrdersElasticDAO {
+func NewOrdersElasticDAO(client *elastic.Client,
+	logger *zap.Logger,
+	couriersDAO interfaces.ICouriersDAO,
+	index string) *OrdersElasticDAO {
 	if index == "" {
 		index = OrdersIndex
 	}
+	if logger == nil {
+		logger, _ = zap.NewDevelopment()
+	}
 	return &OrdersElasticDAO{
-		Elastic: client,
-		Index:   index,
-		Logger:  logger,
+		Elastic:     client,
+		Index:       index,
+		Logger:      logger,
+		couriersDAO: couriersDAO,
 	}
 }
 
@@ -33,6 +42,7 @@ func (od *OrdersElasticDAO) Get(orderID string) (*models.Order, error) {
 	db := od.Elastic
 	orderRaw, err := db.Get().
 		Index(od.Index).
+		Type("_doc").
 		Id(orderID).
 		Do(context.Background())
 
@@ -44,24 +54,32 @@ func (od *OrdersElasticDAO) Get(orderID string) (*models.Order, error) {
 	if err := json.Unmarshal(*orderRaw.Source, &order); err != nil {
 		return nil, err
 	}
+	order.ID = orderRaw.Id
 	return &order, nil
 }
 
 func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Order, error) {
 	db := od.Elastic
+	_, err := od.couriersDAO.GetByID(*orderCreate.CourierID)
+	if err != nil {
+		return nil, err
+	}
 	var order models.Order
 	order.Source = orderCreate.Source
 	order.Destination = orderCreate.Destination
 	order.CourierID = *orderCreate.CourierID
 	order.CreatedAt = time.Now().Unix()
-	order.ID = uuid.NewV4().String()
-	_, err := db.Index().
+	id := uuid.NewV4().String()
+	_, err = db.Index().
 		Index(od.Index).
+		Type("_doc").
+		Id(id).
 		BodyJson(order).
 		Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
+	order.ID = id
 	return &order, nil
 }
 
@@ -71,6 +89,7 @@ func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, e
 	update.ID = nil
 	orderRaw, err := db.Update().
 		Index(od.Index).
+		Type("_doc").
 		Id(id).
 		Doc(*update).
 		FetchSource(true).
@@ -83,6 +102,7 @@ func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, e
 	if err := json.Unmarshal(*orderRaw.GetResult.Source, &order); err != nil {
 		return nil, err
 	}
+	order.ID = orderRaw.Id
 	return &order, nil
 }
 
@@ -90,6 +110,7 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 	db := od.Elastic
 	_, err := db.Delete().
 		Index(od.Index).
+		Type("_doc").
 		Id(orderID).
 		Do(context.Background())
 	if err != nil {
@@ -98,26 +119,28 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 	return nil
 }
 
-func (od *OrdersElasticDAO) GetOrdersForCourier(courierID string, since int64, asc bool) (models.Orders, error) {
+func (od *OrdersElasticDAO) GetOrdersForCourier(courierID string, since int64, isLowerThreshold bool) (models.Orders, error) {
 	db := od.Elastic
-	courierIDQuery := elastic.NewTermsQuery("courier_id", courierID)
+	courierIDQuery := elastic.NewTermQuery("courier_id", courierID)
 	var sinceRangeQuery elastic.Query
-	if asc {
-		sinceRangeQuery = elastic.NewRangeQuery("created_at").Gt(since)
+	if isLowerThreshold {
+		sinceRangeQuery = elastic.NewRangeQuery("created_at").Gte(since).IncludeUpper(false)
 	} else {
-		sinceRangeQuery = elastic.NewRangeQuery("created_at").Lt(since)
+		sinceRangeQuery = elastic.NewRangeQuery("created_at").Lte(since).IncludeLower(false)
 	}
 	ordersQuery := elastic.NewBoolQuery().Must(courierIDQuery, sinceRangeQuery)
-	res, err := db.Search(od.Index).Query(ordersQuery).Do(context.Background())
+
+	res, err := db.Search(od.Index).Type("_doc").Query(ordersQuery).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	orders := make(models.Orders, res.Hits.TotalHits)
+	orders := make(models.Orders, 0, res.Hits.TotalHits)
 	for _, hit := range res.Hits.Hits {
 		var order models.Order
 		if err := json.Unmarshal(*hit.Source, &order); err != nil {
 			return nil, err
 		}
+		order.ID = hit.Id
 		orders = append(orders, &order)
 	}
 	return orders, nil
@@ -130,14 +153,12 @@ func (od *OrdersElasticDAO) EnsureMapping() error {
 	ctx := context.Background()
 	exists, err := od.Elastic.IndexExists(indexName).Do(ctx)
 	if err != nil {
-		od.Logger.Sugar().Error(err)
 		return err
 	}
 
 	if exists == false {
 		_, err := od.Elastic.CreateIndex(indexName).BodyString(mapping).Do(ctx)
 		if err != nil {
-			od.Logger.Sugar().Error(err)
 			return err
 		}
 	}
