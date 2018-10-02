@@ -74,6 +74,7 @@ func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Cour
 		return nil, err
 	}
 	c.l.Sugar().Debug(zap.Any("res", res))
+	m.ID = res.Id
 	return m, nil
 }
 
