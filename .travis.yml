@@ -71,23 +71,6 @@ jobs:
   #     ./bin/golangci-lint run
 
   - stage: Build docker images
-    name: "SwaggerUI"
-    language: minimal
-    services:
-    - docker
-    install:
-    - docker pull teamd2018/swagger-ui-geo-rest:latest
-    script:
-    - docker build -t $DOCKERHUB_OWNER/swagger-ui-geo-rest:$TRAVIS_COMMIT -f Dockerfile.swagger-ui --cache-from teamd2018/swagger-ui-geo-rest:latest .
-    - docker tag $DOCKERHUB_OWNER/swagger-ui-geo-rest:$TRAVIS_COMMIT $DOCKERHUB_OWNER/swagger-ui-geo-rest:latest
-    - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_NAME" --password-stdin
-    - docker push $DOCKERHUB_OWNER/swagger-ui-geo-rest
-    if: branch = master
-    branches:
-      only:
-      - master
-
-  - stage: Build docker images
     name: "Geo rest"
     language: minimal
     services:
@@ -106,8 +89,6 @@ jobs:
 
   - stage: deploy
     language: bash
-    services:
-    - docker
     deploy:
     - provider: script
       skip_cleanup: true
@@ -125,7 +106,3 @@ jobs:
     branches:
       only:
       - master
-
-notifications:
-  webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
-
