@@ -169,7 +169,7 @@ func (s *CourierTestSuite) TestCouriersElasticDAO_EnsureMapping() {
 	s.Assert().True(exists)
 }
 
-func (s *CourierTestSuite) TestGetCourierByID() {
+func (s *CourierTestSuite) TestGetCourierByIDOK() {
 	service := s.GetService()
 	name := "Vasya"
 	courier := &models.CourierCreate{
@@ -181,6 +181,14 @@ func (s *CourierTestSuite) TestGetCourierByID() {
 		s.Assert().FailNowf("error", "error: %s", err)
 	}
  	s.Assert().Equal(name, res.Name)
+}
+
+func (s* CourierTestSuite) TestGetCourierByIDBadID() {
+	service := s.GetService()
+	id := "bad id"
+	res, err := service.GetByID(id)
+	s.Error(err)
+	s.Nil(res)
 }
 
 func TestIntegrationCouriersDAO(t *testing.T) {
