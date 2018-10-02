@@ -41,6 +41,7 @@ func (c *CouriersElasticDAO) GetByID(courierID string) (*models.Courier, error) 
 		c.l.Sugar().Error(zap.Error(err))
 		return nil, errors.Errorf("error due to unmarshaling json: %s", err)
 	}
+	result.ID = res.Id
 	return result, nil
 }
 
@@ -57,15 +58,15 @@ func (*CouriersElasticDAO) GetByCircleField(field *models.CircleField) (*models.
 }
 
 func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Courier, error) {
+	id := uuid.NewV4().String()
 	m := &models.Courier{
-		ID:    uuid.NewV4().String(),
 		Name:  courier.Name,
 		Phone: courier.Phone,
 	}
 	res, err := c.client.Index().
 		Index(c.index).
 		Type("_doc").
-		Id(m.ID).
+		Id(id).
 		BodyJson(m).
 		Do(context.Background())
 	if err != nil {
@@ -98,6 +99,7 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 		c.l.Sugar().Error(zap.Error(err))
 		return nil, errors.New("error due to unmarshaling json")
 	}
+	result.ID = res.Id
 	return result, nil
 }
 
