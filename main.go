@@ -19,9 +19,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "")
+	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
 	api := controllers.APIService{
-		OrdersDAO:   services.NewOrdersElasticDAO(elasticClient, logger, ""),
-		CouriersDAO: services.NewCouriersElasticDAO(elasticClient, logger, ""),
+		CouriersDAO: couriersDao,
+		OrdersDAO:   ordersDao,
 		Logger:      logger,
 	}
 
