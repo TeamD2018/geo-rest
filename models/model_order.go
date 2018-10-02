@@ -3,7 +3,7 @@ package models
 // Order - Strict order schema
 type Order struct {
 	// Order id
-	ID string `json:"id"`
+	ID string `json:"id,omitempty"`
 
 	// Courier id
 	CourierID string `json:"courier_id"`
@@ -20,7 +20,7 @@ type Order struct {
 }
 
 type OrderCreate struct {
-	CourierID   *string   `json:"courier_id"`
+	CourierID   *string  `json:"courier_id"`
 	Destination Location `json:"destination"`
 	Source      Location `json:"source"`
 }
