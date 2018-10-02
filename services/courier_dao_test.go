@@ -36,6 +36,8 @@ var (
 		"TestUpdateCourierWithoutLocationOK",
 		"TestUpdateCourierWithLocationOK",
 		"TestUpdateCourierNoExistID",
+		"TestDeleteCourierOK",
+		"TestDeleteCourierNoExistID",
 		"TestGetCourierByID",
 	}
 	testsWithDeleteIndex = []string{
@@ -46,6 +48,8 @@ var (
 		"TestUpdateCourierWithoutLocationOK",
 		"TestUpdateCourierWithLocationOK",
 		"TestUpdateCourierNoExistID",
+		"TestDeleteCourierOK",
+		"TestDeleteCourierNoExistID",
 		"TestCouriersElasticDAO_EnsureMapping",
 	}
 )
@@ -245,7 +249,6 @@ func (s *CourierTestSuite) TestUpdateCourierNoExistID() {
 	if !s.Assert().Error(err) {
 		s.FailNow(err.Error())
 	}
-	s.Assert().IsType(models.Error{}, err)
 	s.Assert().Nil(res)
 }
 
@@ -279,6 +282,28 @@ func (s *CourierTestSuite) TestUpdateCourierWithLocationOK() {
 	s.Assert().Equal(phone, *res.Phone)
 	s.Assert().NotNil(res.Location)
 	s.Assert().NotNil(res.LastSeen)
+}
+
+func (s *CourierTestSuite) TestDeleteCourierOK() {
+	service := s.GetService()
+	name := "Vasya"
+	courier := &models.CourierCreate{
+		Name: name,
+	}
+	id := s.CreateCourier(courier)
+	err := service.Delete(id)
+	if !s.NoError(err) {
+		s.Assert().FailNowf("error", "error: %s", err)
+	}
+}
+
+func (s *CourierTestSuite) TestDeleteCourierNoExistID() {
+	service := s.GetService()
+	id := "NoExistID"
+	err := service.Delete(id)
+	if !s.Assert().Error(err) {
+		s.Assert().FailNowf("error", "error: %s", err)
+	}
 }
 
 func TestIntegrationCouriersDAO(t *testing.T) {
