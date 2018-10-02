@@ -1,25 +1,6 @@
 jobs:
   include:
   - stage: test
-    language: node.js
-    nodejs:
-    - '10.11'
-    before_install:
-    - npm install -g swagger-cli
-    before_script:
-    - cd api/
-    script:
-    - swagger-cli validate api.yaml
-    cache:
-      directories:
-      - node_modules
-    if: (branch = develop) OR (branch = master)
-    branches:
-      only:
-      - develop
-      - master
-
-  - stage: test
     name: "Unit Tests"
     language: go
     go:
