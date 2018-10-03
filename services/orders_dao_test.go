@@ -73,5 +73,6 @@ func (s OrdersCreateSuite) TestOrdersElasticDAO_EnsureMapping() {
 }
 
 func TestIntegrationOrdersSuite(t *testing.T) {
+	t.SkipNow()
 	suite.Run(t, new(OrdersCreateSuite))
 }

@@ -39,6 +39,7 @@ var (
 		"TestDeleteCourierOK",
 		"TestDeleteCourierNoExistID",
 		"TestGetCourierByID",
+		"TestGetCourierByCircleField",
 	}
 	testsWithDeleteIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
@@ -51,6 +52,7 @@ var (
 		"TestDeleteCourierOK",
 		"TestDeleteCourierNoExistID",
 		"TestCouriersElasticDAO_EnsureMapping",
+		"TestGetCourierByCircleField",
 	}
 )
 
@@ -84,6 +86,15 @@ func (s *CourierTestSuite) CreateCourier(courier *models.CourierCreate) string {
 	return resp.ID
 }
 
+func (s *CourierTestSuite) UpdateCourier(courier *models.CourierUpdate) {
+	service := s.GetService()
+	_, err := service.Update(courier)
+	if !s.Assert().NoError(err) {
+		s.Assert().FailNow(err.Error())
+	}
+	return
+}
+
 func (s *CourierTestSuite) DeleteIndex() {
 	index, _ := s.GetService().GetMapping()
 	_, err := s.client.DeleteIndex(index).Do(context.Background())
@@ -91,7 +102,7 @@ func (s *CourierTestSuite) DeleteIndex() {
 }
 
 func (s *CourierTestSuite) TearDownSuite() {
-	s.Nil(s.pool.Purge(s.resource))
+	//s.Nil(s.pool.Purge(s.resource))
 }
 
 func (s *CourierTestSuite) SetupSuite() {
@@ -268,7 +279,7 @@ func (s *CourierTestSuite) TestUpdateCourierWithLocationOK() {
 		Phone: &phone,
 		Location: &models.Location{
 			GeoPoint: &elastic.GeoPoint{
-				Lat:123.023,
+				Lat: 123.023,
 				Lon: 123.0123,
 			},
 			Address: &address,
@@ -304,6 +315,31 @@ func (s *CourierTestSuite) TestDeleteCourierNoExistID() {
 	if !s.Assert().Error(err) {
 		s.Assert().FailNowf("error", "error: %s", err)
 	}
+}
+
+func (s *CourierTestSuite) TestGetCourierByCircleField() {
+	service := s.GetService()
+	name := "Vasya"
+	phone := "79031189023"
+	courier := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	id := s.CreateCourier(courier)
+	courierUpd := &models.CourierUpdate{
+		ID: &id,
+		Location: &models.Location{
+			GeoPoint: elastic.GeoPointFromLatLon(70.0, 70.0),
+		},
+	}
+	s.UpdateCourier(courierUpd)
+	s.client.Refresh(CourierIndex).Do(context.Background())
+	res, err := service.GetByCircleField(&models.CircleField{
+		Center: elastic.GeoPointFromLatLon(70.00005, 70.00005),
+		Radius: 1000,
+	})
+	s.Assert().NoError(err)
+	s.Assert().NotEmpty(res)
 }
 
 func TestIntegrationCouriersDAO(t *testing.T) {

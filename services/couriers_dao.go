@@ -3,10 +3,13 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
+	"log"
+	"reflect"
 	"time"
 )
 
@@ -50,12 +53,28 @@ func (*CouriersElasticDAO) GetByName(name string) (models.Couriers, error) {
 	return nil, nil
 }
 
-func (*CouriersElasticDAO) GetBySquareField(field *models.SquareField) (*models.Courier, error) {
+func (*CouriersElasticDAO) GetBySquareField(field *models.SquareField) (models.Couriers, error) {
 	return nil, nil
 }
 
-func (*CouriersElasticDAO) GetByCircleField(field *models.CircleField) (*models.Courier, error) {
-	return nil, nil
+func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
+	res, err := c.client.Search(c.index).
+		Type("_doc").
+		Query(elastic.NewBoolQuery().
+			Filter(elastic.NewGeoDistanceQuery("location.geo_point").
+		GeoPoint(field.Center).
+		Distance(fmt.Sprintf("%dkm", field.Radius)))).
+		Do(context.Background())
+	log.Printf("%#v\n", res)
+	if err != nil {
+		log.Fatal(err)
+	}
+	result := models.Couriers{}
+	for _, item := range res.Each(reflect.TypeOf(models.Courier{})) {
+		courier := item.(models.Courier)
+		result = append(result, &courier)
+	}
+	return result, nil
 }
 
 func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Courier, error) {

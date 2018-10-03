@@ -1,16 +1,13 @@
 package models
 
-type Point struct {
-	Lat float32
-	Lon float32
-}
+import "github.com/olivere/elastic"
 
 type SquareField struct {
-	HighLeftPoint  *Point
-	DownRightPoint *Point
+	HighLeftPoint  *elastic.GeoPoint
+	DownRightPoint *elastic.GeoPoint
 }
 
 type CircleField struct {
-	Center *Point
+	Center *elastic.GeoPoint
 	Radius int
 }
