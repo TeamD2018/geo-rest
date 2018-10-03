@@ -38,11 +38,17 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 }
 
 func (api *APIService) UpdateCourier(ctx *gin.Context) {
+	courierID := ctx.Param("courier_id")
+	if _, err := uuid.FromString(courierID); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		return
+	}
 	courier := &models.CourierUpdate{}
 	if err := ctx.BindJSON(courier); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
 		return
 	}
+	courier.ID = &courierID
 	if updated, err := api.CouriersDAO.Update(courier); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
 		return
