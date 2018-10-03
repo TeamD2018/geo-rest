@@ -87,6 +87,7 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 	}
 	res, err := c.client.Update().
 		Index(c.index).
+		Type("_doc").
 		Id(id).
 		Doc(courier).
 		FetchSource(true).
