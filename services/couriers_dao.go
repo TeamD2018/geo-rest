@@ -87,6 +87,7 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 	}
 	res, err := c.client.Update().
 		Index(c.index).
+		Type("_doc").
 		Id(id).
 		Doc(courier).
 		FetchSource(true).
@@ -105,7 +106,7 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 }
 
 func (c *CouriersElasticDAO) Delete(courierID string) error {
-	res, err := c.client.Delete().Index(c.index).Type("_doc").Do(context.Background())
+	res, err := c.client.Delete().Index(c.index).Type("_doc").Id(courierID).Do(context.Background())
 	if err != nil {
 		c.l.Sugar().Error(err)
 		return err
