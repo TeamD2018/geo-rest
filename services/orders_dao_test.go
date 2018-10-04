@@ -37,10 +37,10 @@ func (s *OrdersTestSuite) BeforeTest(suiteName, testName string) {
 	testOrderCreate := models.OrderCreate{
 		CourierID: &s.testCourier.ID,
 		Destination: models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(1, 1),
+			Point: elastic.GeoPointFromLatLon(1, 1),
 		},
 		Source: models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(1, 1),
+			Point: elastic.GeoPointFromLatLon(1, 1),
 		},
 	}
 	s.testOrder, _ = s.ordersDao.Create(&testOrderCreate)
@@ -131,7 +131,7 @@ func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_Desc() {
 func (s OrdersTestSuite) TestOrdersElasticDAO_Update_OK() {
 	update := models.OrderUpdate{
 		ID:     &s.testOrder.ID,
-		Source: &models.Location{GeoPoint: elastic.GeoPointFromLatLon(0, 0)},
+		Source: &models.Location{Point: elastic.GeoPointFromLatLon(0, 0)},
 	}
 	expected := models.Order{
 		ID:          s.testOrder.ID,

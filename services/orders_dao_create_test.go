@@ -39,10 +39,10 @@ func (s *OrdersCreateTestSuite) BeforeTest(suiteName, testName string) {
 	s.testOrderCreate = &models.OrderCreate{
 		CourierID: &s.testCourier.ID,
 		Destination: models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(1, 1),
+			Point: elastic.GeoPointFromLatLon(1, 1),
 		},
 		Source: models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(1, 1),
+			Point: elastic.GeoPointFromLatLon(1, 1),
 		},
 	}
 	s.client.Refresh(s.ordersDao.Index, s.couriersDao.index).Do(context.Background())
