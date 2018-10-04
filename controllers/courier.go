@@ -40,7 +40,7 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 func (api *APIService) UpdateCourier(ctx *gin.Context) {
 	courierID := ctx.Param("courier_id")
 	if _, err := uuid.FromString(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
 	courier := &models.CourierUpdate{}
