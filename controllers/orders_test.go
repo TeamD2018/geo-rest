@@ -49,12 +49,12 @@ func (oc *OrdersControllersTestSuite) SetupSuite() {
 		ID:        "660e8400-e29b-41d4-a716-446655440000",
 		CourierID: "550e8400-e29b-41d4-a716-446655440000",
 		Source: models.Location{
-			Point: elastic.GeoPointFromLatLon(10, 10),
-			Address:  &testSource,
+			Point:   elastic.GeoPointFromLatLon(10, 10),
+			Address: &testSource,
 		},
 		Destination: models.Location{
-			Point: elastic.GeoPointFromLatLon(20, 20),
-			Address:  &testDest,
+			Point:   elastic.GeoPointFromLatLon(20, 20),
+			Address: &testDest,
 		},
 		CreatedAt: 100,
 	}
@@ -66,8 +66,8 @@ func (oc *OrdersControllersTestSuite) SetupSuite() {
 	updatedSource := "updated source"
 	oc.testOrderUpdate = &models.OrderUpdate{
 		Destination: &models.Location{
-			Point: elastic.GeoPointFromLatLon(15, 15),
-			Address:  &updatedSource,
+			Point:   elastic.GeoPointFromLatLon(15, 15),
+			Address: &updatedSource,
 		},
 	}
 }
@@ -139,7 +139,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_DeleteOrder_NoContent() {
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s/orders/%s", oc.testOrder.CourierID, oc.testOrder.ID)
-	req, _ := http.NewRequest("DELETE", url, bytes.NewReader([]byte{}))
+	req, _ := http.NewRequest("DELETE", url, nil)
 	oc.router.ServeHTTP(w, req)
 
 	oc.Equal(http.StatusNoContent, w.Code)
@@ -148,4 +148,22 @@ func (oc *OrdersControllersTestSuite) TestAPIService_DeleteOrder_NoContent() {
 func toByteReader(source interface{}) *bytes.Reader {
 	bin, _ := json.Marshal(source)
 	return bytes.NewReader(bin)
+}
+
+func (oc *OrdersControllersTestSuite) TestAPIService_GetOrdersForCourier_OK() {
+	oc.ordersDAOMock.On("GetOrdersForCourier", oc.testOrder.CourierID, int64(0), false).Return(models.Orders{oc.testOrder}, nil)
+	oc.api.OrdersDAO = oc.ordersDAOMock
+
+	w := httptest.NewRecorder()
+	url := fmt.Sprintf("/couriers/%s/orders", oc.testOrder.CourierID)
+	req, _ := http.NewRequest("GET", url, nil)
+	oc.router.ServeHTTP(w, req)
+
+	var got models.Orders
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	oc.NoError(err)
+	oc.Equal(http.StatusOK, w.Code)
+	oc.Contains(got, oc.testOrder)
+
 }
