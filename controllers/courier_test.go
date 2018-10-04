@@ -27,11 +27,11 @@ func (CouriersElasticDAOMock) GetByName(name string) (models.Couriers, error) {
 	panic("implement me")
 }
 
-func (CouriersElasticDAOMock) GetBySquareField(field *models.SquareField) (*models.Courier, error) {
+func (CouriersElasticDAOMock) GetBySquareField(field *models.SquareField) (models.Couriers, error) {
 	panic("implement me")
 }
 
-func (CouriersElasticDAOMock) GetByCircleField(field *models.CircleField) (*models.Courier, error) {
+func (CouriersElasticDAOMock) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
 	panic("implement me")
 }
 
