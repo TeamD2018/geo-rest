@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/TeamD2018/geo-rest/controllers"
-	"github.com/TeamD2018/geo-rest/routers"
 	"github.com/TeamD2018/geo-rest/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -34,7 +33,7 @@ func main() {
 	config.AllowOrigins = []string{"http://dc.utkin.xyz:8080", "http://35.204.198.186:8080"}
 	router.Use(cors.New(config))
 
-	routers.SetupRouters(router, &api)
+	controllers.SetupRouters(router, &api)
 
 	if err := router.Run(":8080"); err != nil {
 		log.Fatal(err)
