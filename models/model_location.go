@@ -13,7 +13,7 @@ type GeoPoint struct {
 
 type Location struct {
 	//Geopoint for location
-	GeoPoint *elastic.GeoPoint `json:"point"`
+	Point *elastic.GeoPoint `json:"point,omitempty"`
 
 	//Address for location
 	Address *string `json:"address,omitempty"`

@@ -102,7 +102,7 @@ func (s *CourierTestSuite) DeleteIndex() {
 }
 
 func (s *CourierTestSuite) TearDownSuite() {
-	//s.Nil(s.pool.Purge(s.resource))
+	s.Nil(s.pool.Purge(s.resource))
 }
 
 func (s *CourierTestSuite) SetupSuite() {
@@ -278,9 +278,9 @@ func (s *CourierTestSuite) TestUpdateCourierWithLocationOK() {
 		Name:  &name,
 		Phone: &phone,
 		Location: &models.Location{
-			GeoPoint: &elastic.GeoPoint{
-				Lat: 123.023,
-				Lon: 123.0123,
+			Point: &elastic.GeoPoint{
+				Lat: 70.0123,
+				Lon: 70.0123,
 			},
 			Address: &address,
 		},
@@ -329,7 +329,7 @@ func (s *CourierTestSuite) TestGetCourierByCircleField() {
 	courierUpd := &models.CourierUpdate{
 		ID: &id,
 		Location: &models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(70.0, 70.0),
+			Point: elastic.GeoPointFromLatLon(70.0, 70.0),
 		},
 	}
 	s.UpdateCourier(courierUpd)

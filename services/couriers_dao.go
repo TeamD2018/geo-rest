@@ -8,8 +8,6 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
-	"log"
-	"reflect"
 	"time"
 )
 
@@ -58,41 +56,55 @@ func (*CouriersElasticDAO) GetBySquareField(field *models.SquareField) (models.C
 }
 
 func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
-	res, err := c.client.Search(c.index).
-		Type("_doc").
-		Query(elastic.NewBoolQuery().
-			Filter(elastic.NewGeoDistanceQuery("location.geo_point").
+	boolQuery := elastic.NewBoolQuery()
+	geodistanceQuery := elastic.NewGeoDistanceQuery("location.point").
 		GeoPoint(field.Center).
-		Distance(fmt.Sprintf("%dkm", field.Radius)))).
-		Do(context.Background())
-	log.Printf("%#v\n", res)
-	if err != nil {
-		log.Fatal(err)
-	}
+		Distance(fmt.Sprintf("%dm", field.Radius))
+	match := elastic.NewMatchAllQuery()
+
+	query := boolQuery.Must(match).
+		Filter(geodistanceQuery)
+
+	end := c.client.Search(c.index).
+		Type("_doc").
+		Query(query)
+
 	result := models.Couriers{}
-	for _, item := range res.Each(reflect.TypeOf(models.Courier{})) {
-		courier := item.(models.Courier)
+	res, err := end.Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range res.Hits.Hits {
+		var courier models.Courier
+		if err := json.Unmarshal(*item.Source, &courier);
+		err != nil {
+			return nil, err
+		}
+		courier.ID = item.Id
 		result = append(result, &courier)
 	}
 	return result, nil
 }
 
+
 func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Courier, error) {
 	m := &models.Courier{
-		ID:    uuid.NewV4().String(),
 		Name:  courier.Name,
 		Phone: courier.Phone,
 	}
+	id := uuid.NewV4().String()
 	res, err := c.client.Index().
 		Index(c.index).
 		Type("_doc").
-		Id(m.ID).
+		Id(id).
 		BodyJson(m).
 		Do(context.Background())
 	if err != nil {
 		c.l.Sugar().Errorw("", zap.Error(err))
 		return nil, err
 	}
+	m.ID = id
 	c.l.Sugar().Debugw("", zap.Any("res", res))
 	return m, nil
 }
@@ -104,6 +116,8 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 		now := time.Now().Unix()
 		courier.LastSeen = &now
 	}
+
+	c.l.Sugar().Debugw("", "courier", courier)
 	res, err := c.client.Update().
 		Index(c.index).
 		Type("_doc").
@@ -112,7 +126,7 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 		FetchSource(true).
 		Do(context.Background())
 	if err != nil {
-		c.l.Sugar().Error(zap.Error(err))
+		c.l.Sugar().Error(zap.Error(err), res)
 		return nil, err
 	}
 	result := &models.Courier{}
@@ -168,7 +182,7 @@ func (c *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {
 					},
 					"location": {
 						"properties": {
-							"geo_point": {
+							"point": {
 								"type": "geo_point"
 							},
 							"address": {
