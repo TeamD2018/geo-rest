@@ -49,11 +49,11 @@ func (oc *OrdersControllersTestSuite) SetupSuite() {
 		ID:        "660e8400-e29b-41d4-a716-446655440000",
 		CourierID: "550e8400-e29b-41d4-a716-446655440000",
 		Source: models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(10, 10),
+			Point: elastic.GeoPointFromLatLon(10, 10),
 			Address:  &testSource,
 		},
 		Destination: models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(20, 20),
+			Point: elastic.GeoPointFromLatLon(20, 20),
 			Address:  &testDest,
 		},
 		CreatedAt: 100,
@@ -66,7 +66,7 @@ func (oc *OrdersControllersTestSuite) SetupSuite() {
 	updatedSource := "updated source"
 	oc.testOrderUpdate = &models.OrderUpdate{
 		Destination: &models.Location{
-			GeoPoint: elastic.GeoPointFromLatLon(15, 15),
+			Point: elastic.GeoPointFromLatLon(15, 15),
 			Address:  &updatedSource,
 		},
 	}
