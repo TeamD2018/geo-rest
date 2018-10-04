@@ -21,12 +21,20 @@ func main() {
 	}
 	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "")
 	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
+	if err := couriersDao.EnsureMapping();
+		err != nil {
+		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
+	}
+	if err := ordersDao.EnsureMapping();
+		err != nil {
+		logger.Fatal("Fail to ensure orders mapping: ", zap.Error(err))
+	}
+
 	api := controllers.APIService{
 		CouriersDAO: couriersDao,
 		OrdersDAO:   ordersDao,
 		Logger:      logger,
 	}
-
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
