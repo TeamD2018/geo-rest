@@ -66,3 +66,12 @@ func (CouriersDAOMock) Update(courier *models.CourierUpdate) (*models.Courier, e
 func (CouriersDAOMock) Delete(courierID string) error {
 	return nil
 }
+
+type GeoResolverMock struct {
+	mock.Mock
+}
+
+func (gr *GeoResolverMock) Resolve(location *models.Location) error {
+	args := gr.Called(location)
+	return args.Error(0)
+}

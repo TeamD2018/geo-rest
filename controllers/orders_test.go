@@ -28,9 +28,13 @@ type OrdersControllersTestSuite struct {
 }
 
 func (oc *OrdersControllersTestSuite) SetupSuite() {
+	geoResolverMock := new(mocks.GeoResolverMock)
+	geoResolverMock.On("Resolve", mock.Anything).Return(nil)
 	oc.api = &APIService{
-		Logger: zap.NewNop(),
+		Logger:      zap.NewNop(),
+		GeoResolver: geoResolverMock,
 	}
+
 	oc.router = gin.Default()
 	SetupRouters(oc.router, oc.api)
 	testPhone := "Test phone"
