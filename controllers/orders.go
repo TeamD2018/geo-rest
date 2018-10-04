@@ -5,6 +5,7 @@ import (
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -32,11 +33,24 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 	}
 
 	var order models.OrderUpdate
-
 	if err := ctx.ShouldBind(&order); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
+
+	if err := api.GeoResolver.Resolve(order.Destination);
+		err != nil {
+		api.Logger.Error("fail to resolve destination",
+			zap.String("courier_id", *order.CourierID),
+			zap.Any("dest", order.Destination))
+	}
+	if err := api.GeoResolver.Resolve(order.Source);
+		err != nil {
+		api.Logger.Error("fail to resolve source",
+			zap.String("courier_id", *order.CourierID),
+			zap.Any("dest", order.Destination))
+	}
+
 	order.ID = &orderID
 	order.CourierID = nil
 	created, err := api.OrdersDAO.Update(&order)
@@ -53,6 +67,19 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 	if err := ctx.ShouldBind(&order); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 	}
+	if err := api.GeoResolver.Resolve(&order.Destination);
+		err != nil {
+		api.Logger.Error("fail to resolve destination",
+			zap.String("courier_id", *order.CourierID),
+			zap.Any("dest", order.Destination))
+	}
+	if err := api.GeoResolver.Resolve(&order.Source);
+		err != nil {
+		api.Logger.Error("fail to resolve source",
+			zap.String("courier_id", *order.CourierID),
+			zap.Any("dest", order.Destination))
+	}
+
 	order.CourierID = &courierID
 	created, err := api.OrdersDAO.Create(&order)
 	if err != nil {
