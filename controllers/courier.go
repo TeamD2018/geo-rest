@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/TeamD2018/geo-rest/controllers/parameters"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
@@ -37,6 +38,15 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 	}
 }
 
+func (api *APIService) MiddlewareGeoSearch(ctx *gin.Context) {
+	if ctx.Request.URL.Query().Get("r") != "" {
+		api.GetCouriersByCircleField(ctx)
+		return
+	} else {
+		return
+	}
+}
+
 func (api *APIService) UpdateCourier(ctx *gin.Context) {
 	courierID := ctx.Param("courier_id")
 	if _, err := uuid.FromString(courierID); err != nil {
@@ -54,6 +64,21 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 		return
 	} else {
 		ctx.JSON(http.StatusOK, updated)
+		return
+	}
+}
+
+func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
+	circle := parameters.CircleFieldQuery{}
+	if err := ctx.BindQuery(&circle); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, err)
+		return
+	}
+	if couriers, err := api.CouriersDAO.GetByCircleField(circle.ToCircleField()); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
+		return
+	} else {
+		ctx.JSON(http.StatusOK, couriers)
 		return
 	}
 }

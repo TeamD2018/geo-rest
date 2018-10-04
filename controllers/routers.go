@@ -16,6 +16,7 @@ func SetupRouters(router *gin.Engine, api *APIService) {
 
 	//couriers endpoints
 	g.POST("", api.CreateCourier)
+	g.GET("", api.MiddlewareGeoSearch)
 	g.GET("/:courier_id", api.GetCourierByID)
 	g.PUT("/:courier_id", api.UpdateCourier)
 	g.DELETE("/:courier_id", api.DeleteCourier)
