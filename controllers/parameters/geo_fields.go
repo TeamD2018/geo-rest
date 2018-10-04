@@ -13,7 +13,7 @@ type CircleFieldQuery struct {
 	// Longitude
 	Lon float64 `form:"lon" validate:"min-180,max=180"`
 
-	Radius int `form:"r" validate:"gt=0"`
+	Radius int `form:"radius" validate:"gt=0"`
 }
 
 func (c *CircleFieldQuery) ToCircleField() *models.CircleField {

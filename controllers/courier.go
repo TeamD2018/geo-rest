@@ -39,7 +39,7 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 }
 
 func (api *APIService) MiddlewareGeoSearch(ctx *gin.Context) {
-	if ctx.Request.URL.Query().Get("r") != "" {
+	if ctx.Request.URL.Query().Get("radius") != "" {
 		api.GetCouriersByCircleField(ctx)
 		return
 	} else {
