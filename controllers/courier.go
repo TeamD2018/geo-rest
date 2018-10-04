@@ -10,11 +10,11 @@ import (
 func (api *APIService) CreateCourier(ctx *gin.Context) {
 	var courier models.CourierCreate
 	if err := ctx.BindJSON(&courier); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
 	if res, err := api.CouriersDAO.Create(&courier); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	} else {
 		ctx.JSON(http.StatusCreated, res)
@@ -25,11 +25,11 @@ func (api *APIService) CreateCourier(ctx *gin.Context) {
 func (api *APIService) GetCourierByID(ctx *gin.Context) {
 	courierID := ctx.Param("courier_id")
 	if _, err := uuid.FromString(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, models.EntityNotFound)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
 		return
 	}
 	if courier, err := api.CouriersDAO.GetByID(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, models.EntityNotFound)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
 		return
 	} else {
 		ctx.JSON(http.StatusOK, courier)
@@ -45,12 +45,12 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 	}
 	courier := &models.CourierUpdate{}
 	if err := ctx.BindJSON(courier); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
 	courier.ID = &courierID
 	if updated, err := api.CouriersDAO.Update(courier); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	} else {
 		ctx.JSON(http.StatusOK, updated)
@@ -61,11 +61,11 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 func (api *APIService) DeleteCourier(ctx *gin.Context) {
 	courierID := ctx.Param("courier_id")
 	if _, err := uuid.FromString(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.OneOfParameterHaveIncorrectFormat)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
 	if err := api.CouriersDAO.Delete(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ServerError)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 	}
 	ctx.Status(http.StatusNoContent)
 }

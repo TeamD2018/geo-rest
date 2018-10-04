@@ -1,11 +1,11 @@
 package models
 
 type CourierUpdate struct {
-	ID       *string   `json:"id"`
-	Name     *string   `json:"name"`
-	Location *Location `json:"location"`
-	Phone    *string   `json:"phone"`
-	LastSeen *int64    `json:"last_seen"`
+	ID       *string   `json:"-"`
+	Name     *string   `json:"name,omitempty"`
+	Location *Location `json:"location,omitempty"`
+	Phone    *string   `json:"phone,omitempty"`
+	LastSeen *int64    `json:"last_seen,omitempty"`
 }
 
 type CourierCreate struct {
