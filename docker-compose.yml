@@ -2,6 +2,7 @@ version: '3.5'
 services:
   backend:
     image: teamd2018/geo-rest
+    command: --config=/geo_rest_config
     ports:
     - 8081:8080
     deploy:
@@ -10,11 +11,13 @@ services:
         condition: on-failure
     networks:
     - geo-rest
+    configs:
+    - geo_rest_config
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     ports:
-      - 9200:9200
-      - 9300:9300
+    - 9200:9200
+    - 9300:9300
     command: elasticsearch -Ehttp.port=9200 -Ehttp.cors.allow-origin="http://35.204.198.186:1358" -Ehttp.cors.enabled=true -Ehttp.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization -Ehttp.cors.allow-credentials=true
     deploy:
       replicas: 1
@@ -35,3 +38,6 @@ services:
 networks:
   geo-rest:
     name: geo-rest
+configs:
+  geo_rest_config:
+    external: true
