@@ -70,7 +70,7 @@ func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Ord
 	order.CourierID = *orderCreate.CourierID
 	order.CreatedAt = time.Now().Unix()
 	id := uuid.NewV4().String()
-	_, err = db.Index().
+	ret, err := db.Index().
 		Index(od.Index).
 		Type("_doc").
 		Id(id).
@@ -79,7 +79,7 @@ func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Ord
 	if err != nil {
 		return nil, err
 	}
-	order.ID = id
+	order.ID = ret.Id
 	return &order, nil
 }
 
@@ -182,7 +182,7 @@ func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
 					},
 					"destination": {
 						"properties": {
-							"geo_point": {
+							"point": {
 								"type": "geo_point"
 							},
 							"address": {
@@ -192,7 +192,7 @@ func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
 					},
 					"source": {
 						"properties": {
-							"geo_point": {
+							"point": {
 								"type": "geo_point"
 							},
 							"address": {
