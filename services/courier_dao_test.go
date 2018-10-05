@@ -39,7 +39,10 @@ var (
 		"TestDeleteCourierOK",
 		"TestDeleteCourierNoExistID",
 		"TestGetCourierByID",
-		"TestGetCourierByCircleField",
+		"TestGetCouriersByCircleFieldOK",
+		"TestGetCouriersByCircleFieldEmpty",
+		"TestGetCouriersByBoxFieldOK",
+		"TestGetCouriersByBoxFieldEmpty",
 	}
 	testsWithDeleteIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
@@ -52,7 +55,10 @@ var (
 		"TestDeleteCourierOK",
 		"TestDeleteCourierNoExistID",
 		"TestCouriersElasticDAO_EnsureMapping",
-		"TestGetCourierByCircleField",
+		"TestGetCouriersByCircleFieldOK",
+		"TestGetCouriersByCircleFieldEmpty",
+		"TestGetCouriersByBoxFieldOK",
+		"TestGetCouriersByBoxFieldEmpty",
 	}
 )
 
@@ -317,7 +323,7 @@ func (s *CourierTestSuite) TestDeleteCourierNoExistID() {
 	}
 }
 
-func (s *CourierTestSuite) TestGetCourierByCircleField() {
+func (s *CourierTestSuite) TestGetCouriersByCircleFieldOK() {
 	service := s.GetService()
 	name := "Vasya"
 	phone := "79031189023"
@@ -340,6 +346,83 @@ func (s *CourierTestSuite) TestGetCourierByCircleField() {
 	})
 	s.Assert().NoError(err)
 	s.Assert().NotEmpty(res)
+	s.Assert().Len(res, 1)
+}
+
+func (s *CourierTestSuite) TestGetCouriersByCircleFieldEmpty() {
+	service := s.GetService()
+	name := "Vasya"
+	phone := "79031189023"
+	courier := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	id := s.CreateCourier(courier)
+	courierUpd := &models.CourierUpdate{
+		ID: &id,
+		Location: &models.Location{
+			Point: elastic.GeoPointFromLatLon(70.0, 70.0),
+		},
+	}
+	s.UpdateCourier(courierUpd)
+	s.client.Refresh(CourierIndex).Do(context.Background())
+	res, err := service.GetByCircleField(&models.CircleField{
+		Center: elastic.GeoPointFromLatLon(1, 1),
+		Radius: 1,
+	})
+	s.Assert().NoError(err)
+	s.Assert().Empty(res)
+}
+
+func (s *CourierTestSuite) TestGetCouriersByBoxFieldOK() {
+	service := s.GetService()
+	name := "Vasya"
+	phone := "79031189023"
+	courier := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	id := s.CreateCourier(courier)
+	courierUpd := &models.CourierUpdate{
+		ID: &id,
+		Location: &models.Location{
+			Point: elastic.GeoPointFromLatLon(70.0, 70.0),
+		},
+	}
+	s.UpdateCourier(courierUpd)
+	s.client.Refresh(CourierIndex).Do(context.Background())
+	res, err := service.GetByBoxField(&models.BoxField{
+		TopLeftPoint: elastic.GeoPointFromLatLon(71.0,69.0),
+		BottomRightPoint: elastic.GeoPointFromLatLon(0,0),
+	})
+	s.Assert().NoError(err)
+	s.Assert().NotEmpty(res)
+	s.Assert().Len(res, 1)
+}
+
+func (s *CourierTestSuite) TestGetCouriersByBoxFieldEmpty() {
+	service := s.GetService()
+	name := "Vasya"
+	phone := "79031189023"
+	courier := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	id := s.CreateCourier(courier)
+	courierUpd := &models.CourierUpdate{
+		ID: &id,
+		Location: &models.Location{
+			Point: elastic.GeoPointFromLatLon(70.0, 70.0),
+		},
+	}
+	s.UpdateCourier(courierUpd)
+	s.client.Refresh(CourierIndex).Do(context.Background())
+	res, err := service.GetByBoxField(&models.BoxField{
+		TopLeftPoint: elastic.GeoPointFromLatLon(71.0,69.0),
+		BottomRightPoint: elastic.GeoPointFromLatLon(0,0),
+	})
+	s.Assert().NoError(err)
+	s.Assert().Empty(res)
 }
 
 func TestIntegrationCouriersDAO(t *testing.T) {
