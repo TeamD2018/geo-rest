@@ -418,7 +418,7 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldEmpty() {
 	s.UpdateCourier(courierUpd)
 	s.client.Refresh(CourierIndex).Do(context.Background())
 	res, err := service.GetByBoxField(&models.BoxField{
-		TopLeftPoint: elastic.GeoPointFromLatLon(71.0,69.0),
+		TopLeftPoint: elastic.GeoPointFromLatLon(1,1),
 		BottomRightPoint: elastic.GeoPointFromLatLon(0,0),
 	})
 	s.Assert().NoError(err)
