@@ -13,6 +13,7 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -129,4 +130,63 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_DeleteOrder_NoContent() {
 	ts.router.ServeHTTP(w, req)
 
 	ts.Equal(http.StatusNoContent, w.Code)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByCircleField() {
+	circleField := &models.CircleField{
+		Center: elastic.GeoPointFromLatLon(10, 10),
+		Radius: 10,
+	}
+
+	testCouriers := append(models.Couriers{}, ts.testCourier)
+
+	ts.couriersDAOMock.On("GetByCircleField", circleField).Return(testCouriers, nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	v := url.Values{}
+	v.Add("radius", "10")
+	v.Add("lat", "10")
+	v.Add("lon", "10")
+
+	uri := fmt.Sprintf("/couriers?%s", v.Encode())
+	req, _ := http.NewRequest("GET", uri, bytes.NewReader([]byte{}))
+	w := httptest.NewRecorder()
+	ts.router.ServeHTTP(w, req)
+
+	var got models.Couriers
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	ts.NoError(err)
+	ts.Equal(http.StatusOK, w.Code)
+	ts.Equal(testCouriers, got)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByBoxField() {
+	boxField := &models.BoxField{
+		TopLeftPoint: elastic.GeoPointFromLatLon(10, 10),
+		BottomRightPoint: elastic.GeoPointFromLatLon(20, 20),
+	}
+
+	testCouriers := append(models.Couriers{}, ts.testCourier)
+
+	ts.couriersDAOMock.On("GetByBoxField", boxField).Return(testCouriers, nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	v := url.Values{}
+	v.Add("top_left_lat", "10")
+	v.Add("top_left_lon", "10")
+	v.Add("bottom_right_lat", "20")
+	v.Add("bottom_right_lon", "20")
+
+	uri := fmt.Sprintf("/couriers?%s", v.Encode())
+	req, _ := http.NewRequest("GET", uri, bytes.NewReader([]byte{}))
+	w := httptest.NewRecorder()
+	ts.router.ServeHTTP(w, req)
+
+	var got models.Couriers
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	ts.NoError(err)
+	ts.Equal(http.StatusOK, w.Code)
+	ts.Equal(testCouriers, got)
 }
