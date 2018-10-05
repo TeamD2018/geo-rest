@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/TeamD2018/geo-rest/controllers/mocks"
 	"github.com/TeamD2018/geo-rest/models"
@@ -28,11 +29,8 @@ type OrdersControllersTestSuite struct {
 }
 
 func (oc *OrdersControllersTestSuite) SetupSuite() {
-	geoResolverMock := new(mocks.GeoResolverMock)
-	geoResolverMock.On("Resolve", mock.Anything).Return(nil)
 	oc.api = &APIService{
-		Logger:      zap.NewNop(),
-		GeoResolver: geoResolverMock,
+		Logger: zap.NewNop(),
 	}
 
 	oc.router = gin.Default()
@@ -82,11 +80,34 @@ func TestUnitControllersOrders(t *testing.T) {
 
 func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	oc.ordersDAOMock = new(mocks.OrdersDAOMock)
+	geoResolverMock := new(mocks.GeoResolverMock)
+	geoResolverMock.On("Resolve", mock.Anything).Return(nil)
+	oc.api.GeoResolver = geoResolverMock
 }
 
 func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_Created() {
 	oc.ordersDAOMock.On("Create", mock.Anything).Return(oc.testOrder, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
+
+	w := httptest.NewRecorder()
+	url := fmt.Sprintf("/couriers/%s/orders", oc.testOrder.CourierID)
+	req, _ := http.NewRequest("POST", url, toByteReader(oc.testOrderCreate))
+	oc.router.ServeHTTP(w, req)
+
+	var got models.Order
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	oc.NoError(err)
+	oc.Equal(201, w.Code)
+	oc.Equal(oc.testOrder, &got)
+}
+
+func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_Created_If_Resolver_Failed() {
+	oc.ordersDAOMock.On("Create", mock.Anything).Return(oc.testOrder, nil)
+	oc.api.OrdersDAO = oc.ordersDAOMock
+	georesolver := new(mocks.GeoResolverMock)
+	georesolver.On("Resolve", mock.Anything).Return(errors.New("test error"))
+	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s/orders", oc.testOrder.CourierID)
@@ -122,6 +143,27 @@ func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_OK() {
 	oc.testOrder.Destination = *oc.testOrderUpdate.Destination
 	oc.ordersDAOMock.On("Update", mock.Anything).Return(oc.testOrder, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
+
+	w := httptest.NewRecorder()
+	url := fmt.Sprintf("/couriers/%s/orders/%s", oc.testOrder.CourierID, oc.testOrder.ID)
+	req, _ := http.NewRequest("PUT", url, toByteReader(oc.testOrderUpdate))
+	oc.router.ServeHTTP(w, req)
+
+	var got models.Order
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	oc.NoError(err)
+	oc.Equal(http.StatusOK, w.Code)
+	oc.Equal(oc.testOrder, &got)
+}
+
+func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_OK_If_Resolver_Failed() {
+	oc.testOrder.Destination = *oc.testOrderUpdate.Destination
+	oc.ordersDAOMock.On("Update", mock.Anything).Return(oc.testOrder, nil)
+	oc.api.OrdersDAO = oc.ordersDAOMock
+	georesolver := new(mocks.GeoResolverMock)
+	georesolver.On("Resolve", mock.Anything).Return(errors.New("test error"))
+	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s/orders/%s", oc.testOrder.CourierID, oc.testOrder.ID)
