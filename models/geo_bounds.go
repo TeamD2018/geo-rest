@@ -2,9 +2,9 @@ package models
 
 import "github.com/olivere/elastic"
 
-type SquareField struct {
-	HighLeftPoint  *elastic.GeoPoint
-	DownRightPoint *elastic.GeoPoint
+type BoxField struct {
+	TopLeftPoint     *elastic.GeoPoint
+	BottomRightPoint *elastic.GeoPoint
 }
 
 type CircleField struct {

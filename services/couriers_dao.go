@@ -52,8 +52,31 @@ func (*CouriersElasticDAO) GetByName(name string) (models.Couriers, error) {
 	return nil, nil
 }
 
-func (*CouriersElasticDAO) GetBySquareField(field *models.SquareField) (models.Couriers, error) {
-	return nil, nil
+func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField) (models.Couriers, error) {
+	boolQuery := elastic.NewBoolQuery()
+	boundingboxQuery := elastic.NewGeoBoundingBoxQuery("location.point").
+		TopLeftFromGeoPoint(field.TopLeftPoint).BottomRightFromGeoPoint(field.BottomRightPoint)
+	match := elastic.NewMatchAllQuery()
+
+	query := boolQuery.Must(match).Filter(boundingboxQuery)
+
+	result := models.Couriers{}
+
+	res, err := c.client.Search(c.index).Type("_doc").Query(query).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range res.Hits.Hits {
+		var courier models.Courier
+		if err := json.Unmarshal(*item.Source, &courier);
+			err != nil {
+			return nil, err
+		}
+		courier.ID = item.Id
+		result = append(result, &courier)
+	}
+	return result, nil
 }
 
 func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
@@ -79,7 +102,7 @@ func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField) (models
 	for _, item := range res.Hits.Hits {
 		var courier models.Courier
 		if err := json.Unmarshal(*item.Source, &courier);
-		err != nil {
+			err != nil {
 			return nil, err
 		}
 		courier.ID = item.Id
@@ -87,7 +110,6 @@ func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField) (models
 	}
 	return result, nil
 }
-
 
 func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Courier, error) {
 	m := &models.Courier{
@@ -117,7 +139,6 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 		now := time.Now().Unix()
 		courier.LastSeen = &now
 	}
-
 
 	res, err := c.client.Update().
 		Index(c.index).

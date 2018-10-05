@@ -27,7 +27,7 @@ func (CouriersElasticDAOMock) GetByName(name string) (models.Couriers, error) {
 	panic("implement me")
 }
 
-func (CouriersElasticDAOMock) GetBySquareField(field *models.SquareField) (models.Couriers, error) {
+func (CouriersElasticDAOMock) GetByBoxField(field *models.BoxField) (models.Couriers, error) {
 	panic("implement me")
 }
 

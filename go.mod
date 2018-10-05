@@ -43,7 +43,7 @@ require (
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2 // indirect
 	googlemaps.github.io/maps v0.0.0-20180925055840-559662296162
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
+	gopkg.in/go-playground/validator.v8 v8.18.2
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 	gotest.tools v2.1.0+incompatible // indirect
 )

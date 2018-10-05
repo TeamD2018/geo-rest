@@ -26,11 +26,11 @@ func (api *APIService) CreateCourier(ctx *gin.Context) {
 func (api *APIService) GetCourierByID(ctx *gin.Context) {
 	courierID := ctx.Param("courier_id")
 	if _, err := uuid.FromString(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
 	if courier, err := api.CouriersDAO.GetByID(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound.SetParameter(courierID))
 		return
 	} else {
 		ctx.JSON(http.StatusOK, courier)
@@ -43,6 +43,7 @@ func (api *APIService) MiddlewareGeoSearch(ctx *gin.Context) {
 		api.GetCouriersByCircleField(ctx)
 		return
 	} else {
+		api.GetCouriersByBoxField(ctx)
 		return
 	}
 }
@@ -50,7 +51,7 @@ func (api *APIService) MiddlewareGeoSearch(ctx *gin.Context) {
 func (api *APIService) UpdateCourier(ctx *gin.Context) {
 	courierID := ctx.Param("courier_id")
 	if _, err := uuid.FromString(courierID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat.SetParameter("courier_id"))
 		return
 	}
 	courier := &models.CourierUpdate{}
@@ -71,11 +72,26 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
 	circle := parameters.CircleFieldQuery{}
 	if err := ctx.BindQuery(&circle); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
 	if couriers, err := api.CouriersDAO.GetByCircleField(circle.ToCircleField()); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
+	} else {
+		ctx.JSON(http.StatusOK, couriers)
+		return
+	}
+}
+
+func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
+	box := parameters.BoxFieldQuery{}
+	if err := ctx.BindQuery(&box); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+		return
+	}
+	if couriers, err := api.CouriersDAO.GetByBoxField(box.ToBoxField()); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	} else {
 		ctx.JSON(http.StatusOK, couriers)

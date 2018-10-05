@@ -47,11 +47,11 @@ func (CouriersDAOMock) GetByName(name string) (models.Couriers, error) {
 	return nil, nil
 }
 
-func (CouriersDAOMock) GetBySquareField(field *models.SquareField) (*models.Courier, error) {
+func (CouriersDAOMock) GetByBoxField(field *models.BoxField) (models.Couriers, error) {
 	return nil, nil
 }
 
-func (CouriersDAOMock) GetByCircleField(field *models.CircleField) (*models.Courier, error) {
+func (CouriersDAOMock) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
 	return nil, nil
 }
 
