@@ -41,12 +41,14 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 	if err := api.GeoResolver.Resolve(order.Destination);
 		err != nil {
 		api.Logger.Error("fail to resolve destination",
+			zap.Error(err),
 			zap.String("order_id", orderID),
 			zap.Any("dest", order.Destination))
 	}
 	if err := api.GeoResolver.Resolve(order.Source);
 		err != nil {
 		api.Logger.Error("fail to resolve source",
+			zap.Error(err),
 			zap.String("order_id", orderID),
 			zap.Any("dest", order.Destination))
 	}
@@ -72,12 +74,14 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 	if err := api.GeoResolver.Resolve(&order.Destination);
 		err != nil {
 		api.Logger.Error("fail to resolve destination",
+			zap.Error(err),
 			zap.String("courier_id", *order.CourierID),
 			zap.Any("dest", order.Destination))
 	}
 	if err := api.GeoResolver.Resolve(&order.Source);
 		err != nil {
 		api.Logger.Error("fail to resolve source",
+			zap.Error(err),
 			zap.String("courier_id", *order.CourierID),
 			zap.Any("dest", order.Destination))
 	}
