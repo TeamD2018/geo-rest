@@ -2,6 +2,7 @@ module github.com/TeamD2018/geo-rest
 
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/Microsoft/go-winio v0.4.11 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/cenkalti/backoff v2.0.0+incompatible // indirect
@@ -31,6 +32,8 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.1.0 // indirect
+	github.com/spf13/pflag v1.0.2
+	github.com/spf13/viper v1.2.1
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.2.2
 	github.com/ugorji/go/codec v0.0.0-20180927125128-99ea80c8b19a // indirect
@@ -43,7 +46,6 @@ require (
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2 // indirect
 	googlemaps.github.io/maps v0.0.0-20180925055840-559662296162
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v8 v8.18.2
-	gopkg.in/yaml.v2 v2.2.1 // indirect
+	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 	gotest.tools v2.1.0+incompatible // indirect
 )

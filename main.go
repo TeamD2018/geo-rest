@@ -1,22 +1,40 @@
 package main
 
 import (
+	"flag"
 	"github.com/TeamD2018/geo-rest/controllers"
 	"github.com/TeamD2018/geo-rest/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
 	"log"
 )
 
+func init() {
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.StringP("config", "c", "./config.toml", "path to config for geo-rest service")
+	pflag.Parse()
+	if err := viper.BindPFlags(pflag.CommandLine); err != nil {
+		panic("err in bind flag")
+	}
+	viper.SetConfigFile(viper.GetString("config"))
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
-	elasticClient, err := elastic.NewClient(elastic.SetURL("http://elastic:9200"))
+	elasticClient, err := elastic.NewClient(
+		elastic.SetURL(viper.GetString("elastic.url")),
+		elastic.SetSniff(viper.GetBool("elastic.sniff")))
 	if err != nil {
 		log.Fatal(err)
 	}
-	gmaps, err := maps.NewClient(maps.WithAPIKey("AIzaSyCsvYa45nNh7NNLE_PUix8SOI73_HlcTX8"))
+	gmaps, err := maps.NewClient(maps.WithAPIKey(viper.GetString("google-maps.apikey")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,12 +63,12 @@ func main() {
 	router := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://dc.utkin.xyz:8080", "http://35.204.198.186:8080"}
+	config.AllowOrigins = viper.GetStringSlice("cors.origins")
 	router.Use(cors.New(config))
 
 	controllers.SetupRouters(router, &api)
 
-	if err := router.Run(":8080"); err != nil {
+	if err := router.Run(viper.GetString("server.url")); err != nil {
 		log.Fatal(err)
 	}
 }
