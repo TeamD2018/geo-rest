@@ -4,6 +4,7 @@ import (
 	"github.com/TeamD2018/geo-rest/controllers/parameters"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
+	"github.com/olivere/elastic"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"net/http"
@@ -18,7 +19,22 @@ func (api *APIService) GetOrder(ctx *gin.Context) {
 	}
 	order, err := api.OrdersDAO.Get(orderID)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrOneOfParametersNotFound)
+		api.Logger.Error("fail to get order",
+			zap.String("order_id", orderID),
+			zap.Error(err))
+		switch err.(type) {
+		case *elastic.Error:
+			err := err.(*elastic.Error)
+			if err.Status == 404 {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+				return
+			}
+		case *models.Error:
+			err := err.(*models.Error)
+			ctx.AbortWithStatusJSON(err.HttpStatus(), err)
+			return
+		}
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
 	ctx.JSON(http.StatusOK, order)
@@ -54,9 +70,26 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 	}
 
 	order.ID = &orderID
+	courierID := order.CourierID
 	order.CourierID = nil
 	created, err := api.OrdersDAO.Update(&order)
 	if err != nil {
+		api.Logger.Error("fail to update order",
+			zap.String("courier_id", *courierID),
+			zap.String("order_id", orderID),
+			zap.Error(err))
+		switch err.(type) {
+		case *elastic.Error:
+			err := err.(*elastic.Error)
+			if err.Status == 404 {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+				return
+			}
+		case *models.Error:
+			err := err.(*models.Error)
+			ctx.AbortWithStatusJSON(err.HttpStatus(), err)
+			return
+		}
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
@@ -87,6 +120,19 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 	}
 	created, err := api.OrdersDAO.Create(&order)
 	if err != nil {
+		api.Logger.Error("fail to create order", zap.String("courier_id", courierID), zap.Error(err))
+		switch err.(type) {
+		case *elastic.Error:
+			err := err.(*elastic.Error)
+			if err.Status == 404 {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+				return
+			}
+		case *models.Error:
+			err := err.(*models.Error)
+			ctx.AbortWithStatusJSON(err.HttpStatus(), err)
+			return
+		}
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
@@ -103,6 +149,19 @@ func (api *APIService) AssignNewCourier(ctx *gin.Context) {
 	}
 	updated, err := api.OrdersDAO.Update(&models.OrderUpdate{CourierID: &courierID})
 	if err != nil {
+		api.Logger.Error("fail to assing order to another courier", zap.String("courier_id", courierID), zap.String("order_id", orderID), zap.Error(err))
+		switch err.(type) {
+		case *elastic.Error:
+			err := err.(*elastic.Error)
+			if err.Status == 404 {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+				return
+			}
+		case *models.Error:
+			err := err.(*models.Error)
+			ctx.AbortWithStatusJSON(err.HttpStatus(), err)
+			return
+		}
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
@@ -117,7 +176,20 @@ func (api *APIService) DeleteOrder(ctx *gin.Context) {
 		return
 	}
 	if err := api.OrdersDAO.Delete(orderID); err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+		api.Logger.Error("fail to delete order", zap.String("order_id", orderID), zap.Error(err))
+		switch err.(type) {
+		case *elastic.Error:
+			err := err.(*elastic.Error)
+			if err.Status == 404 {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+				return
+			}
+		case *models.Error:
+			err := err.(*models.Error)
+			ctx.AbortWithStatusJSON(err.HttpStatus(), err)
+			return
+		}
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
 	ctx.Status(http.StatusNoContent)
@@ -137,7 +209,20 @@ func (api *APIService) GetOrdersForCourier(ctx *gin.Context) {
 	}
 	orders, err := api.OrdersDAO.GetOrdersForCourier(courierID, params.Since, params.Asc)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+		api.Logger.Error("fail to get orders for courier", zap.String("courier_id", courierID), zap.Error(err))
+		switch err.(type) {
+		case *elastic.Error:
+			err := err.(*elastic.Error)
+			if err.Status == 404 {
+				ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound)
+				return
+			}
+		case *models.Error:
+			err := err.(*models.Error)
+			ctx.AbortWithStatusJSON(err.HttpStatus(), err)
+			return
+		}
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
 	ctx.JSON(http.StatusOK, orders)
