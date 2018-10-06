@@ -44,6 +44,8 @@ var (
 		"TestGetCouriersByCircleFieldEmpty",
 		"TestGetCouriersByBoxFieldOK",
 		"TestGetCouriersByBoxFieldEmpty",
+		"TestExistsCourierNotFound",
+		"TestExistsCourierOK",
 	}
 	testsWithDeleteIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
@@ -60,6 +62,8 @@ var (
 		"TestGetCouriersByCircleFieldEmpty",
 		"TestGetCouriersByBoxFieldOK",
 		"TestGetCouriersByBoxFieldEmpty",
+		"TestExistsCourierNotFound",
+		"TestExistsCourierOK",
 	}
 )
 
