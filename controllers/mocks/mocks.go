@@ -34,39 +34,6 @@ func (o *OrdersDAOMock) GetOrdersForCourier(courierID string, since int64, asc b
 	return args.Get(0).(models.Orders), args.Error(1)
 }
 
-type CouriersDAOMock struct {
-	mock.Mock
-}
-
-func (c *CouriersDAOMock) GetByID(courierID string) (*models.Courier, error) {
-	args := c.Called(courierID)
-	return args.Get(0).(*models.Courier), args.Error(1)
-}
-
-func (CouriersDAOMock) GetByName(name string) (models.Couriers, error) {
-	return nil, nil
-}
-
-func (CouriersDAOMock) GetByBoxField(field *models.BoxField) (models.Couriers, error) {
-	return nil, nil
-}
-
-func (CouriersDAOMock) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
-	return nil, nil
-}
-
-func (CouriersDAOMock) Create(courier *models.CourierCreate) (*models.Courier, error) {
-	return nil, nil
-}
-
-func (CouriersDAOMock) Update(courier *models.CourierUpdate) (*models.Courier, error) {
-	return nil, nil
-}
-
-func (CouriersDAOMock) Delete(courierID string) error {
-	return nil
-}
-
 type GeoResolverMock struct {
 	mock.Mock
 }

@@ -4,131 +4,189 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/TeamD2018/geo-rest/controllers/mocks"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
-	"github.com/satori/go.uuid"
+	"github.com/olivere/elastic"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
-type CouriersElasticDAOMock struct {
-}
-
-func (CouriersElasticDAOMock) GetByID(courierID string) (*models.Courier, error) {
-	return &models.Courier{
-		ID:   courierID,
-		Name: "Vasya",
-	}, nil
-}
-
-func (CouriersElasticDAOMock) GetByName(name string) (models.Couriers, error) {
-	panic("implement me")
-}
-
-func (CouriersElasticDAOMock) GetByBoxField(field *models.BoxField) (models.Couriers, error) {
-	panic("implement me")
-}
-
-func (CouriersElasticDAOMock) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
-	panic("implement me")
-}
-
-func (mock *CouriersElasticDAOMock) Create(courier *models.CourierCreate) (*models.Courier, error) {
-	m := &models.Courier{
-		ID:    uuid.NewV4().String(),
-		Name:  courier.Name,
-		Phone: courier.Phone,
-	}
-	return m, nil
-}
-
-func (CouriersElasticDAOMock) Update(courier *models.CourierUpdate) (*models.Courier, error) {
-	panic("implement me")
-}
-
-func (CouriersElasticDAOMock) Delete(courierID string) error {
-	panic("implement me")
-}
-
 type ControllerCouriersTestSuite struct {
 	suite.Suite
-	api *APIService
-	m   *CouriersElasticDAOMock
-	r   *gin.Engine
+	api					*APIService
+	router          	*gin.Engine
+	testCourier     	*models.Courier
+	testCourierCreate	*models.CourierCreate
+	testCourierUpdate	*models.CourierUpdate
+	couriersDAOMock		*mocks.CouriersDAOMock
 }
 
-func (s *ControllerCouriersTestSuite) setupRouter() {
-	g := s.r.Group("/couriers")
-	g.POST("/", s.api.CreateCourier)
-	g.GET("/:courier_id", s.api.GetCourierByID)
-}
-
-func (s *ControllerCouriersTestSuite) SetupSuite() {
-	m := &CouriersElasticDAOMock{}
-	s.m = m
-	s.api = &APIService{
-		OrdersDAO:   nil,
-		CouriersDAO: m,
+func (ts *ControllerCouriersTestSuite) SetupSuite() {
+	geoResolverMock := new(mocks.GeoResolverMock)
+	geoResolverMock.On("Resolve", mock.Anything).Return(nil)
+	ts.api = &APIService{
+		Logger:      zap.NewNop(),
+		GeoResolver: geoResolverMock,
 	}
-	gin.SetMode("test")
-	s.r = gin.New()
-	s.setupRouter()
-}
 
-func (s *ControllerCouriersTestSuite) TestCreateOk() {
-	w := httptest.NewRecorder()
-	c :=
-		`{
-			"name": "Vasya",
-			"phone": "79031186555"
-		}`
-	req, err := http.NewRequest(http.MethodPost, "/couriers/", bytes.NewReader([]byte(c)))
+	ts.router = gin.Default()
+	SetupRouters(ts.router, ts.api)
+	testPhone := "Test phone"
 
-	s.Assert().NoError(err)
+	ts.testCourier = &models.Courier{
+		ID:       "550e8400-e29b-41d4-a716-446655440000",
+		Name:     "Test Name",
+		Phone:    &testPhone,
+	}
 
-	s.r.ServeHTTP(w, req)
-	res := w.Result()
+	ts.testCourierCreate = &models.CourierCreate{
+		Name: ts.testCourier.Name,
+		Phone:ts.testCourier.Phone,
+	}
 
-	s.Assert().Equal(http.StatusCreated, res.StatusCode)
-}
+	testLocation := "Test location"
 
-func (s *ControllerCouriersTestSuite) TestCreateWithoutName() {
-	w := httptest.NewRecorder()
-	c :=
-		`{
-			"phone": "79031186555"
-		}`
-	req, err := http.NewRequest(http.MethodPost, "/couriers/", bytes.NewReader([]byte(c)))
-
-	s.Assert().NoError(err)
-
-	s.r.ServeHTTP(w, req)
-	res := w.Result()
-	s.Assert().NoError(err)
-	s.Assert().Equalf(http.StatusBadRequest, res.StatusCode, "%s", w.Body.String())
-}
-
-func (s *ControllerCouriersTestSuite) TestGetByIDOk() {
-	w := httptest.NewRecorder()
-	id := uuid.NewV4()
-	path := fmt.Sprintf("/couriers/%s", id.String())
-	req, err := http.NewRequest(http.MethodGet, path, nil)
-
-	s.Assert().NoError(err)
-
-	s.r.ServeHTTP(w, req)
-	res := w.Result()
-	s.Assert().NoError(err)
-	s.Assert().Equal(http.StatusOK, res.StatusCode)
-	var m map[string]interface{}
-	err = json.Unmarshal(w.Body.Bytes(), &m)
-	s.Assert().NoErrorf(err, "body: %s", w.Body.String())
-	s.Assert().Contains(m, "id")
-	s.Assert().Equal(id.String(), m["id"])
+	ts.testCourierUpdate = &models.CourierUpdate{
+		Location: &models.Location{
+			Point:   elastic.GeoPointFromLatLon(10, 10),
+			Address: &testLocation,
+		},
+	}
 }
 
 func TestUnitControllersCouriers(t *testing.T) {
 	suite.Run(t, new(ControllerCouriersTestSuite))
+}
+
+func (ts *ControllerCouriersTestSuite) BeforeTest(suiteName, testName string) {
+	ts.couriersDAOMock = new(mocks.CouriersDAOMock)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_CreateCourier_Created() {
+	ts.couriersDAOMock.On("Create", mock.Anything).Return(ts.testCourier, nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	w := httptest.NewRecorder()
+	url := fmt.Sprintf("/couriers")
+	req, _ := http.NewRequest("POST", url, toByteReader(ts.testCourierCreate))
+	ts.router.ServeHTTP(w, req)
+
+	var got models.Courier
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	ts.NoError(err)
+	ts.Equal(201, w.Code)
+	ts.Equal(ts.testCourier, &got)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_GetCourierById_OK() {
+	ts.couriersDAOMock.On("GetByID", ts.testCourier.ID).Return(ts.testCourier, nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	url := fmt.Sprintf("/couriers/%s", ts.testCourier.ID)
+	req, _ := http.NewRequest("GET", url, bytes.NewReader([]byte{}))
+	w := httptest.NewRecorder()
+	ts.router.ServeHTTP(w, req)
+
+	var got models.Courier
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	ts.NoError(err)
+	ts.Equal(http.StatusOK, w.Code)
+	ts.Equal(ts.testCourier, &got)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_UpdateCourier_OK() {
+	ts.testCourier.Location = ts.testCourierUpdate.Location
+	ts.couriersDAOMock.On("Update", mock.Anything).Return(ts.testCourier, nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	w := httptest.NewRecorder()
+	url := fmt.Sprintf("/couriers/%s", ts.testCourier.ID)
+	req, _ := http.NewRequest("PUT", url, toByteReader(ts.testCourierUpdate))
+	ts.router.ServeHTTP(w, req)
+
+	var got models.Courier
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	ts.NoError(err)
+	ts.Equal(http.StatusOK, w.Code)
+	ts.Equal(ts.testCourier, &got)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_DeleteOrder_NoContent() {
+	ts.couriersDAOMock.On("Delete", ts.testCourier.ID).Return(nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	w := httptest.NewRecorder()
+	url := fmt.Sprintf("/couriers/%s", ts.testCourier.ID)
+	req, _ := http.NewRequest("DELETE", url, nil)
+	ts.router.ServeHTTP(w, req)
+
+	ts.Equal(http.StatusNoContent, w.Code)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByCircleField() {
+	circleField := &models.CircleField{
+		Center: elastic.GeoPointFromLatLon(10, 10),
+		Radius: 10,
+	}
+
+	testCouriers := append(models.Couriers{}, ts.testCourier)
+
+	ts.couriersDAOMock.On("GetByCircleField", circleField).Return(testCouriers, nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	v := url.Values{}
+	v.Add("radius", "10")
+	v.Add("lat", "10")
+	v.Add("lon", "10")
+
+	uri := fmt.Sprintf("/couriers?%s", v.Encode())
+	req, _ := http.NewRequest("GET", uri, bytes.NewReader([]byte{}))
+	w := httptest.NewRecorder()
+	ts.router.ServeHTTP(w, req)
+
+	var got models.Couriers
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	ts.NoError(err)
+	ts.Equal(http.StatusOK, w.Code)
+	ts.Equal(testCouriers, got)
+}
+
+func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByBoxField() {
+	boxField := &models.BoxField{
+		TopLeftPoint: elastic.GeoPointFromLatLon(10, 10),
+		BottomRightPoint: elastic.GeoPointFromLatLon(20, 20),
+	}
+
+	testCouriers := append(models.Couriers{}, ts.testCourier)
+
+	ts.couriersDAOMock.On("GetByBoxField", boxField).Return(testCouriers, nil)
+	ts.api.CouriersDAO = ts.couriersDAOMock
+
+	v := url.Values{}
+	v.Add("top_left_lat", "10")
+	v.Add("top_left_lon", "10")
+	v.Add("bottom_right_lat", "20")
+	v.Add("bottom_right_lon", "20")
+
+	uri := fmt.Sprintf("/couriers?%s", v.Encode())
+	req, _ := http.NewRequest("GET", uri, bytes.NewReader([]byte{}))
+	w := httptest.NewRecorder()
+	ts.router.ServeHTTP(w, req)
+
+	var got models.Couriers
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	ts.NoError(err)
+	ts.Equal(http.StatusOK, w.Code)
+	ts.Equal(testCouriers, got)
 }
