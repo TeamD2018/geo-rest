@@ -48,11 +48,13 @@ func (od *OrdersElasticDAO) Get(orderID string) (*models.Order, error) {
 
 	var order models.Order
 	if err != nil {
-
+		if elastic.IsNotFound(err) {
+			return nil, models.ErrEntityNotFound.SetParameter(orderID)
+		}
 		return nil, err
 	}
 	if err := json.Unmarshal(*orderRaw.Source, &order); err != nil {
-		return nil, err
+		return nil, models.ErrUnmarshalJSON
 	}
 	order.ID = orderRaw.Id
 	return &order, nil
@@ -65,7 +67,7 @@ func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Ord
 		return nil, err
 	}
 	if !exists {
-		return nil, models.ErrCourierNotFound
+		return nil, models.ErrEntityNotFound.SetParameter(*orderCreate.CourierID)
 	}
 	var order models.Order
 	order.Source = orderCreate.Source
@@ -96,7 +98,7 @@ func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, e
 			return nil, err
 		}
 		if !exists {
-			return nil, models.ErrCourierNotFound
+			return nil, models.ErrEntityNotFound.SetParameter(*update.CourierID)
 		}
 	}
 	orderRaw, err := db.Update().
@@ -126,6 +128,9 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 		Id(orderID).
 		Do(context.Background())
 	if err != nil {
+		if elastic.IsNotFound(err) {
+			return models.ErrEntityNotFound.SetParameter(orderID)
+		}
 		return err
 	}
 	return nil

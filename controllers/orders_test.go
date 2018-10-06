@@ -336,4 +336,3 @@ func (oc *OrdersControllersTestSuite) TestAPIService_GetOrdersForCourier_OK() {
 	oc.Equal(http.StatusOK, w.Code)
 	oc.Contains(got, oc.testOrder)
 }
-
