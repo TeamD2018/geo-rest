@@ -43,3 +43,7 @@ func (c *CouriersDAOMock) Delete(courierID string) error {
 	args := c.Called(courierID)
 	return args.Error(0)
 }
+func (c *CouriersDAOMock) Exists(courierID string) (bool, error) {
+	args := c.Called(courierID)
+	return args.Bool(0), args.Error(1)
+}
