@@ -4,6 +4,7 @@ COPY . .
 
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
+ENV GIN_MODE=release
 
 RUN go build -a -installsuffix cgo -tags=jsoniter -o geo-rest .
 
