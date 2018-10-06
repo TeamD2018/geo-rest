@@ -60,9 +60,12 @@ func (od *OrdersElasticDAO) Get(orderID string) (*models.Order, error) {
 
 func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Order, error) {
 	db := od.Elastic
-	_, err := od.couriersDAO.GetByID(*orderCreate.CourierID)
+	exists, err := od.couriersDAO.Exists(*orderCreate.CourierID)
 	if err != nil {
 		return nil, err
+	}
+	if !exists {
+		return nil, models.ErrCourierNotFound
 	}
 	var order models.Order
 	order.Source = orderCreate.Source
@@ -87,6 +90,15 @@ func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, e
 	db := od.Elastic
 	id := *update.ID
 	update.ID = nil
+	if update.CourierID != nil {
+		exists, err := od.couriersDAO.Exists(*update.CourierID)
+		if err != nil {
+			return nil, err
+		}
+		if !exists {
+			return nil, models.ErrCourierNotFound
+		}
+	}
 	orderRaw, err := db.Update().
 		Index(od.Index).
 		Type("_doc").
