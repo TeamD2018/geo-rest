@@ -5,6 +5,7 @@ COPY . .
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 
+RUN update-ca-certificates
 RUN go build -a -installsuffix cgo -tags=jsoniter -o geo-rest .
 
 FROM scratch AS runtime
