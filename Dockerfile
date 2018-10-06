@@ -1,15 +1,14 @@
-FROM golang:1.11-alpine AS build
+FROM golang:1.11 as build
 WORKDIR /go/src
 COPY . .
 
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 
-RUN apk update && apk add git && apk add ca-certificates
 RUN go build -a -installsuffix cgo -tags=jsoniter -o geo-rest .
 
-FROM scratch AS runtime
+FROM alpine:3.8 AS runtime
 COPY --from=build /go/src/geo-rest ./
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs
+RUN apk add --update ca-certificates
 EXPOSE 8080/tcp
 ENTRYPOINT ["./geo-rest"]
