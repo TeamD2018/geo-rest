@@ -32,8 +32,8 @@ func (oc *OrdersControllersTestSuite) SetupSuite() {
 	oc.api = &APIService{
 		Logger: zap.NewNop(),
 	}
-
-	oc.router = gin.Default()
+	gin.DisableConsoleColor()
+	oc.router = gin.New()
 	SetupRouters(oc.router, oc.api)
 	testPhone := "Test phone"
 	var lastSeen int64 = 100

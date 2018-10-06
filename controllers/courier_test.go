@@ -34,8 +34,8 @@ func (ts *ControllerCouriersTestSuite) SetupSuite() {
 		Logger:      zap.NewNop(),
 		GeoResolver: geoResolverMock,
 	}
-
-	ts.router = gin.Default()
+	gin.DisableConsoleColor()
+	ts.router = gin.New()
 	SetupRouters(ts.router, ts.api)
 	testPhone := "Test phone"
 
