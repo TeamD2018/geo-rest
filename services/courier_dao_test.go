@@ -8,6 +8,7 @@ import (
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
 	"github.com/ory/dockertest"
+	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"log"
@@ -392,8 +393,8 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldOK() {
 	s.UpdateCourier(courierUpd)
 	s.client.Refresh(CourierIndex).Do(context.Background())
 	res, err := service.GetByBoxField(&models.BoxField{
-		TopLeftPoint: elastic.GeoPointFromLatLon(71.0,69.0),
-		BottomRightPoint: elastic.GeoPointFromLatLon(0,0),
+		TopLeftPoint:     elastic.GeoPointFromLatLon(71.0, 69.0),
+		BottomRightPoint: elastic.GeoPointFromLatLon(0, 0),
 	})
 	s.Assert().NoError(err)
 	s.Assert().NotEmpty(res)
@@ -418,11 +419,33 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldEmpty() {
 	s.UpdateCourier(courierUpd)
 	s.client.Refresh(CourierIndex).Do(context.Background())
 	res, err := service.GetByBoxField(&models.BoxField{
-		TopLeftPoint: elastic.GeoPointFromLatLon(1,1),
-		BottomRightPoint: elastic.GeoPointFromLatLon(0,0),
+		TopLeftPoint:     elastic.GeoPointFromLatLon(1, 1),
+		BottomRightPoint: elastic.GeoPointFromLatLon(0, 0),
 	})
 	s.Assert().NoError(err)
 	s.Assert().Empty(res)
+}
+
+func (s *CourierTestSuite) TestExistsCourierOK() {
+	service := s.GetService()
+	name := "Vasya"
+	phone := "79031189023"
+	courier := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	id := s.CreateCourier(courier)
+	s.client.Refresh(service.index).Do(context.Background())
+	isExists, err := service.Exists(id)
+	s.NoError(err)
+	s.True(isExists)
+}
+
+func (s *CourierTestSuite) TestExistsCourierNotFound() {
+	service := s.GetService()
+	isExists, err := service.Exists(uuid.NewV4().String())
+	s.NoError(err)
+	s.False(isExists)
 }
 
 func TestIntegrationCouriersDAO(t *testing.T) {
