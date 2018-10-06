@@ -174,6 +174,19 @@ func (c *CouriersElasticDAO) Delete(courierID string) error {
 	return nil
 }
 
+func (c *CouriersElasticDAO) Exists(courierID string) (bool, error) {
+	res, err := c.client.Exists().
+		Index(c.index).
+		Type("_doc").
+		Id(courierID).
+		Do(context.Background())
+	if err != nil {
+		c.l.Error("fail to check courier existence", zap.String("courier_id", courierID), zap.Error(err))
+		return false, err
+	}
+	return res, nil
+}
+
 func (c *CouriersElasticDAO) EnsureMapping() error {
 	indexName, mapping := c.GetMapping()
 

@@ -9,5 +9,6 @@ type ICouriersDAO interface {
 	GetByCircleField(field *models.CircleField) (models.Couriers, error)
 	Create(courier *models.CourierCreate) (*models.Courier, error)
 	Update(courier *models.CourierUpdate) (*models.Courier, error)
+	Exists(courierID string) (bool, error)
 	Delete(courierID string) error
 }
