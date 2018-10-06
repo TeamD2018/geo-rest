@@ -11,7 +11,7 @@ type CircleFieldQuery struct {
 	Lat float64 `form:"lat" binding:"min=-90,max=90"`
 
 	// Longitude
-	Lon float64 `form:"lon" binding:"min-180,max=180"`
+	Lon float64 `form:"lon" binding:"min=-180,max=180"`
 
 	Radius int `form:"radius" binding:"required,gt=0"`
 }
