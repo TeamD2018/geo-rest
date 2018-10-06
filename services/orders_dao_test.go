@@ -5,6 +5,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/TeamD2018/geo-rest/controllers/mocks"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
 	"github.com/ory/dockertest"
@@ -28,6 +29,8 @@ type OrdersTestSuite struct {
 }
 
 func (s *OrdersTestSuite) BeforeTest(suiteName, testName string) {
+	s.couriersDao = NewCouriersElasticDAO(s.client, nil, "")
+	s.ordersDao = NewOrdersElasticDAO(s.client, nil, s.couriersDao, "")
 	s.couriersDao.index = uuid.NewV4().String()
 	s.couriersDao.EnsureMapping()
 	s.ordersDao.Index = uuid.NewV4().String()
@@ -89,9 +92,6 @@ func (s *OrdersTestSuite) SetupSuite() {
 	s.pool = pool
 	s.resource = resource
 	s.logger = zap.NewNop()
-	s.couriersDao = NewCouriersElasticDAO(s.client, nil, "")
-	s.ordersDao = NewOrdersElasticDAO(s.client, nil, s.couriersDao, "")
-
 }
 
 func (s OrdersTestSuite) TestOrdersDao_Get() {
@@ -140,6 +140,29 @@ func (s OrdersTestSuite) TestOrdersElasticDAO_Update_OK() {
 		Destination: s.testOrder.Destination,
 		CreatedAt:   s.testOrder.CreatedAt,
 	}
+	updated, err := s.ordersDao.Update(&update)
+	s.Assert().NoError(err)
+	s.Assert().EqualValues(&expected, updated)
+}
+
+func (s OrdersTestSuite) TestOrdersElasticDAO_Update_CourierIDOnly_OK() {
+
+	newCourierID := "550e8400-e29b-41d4-a716-446655440000"
+	update := models.OrderUpdate{
+		ID:        &s.testOrder.ID,
+		CourierID: &newCourierID,
+	}
+	expected := models.Order{
+		ID:          s.testOrder.ID,
+		CourierID:   newCourierID,
+		Source:      s.testOrder.Source,
+		Destination: s.testOrder.Destination,
+		CreatedAt:   s.testOrder.CreatedAt,
+	}
+	couriersDaoMock := new(mocks.CouriersDAOMock)
+	couriersDaoMock.On("Exists", newCourierID).Return(true, nil)
+	s.ordersDao.couriersDAO = couriersDaoMock
+
 	updated, err := s.ordersDao.Update(&update)
 	s.Assert().NoError(err)
 	s.Assert().EqualValues(&expected, updated)
