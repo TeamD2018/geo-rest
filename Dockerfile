@@ -1,11 +1,11 @@
-FROM golang:1.11 AS build
+FROM golang:1.11-alpine AS build
 WORKDIR /go/src
 COPY . .
 
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 
-RUN update-ca-certificates
+RUN apk update && apk add git && apk add ca-certificates
 RUN go build -a -installsuffix cgo -tags=jsoniter -o geo-rest .
 
 FROM scratch AS runtime
