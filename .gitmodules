@@ -1,4 +1,0 @@
-[submodule "geo-rest-stuff"]
-	path = geo-rest-stuff
-	url = git@github.com:TeamD2018/geo-rest-stuff.git
-	branch = master
