@@ -12,21 +12,26 @@ import (
 )
 
 const CourierIndex = "couriers"
+const DefaultCouriersReturnSize = 200
 
 type CouriersElasticDAO struct {
-	client *elastic.Client
-	index  string
-	l      *zap.Logger
+	client            *elastic.Client
+	index             string
+	defaultReturnSize int
+	l                 *zap.Logger
 }
 
-func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index string) *CouriersElasticDAO {
+func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index string, defaultReturnSize int) *CouriersElasticDAO {
 	if logger == nil {
 		logger, _ = zap.NewDevelopment()
 	}
 	if index == "" {
 		index = CourierIndex
 	}
-	return &CouriersElasticDAO{client: client, index: index, l: logger}
+	if defaultReturnSize <= 0 {
+		defaultReturnSize = DefaultCouriersReturnSize
+	}
+	return &CouriersElasticDAO{client: client, index: index, l: logger, defaultReturnSize: defaultReturnSize}
 }
 
 func (c *CouriersElasticDAO) GetByID(courierID string) (*models.Courier, error) {
@@ -48,21 +53,22 @@ func (c *CouriersElasticDAO) GetByID(courierID string) (*models.Courier, error) 
 	return result, nil
 }
 
-func (*CouriersElasticDAO) GetByName(name string) (models.Couriers, error) {
+func (*CouriersElasticDAO) GetByName(name string, size int) (models.Couriers, error) {
 	return nil, nil
 }
 
-func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField) (models.Couriers, error) {
+func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField, size int) (models.Couriers, error) {
 	boolQuery := elastic.NewBoolQuery()
 	boundingboxQuery := elastic.NewGeoBoundingBoxQuery("location.point").
 		TopLeftFromGeoPoint(field.TopLeftPoint).BottomRightFromGeoPoint(field.BottomRightPoint)
 	match := elastic.NewMatchAllQuery()
-
+	size = c.resolveDefaultReturnSize(size)
 	query := boolQuery.Must(match).Filter(boundingboxQuery)
 
 	result := models.Couriers{}
 
-	res, err := c.client.Search(c.index).Type("_doc").Query(query).Do(context.Background())
+	size = c.resolveDefaultReturnSize(size)
+	res, err := c.client.Search(c.index).Type("_doc").Size(size).Query(query).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +85,7 @@ func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField) (models.Couri
 	return result, nil
 }
 
-func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField) (models.Couriers, error) {
+func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField, size int) (models.Couriers, error) {
 	boolQuery := elastic.NewBoolQuery()
 	geodistanceQuery := elastic.NewGeoDistanceQuery("location.point").
 		GeoPoint(field.Center).
@@ -88,9 +94,10 @@ func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField) (models
 
 	query := boolQuery.Must(match).
 		Filter(geodistanceQuery)
-
+	size = c.resolveDefaultReturnSize(size)
 	end := c.client.Search(c.index).
 		Type("_doc").
+		Size(size).
 		Query(query)
 
 	result := models.Couriers{}
@@ -206,6 +213,12 @@ func (c *CouriersElasticDAO) EnsureMapping() error {
 	}
 
 	return nil
+}
+func (c *CouriersElasticDAO) resolveDefaultReturnSize(size int) int {
+	if size <= 0 {
+		return c.defaultReturnSize
+	}
+	return size
 }
 
 func (c *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {

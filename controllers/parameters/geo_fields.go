@@ -7,6 +7,7 @@ import (
 
 // Location - Geo-point (longitude, latitude)
 type CircleFieldQuery struct {
+	Size int `form:"size"`
 	// Latitude
 	Lat float64 `form:"lat" binding:"min=-90,max=90"`
 
@@ -17,6 +18,7 @@ type CircleFieldQuery struct {
 }
 
 type BoxFieldQuery struct {
+	Size       int     `form:"size"`
 	TopLeftLat float64 `form:"top_left_lat" binding:"min=-90,max=90"`
 	TopLeftLon float64 `form:"top_left_lon" binding:"min=-180,max=180"`
 

@@ -42,7 +42,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "")
+	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "", services.DefaultCouriersReturnSize)
 	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
 	gmapsResolver := services.NewGMapsResolver(gmaps, logger)
 	if err := couriersDao.EnsureMapping();

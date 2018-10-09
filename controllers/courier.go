@@ -70,12 +70,12 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 }
 
 func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
-	circle := parameters.CircleFieldQuery{}
-	if err := ctx.BindQuery(&circle); err != nil {
+	searchParams := parameters.CircleFieldQuery{}
+	if err := ctx.BindQuery(&searchParams); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	if couriers, err := api.CouriersDAO.GetByCircleField(circle.ToCircleField()); err != nil {
+	if couriers, err := api.CouriersDAO.GetByCircleField(searchParams.ToCircleField(), searchParams.Size); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	} else {
@@ -85,12 +85,12 @@ func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
 }
 
 func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
-	box := parameters.BoxFieldQuery{}
-	if err := ctx.BindQuery(&box); err != nil {
+	searchParams := parameters.BoxFieldQuery{}
+	if err := ctx.BindQuery(&searchParams); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	if couriers, err := api.CouriersDAO.GetByBoxField(box.ToBoxField()); err != nil {
+	if couriers, err := api.CouriersDAO.GetByBoxField(searchParams.ToBoxField(), searchParams.Size); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	} else {

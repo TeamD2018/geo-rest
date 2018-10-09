@@ -90,7 +90,7 @@ func (s *OrdersCreateTestSuite) SetupSuite() {
 	s.pool = pool
 	s.resource = resource
 	s.logger = zap.NewNop()
-	s.couriersDao = NewCouriersElasticDAO(s.client, s.logger, "")
+	s.couriersDao = NewCouriersElasticDAO(s.client, s.logger, "", DefaultCouriersReturnSize)
 	s.ordersDao = NewOrdersElasticDAO(s.client, s.logger, s.couriersDao, "")
 }
 

@@ -29,7 +29,7 @@ type OrdersTestSuite struct {
 }
 
 func (s *OrdersTestSuite) BeforeTest(suiteName, testName string) {
-	s.couriersDao = NewCouriersElasticDAO(s.client, s.logger, "")
+	s.couriersDao = NewCouriersElasticDAO(s.client, s.logger, "", DefaultCouriersReturnSize)
 	s.ordersDao = NewOrdersElasticDAO(s.client, s.logger, s.couriersDao, "")
 	s.couriersDao.index = uuid.NewV4().String()
 	s.couriersDao.EnsureMapping()

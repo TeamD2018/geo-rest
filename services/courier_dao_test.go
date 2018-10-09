@@ -150,7 +150,7 @@ func (s *CourierTestSuite) SetupSuite() {
 }
 
 func (s *CourierTestSuite) GetService() *CouriersElasticDAO {
-	return NewCouriersElasticDAO(s.client, zap.NewNop(), "")
+	return NewCouriersElasticDAO(s.client, zap.NewNop(), "", DefaultCouriersReturnSize)
 }
 
 func (s *CourierTestSuite) ClearCouriersFromElastic(couriersIDs ...string) error {
@@ -348,7 +348,7 @@ func (s *CourierTestSuite) TestGetCouriersByCircleFieldOK() {
 	res, err := service.GetByCircleField(&models.CircleField{
 		Center: elastic.GeoPointFromLatLon(70.00005, 70.00005),
 		Radius: 1000,
-	})
+	}, 0)
 	s.Assert().NoError(err)
 	s.Assert().NotEmpty(res)
 	s.Assert().Len(res, 1)
@@ -374,7 +374,7 @@ func (s *CourierTestSuite) TestGetCouriersByCircleFieldEmpty() {
 	res, err := service.GetByCircleField(&models.CircleField{
 		Center: elastic.GeoPointFromLatLon(1, 1),
 		Radius: 1,
-	})
+	}, 0)
 	s.Assert().NoError(err)
 	s.Assert().Empty(res)
 }
@@ -399,7 +399,7 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldOK() {
 	res, err := service.GetByBoxField(&models.BoxField{
 		TopLeftPoint:     elastic.GeoPointFromLatLon(71.0, 69.0),
 		BottomRightPoint: elastic.GeoPointFromLatLon(0, 0),
-	})
+	}, 0)
 	s.Assert().NoError(err)
 	s.Assert().NotEmpty(res)
 	s.Assert().Len(res, 1)
@@ -425,7 +425,7 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldEmpty() {
 	res, err := service.GetByBoxField(&models.BoxField{
 		TopLeftPoint:     elastic.GeoPointFromLatLon(1, 1),
 		BottomRightPoint: elastic.GeoPointFromLatLon(0, 0),
-	})
+	}, 0)
 	s.Assert().NoError(err)
 	s.Assert().Empty(res)
 }
