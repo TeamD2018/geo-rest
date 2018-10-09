@@ -12,7 +12,7 @@ type Order struct {
 	CreatedAt int64 `json:"created_at,omitempty"`
 
 	// Order cancellation time in UTC format(ms)
-	DeliveredAt int64 `json:"delivered_at"`
+	DeliveredAt int64 `json:"delivered_at,omitempty"`
 
 	Destination Location `json:"destination,omitempty"`
 
