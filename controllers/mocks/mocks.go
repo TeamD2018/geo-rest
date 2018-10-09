@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"context"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/stretchr/testify/mock"
 )
@@ -78,7 +79,7 @@ type GeoResolverMock struct {
 	mock.Mock
 }
 
-func (gr *GeoResolverMock) Resolve(location *models.Location) error {
-	args := gr.Called(location)
+func (gr *GeoResolverMock) Resolve(location *models.Location, ctx context.Context) error {
+	args := gr.Called(location,ctx)
 	return args.Error(0)
 }

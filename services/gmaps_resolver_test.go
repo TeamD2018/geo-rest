@@ -3,6 +3,7 @@
 package services
 
 import (
+	"context"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
 	"github.com/stretchr/testify/suite"
@@ -42,7 +43,7 @@ func (s GMapsResolverTestSuite) TestGMapsResolver_Resolve_Addr() {
 		Point:   nil,
 		Address: &addr,
 	}
-	err := s.service.Resolve(location)
+	err := s.service.Resolve(location, context.Background())
 	s.NoError(err)
 	s.InDelta(37.4231778, location.Point.Lat, 0.001)
 	s.InDelta(-122.0852514, location.Point.Lon, 0.001)
@@ -53,7 +54,7 @@ func (s GMapsResolverTestSuite) TestGMapsResolver_Resolve_Point() {
 	location := &models.Location{
 		Point: elastic.GeoPointFromLatLon(37.4231778, -122.0852514),
 	}
-	err := s.service.Resolve(location)
+	err := s.service.Resolve(location, context.Background())
 	s.NoError(err)
 	s.EqualValues(addr, *location.Address)
 }

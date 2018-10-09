@@ -81,7 +81,7 @@ func TestUnitControllersOrders(t *testing.T) {
 func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	oc.ordersDAOMock = new(mocks.OrdersDAOMock)
 	geoResolverMock := new(mocks.GeoResolverMock)
-	geoResolverMock.On("Resolve", mock.Anything).Return(nil)
+	geoResolverMock.On("Resolve", mock.Anything, mock.Anything).Return(nil)
 	oc.api.GeoResolver = geoResolverMock
 }
 
@@ -106,7 +106,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_Created_If_Reso
 	oc.ordersDAOMock.On("Create", mock.Anything).Return(oc.testOrder, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
 	georesolver := new(mocks.GeoResolverMock)
-	georesolver.On("Resolve", mock.Anything).Return(errors.New("test error"))
+	georesolver.On("Resolve", mock.Anything, mock.Anything).Return(errors.New("test error"))
 	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
@@ -125,7 +125,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_EntityNotFound(
 	oc.ordersDAOMock.On("Create", mock.Anything).Return(nil, &models.ErrEntityNotFound)
 	oc.api.OrdersDAO = oc.ordersDAOMock
 	georesolver := new(mocks.GeoResolverMock)
-	georesolver.On("Resolve", mock.Anything).Return(nil)
+	georesolver.On("Resolve", mock.Anything, mock.Anything).Return(nil)
 	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
@@ -145,7 +145,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_UnexpectedError
 	oc.ordersDAOMock.On("Create", mock.Anything).Return(nil, errors.New("unexpected"))
 	oc.api.OrdersDAO = oc.ordersDAOMock
 	georesolver := new(mocks.GeoResolverMock)
-	georesolver.On("Resolve", mock.Anything).Return(nil)
+	georesolver.On("Resolve",mock.Anything, mock.Anything).Return(nil)
 	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
@@ -252,7 +252,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_OK_If_Resolver_
 	oc.ordersDAOMock.On("Update", mock.Anything).Return(oc.testOrder, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
 	georesolver := new(mocks.GeoResolverMock)
-	georesolver.On("Resolve", mock.Anything).Return(errors.New("test error"))
+	georesolver.On("Resolve",mock.Anything, mock.Anything).Return(errors.New("test error"))
 	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
