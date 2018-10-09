@@ -20,12 +20,12 @@ func NewGMapsResolver(client *maps.Client, logger *zap.Logger) *GMapsResolver {
 	}
 }
 
-func (gm *GMapsResolver) Resolve(location *models.Location) error {
+func (gm *GMapsResolver) Resolve(location *models.Location, ctx context.Context) error {
 	if location == nil || (location.Point != nil && location.Address != nil) {
 		return nil
 	}
 	if location.Point != nil {
-		resolvedAddr, err := gm.resolvePoint(location.Point)
+		resolvedAddr, err := gm.resolvePoint(location.Point, ctx)
 		if err != nil {
 			return err
 		}
@@ -33,7 +33,7 @@ func (gm *GMapsResolver) Resolve(location *models.Location) error {
 		return nil
 	}
 	if location.Address != nil {
-		resolvedPoint, err := gm.resolveAddr(*location.Address)
+		resolvedPoint, err := gm.resolveAddr(*location.Address, ctx)
 		if err != nil {
 			return err
 		}
@@ -41,7 +41,7 @@ func (gm *GMapsResolver) Resolve(location *models.Location) error {
 	}
 	return nil
 }
-func (gm *GMapsResolver) resolvePoint(point *elastic.GeoPoint) (string, error) {
+func (gm *GMapsResolver) resolvePoint(point *elastic.GeoPoint, ctx context.Context) (string, error) {
 	req := &maps.GeocodingRequest{
 		LatLng: &maps.LatLng{
 			Lat: point.Lat,
@@ -51,7 +51,7 @@ func (gm *GMapsResolver) resolvePoint(point *elastic.GeoPoint) (string, error) {
 		ResultType:   []string{"street_address"},
 		Language:     "ru",
 	}
-	results, err := gm.Maps.ReverseGeocode(context.Background(), req)
+	results, err := gm.Maps.ReverseGeocode(ctx, req)
 	if err != nil {
 		return "", err
 	}
@@ -59,11 +59,11 @@ func (gm *GMapsResolver) resolvePoint(point *elastic.GeoPoint) (string, error) {
 	return reversed.FormattedAddress, nil
 }
 
-func (gm *GMapsResolver) resolveAddr(address string) (*elastic.GeoPoint, error) {
+func (gm *GMapsResolver) resolveAddr(address string, ctx context.Context) (*elastic.GeoPoint, error) {
 	req := &maps.GeocodingRequest{
 		Address: address,
 	}
-	results, err := gm.Maps.Geocode(context.Background(), req)
+	results, err := gm.Maps.Geocode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
