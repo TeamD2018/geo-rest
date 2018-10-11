@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/TeamD2018/geo-rest/controllers/mocks"
+	"github.com/TeamD2018/geo-rest/controllers/parameters"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
 	"github.com/ory/dockertest"
@@ -14,6 +15,7 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"testing"
+	"time"
 )
 
 type OrdersTestSuite struct {
@@ -30,7 +32,8 @@ type OrdersTestSuite struct {
 
 func (s *OrdersTestSuite) BeforeTest(suiteName, testName string) {
 	s.couriersDao = NewCouriersElasticDAO(s.client, s.logger, "", DefaultCouriersReturnSize)
-	s.ordersDao = NewOrdersElasticDAO(s.client, s.logger, s.couriersDao, "")
+	l, _ := zap.NewDevelopment()
+	s.ordersDao = NewOrdersElasticDAO(s.client, l, s.couriersDao, "")
 	s.couriersDao.index = uuid.NewV4().String()
 	s.couriersDao.EnsureMapping()
 	s.ordersDao.Index = uuid.NewV4().String()
@@ -101,7 +104,10 @@ func (s OrdersTestSuite) TestOrdersDao_Get() {
 }
 
 func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier() {
-	orders, err := s.ordersDao.GetOrdersForCourier(s.testCourier.ID, s.testOrder.CreatedAt, false)
+	orders, err := s.ordersDao.GetOrdersForCourier(s.testCourier.ID,
+		s.testOrder.CreatedAt,
+		parameters.WithUpperThreshold,
+		parameters.IncludeDelivered)
 	s.Assert().NoError(err)
 	if s.Assert().Len(orders, 1) {
 		s.Assert().Equal(orders[0].ID, s.testOrder.ID)
@@ -109,23 +115,49 @@ func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier() {
 }
 
 func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_NoCourier() {
-	orders, err := s.ordersDao.GetOrdersForCourier("550e8400-e29b-41d4-a716-446655440000", s.testOrder.CreatedAt, false)
+	orders, err := s.ordersDao.GetOrdersForCourier("550e8400-e29b-41d4-a716-446655440000",
+		s.testOrder.CreatedAt,
+		parameters.WithUpperThreshold,
+		parameters.IncludeDelivered)
 	s.Assert().NoError(err)
 	s.Assert().Empty(orders)
 }
 
-func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_TimeTreshold() {
-	orders, err := s.ordersDao.GetOrdersForCourier(s.testCourier.ID, 0, false)
+func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_TimeThreshold() {
+	orders, err := s.ordersDao.GetOrdersForCourier(s.testCourier.ID, 0, parameters.WithUpperThreshold, parameters.IncludeDelivered)
 	s.Assert().NoError(err)
 	s.Assert().Empty(orders)
 }
 
-func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_Desc() {
-	orders, err := s.ordersDao.GetOrdersForCourier(s.testCourier.ID, s.testOrder.CreatedAt-10, true)
+func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_WithLowerThreshold() {
+	orders, err := s.ordersDao.GetOrdersForCourier(s.testCourier.ID, s.testOrder.CreatedAt-10, parameters.WithLowerThreshold, parameters.IncludeDelivered)
 	s.Assert().NoError(err)
 	if s.Assert().Len(orders, 1) {
 		s.Assert().Equal(orders[0].ID, s.testOrder.ID)
 	}
+}
+
+func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_ExcludeDelivered() {
+	deliveredTime := time.Now().Unix() + 10
+	makeDelivered := models.OrderUpdate{
+		DeliveredAt: &deliveredTime,
+		ID:          &s.testOrder.ID,
+	}
+	up, err := s.ordersDao.Update(&makeDelivered)
+	s.NoError(err)
+	if err != nil {
+		if !s.Equal(deliveredTime, up.DeliveredAt){
+			return
+		}
+	}
+	s.ordersDao.Elastic.Refresh(s.ordersDao.Index).Do(context.Background())
+	orders, err := s.ordersDao.GetOrdersForCourier(
+		s.testCourier.ID,
+		0,
+		parameters.WithLowerThreshold,
+		parameters.ExcludeDelivered)
+	s.NoError(err)
+	s.Empty(orders)
 }
 
 func (s OrdersTestSuite) TestOrdersElasticDAO_Update_OK() {

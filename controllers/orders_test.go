@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/TeamD2018/geo-rest/controllers/mocks"
+	"github.com/TeamD2018/geo-rest/controllers/parameters"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
@@ -321,7 +322,7 @@ func toByteReader(source interface{}) *bytes.Reader {
 }
 
 func (oc *OrdersControllersTestSuite) TestAPIService_GetOrdersForCourier_OK() {
-	oc.ordersDAOMock.On("GetOrdersForCourier", oc.testOrder.CourierID, int64(0), false).Return(models.Orders{oc.testOrder}, nil)
+	oc.ordersDAOMock.On("GetOrdersForCourier", oc.testOrder.CourierID, int64(0), parameters.WithUpperThreshold, parameters.IncludeDelivered).Return(models.Orders{oc.testOrder}, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
 
 	w := httptest.NewRecorder()

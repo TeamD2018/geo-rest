@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"github.com/TeamD2018/geo-rest/controllers/parameters"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/TeamD2018/geo-rest/services/interfaces"
 	"github.com/olivere/elastic"
@@ -136,7 +137,12 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 	return nil
 }
 
-func (od *OrdersElasticDAO) GetOrdersForCourier(courierID string, since int64, isLowerThreshold bool) (models.Orders, error) {
+func (od *OrdersElasticDAO) GetOrdersForCourier(
+	courierID string,
+	since int64,
+	isLowerThreshold parameters.DirectionFlag,
+	excludeDelivered parameters.DeliveredFlag) (models.Orders, error) {
+
 	db := od.Elastic
 	courierIDQuery := elastic.NewTermQuery("courier_id", courierID)
 	var sinceRangeQuery elastic.Query
@@ -145,8 +151,10 @@ func (od *OrdersElasticDAO) GetOrdersForCourier(courierID string, since int64, i
 	} else {
 		sinceRangeQuery = elastic.NewRangeQuery("created_at").Lte(since).IncludeLower(false)
 	}
-	ordersQuery := elastic.NewBoolQuery().Must(courierIDQuery, sinceRangeQuery)
-
+	ordersQuery := elastic.NewBoolQuery().Filter(courierIDQuery, sinceRangeQuery)
+	if excludeDelivered {
+		ordersQuery = ordersQuery.MustNot(elastic.NewExistsQuery("delivered_at"))
+	}
 	res, err := db.Search(od.Index).Type("_doc").Query(ordersQuery).Do(context.Background())
 	if err != nil {
 		return nil, err

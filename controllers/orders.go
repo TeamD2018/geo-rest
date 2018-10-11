@@ -208,7 +208,10 @@ func (api *APIService) GetOrdersForCourier(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	orders, err := api.OrdersDAO.GetOrdersForCourier(courierID, params.Since, params.Asc)
+	orders, err := api.OrdersDAO.GetOrdersForCourier(courierID,
+		params.Since,
+		params.Asc,
+		params.ExcludeDelivered)
 	if err != nil {
 		api.Logger.Error("fail to get orders for courier", zap.String("courier_id", courierID), zap.Error(err))
 		switch err.(type) {

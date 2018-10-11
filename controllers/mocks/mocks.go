@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"context"
+	"github.com/TeamD2018/geo-rest/controllers/parameters"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/stretchr/testify/mock"
 )
@@ -60,8 +61,8 @@ func (o *OrdersDAOMock) Delete(orderID string) error {
 	return args.Error(0)
 }
 
-func (o *OrdersDAOMock) GetOrdersForCourier(courierID string, since int64, asc bool) (models.Orders, error) {
-	args := o.Called(courierID, since, asc)
+func (o *OrdersDAOMock) GetOrdersForCourier(courierID string, since int64, asc parameters.DirectionFlag, excludeDelivered parameters.DeliveredFlag) (models.Orders, error) {
+	args := o.Called(courierID, since, asc, excludeDelivered)
 	v := args.Get(0)
 	err := args.Error(1)
 	switch v.(type) {
@@ -80,6 +81,6 @@ type GeoResolverMock struct {
 }
 
 func (gr *GeoResolverMock) Resolve(location *models.Location, ctx context.Context) error {
-	args := gr.Called(location,ctx)
+	args := gr.Called(location, ctx)
 	return args.Error(0)
 }

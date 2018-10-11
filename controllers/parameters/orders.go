@@ -3,8 +3,8 @@ package parameters
 type DirectionFlag bool
 type DeliveredFlag bool
 
-const WithLowerTreshold DirectionFlag = true
-const WithUpperTreshold DirectionFlag = false
+const WithLowerThreshold DirectionFlag = true
+const WithUpperThreshold DirectionFlag = false
 
 const IncludeDelivered DeliveredFlag = false
 const ExcludeDelivered DeliveredFlag = true
