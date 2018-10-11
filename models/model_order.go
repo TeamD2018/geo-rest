@@ -33,10 +33,10 @@ type OrderUpdate struct {
 	CourierID *string `json:"courier_id,omitempty"`
 
 	// Order creation time in UTC format(ms)
-	Created *int64 `json:"created,omitempty"`
+	CreatedAt *int64 `json:"created_at,omitempty"`
 
 	// Order cancellation time in UTC format(ms)
-	EndTime *int64 `json:"end_time,omitempty"`
+	DeliveredAt *int64 `json:"delivered_at,omitempty"`
 
 	//Destination of order
 	Destination *Location `json:"destination,omitempty"`
