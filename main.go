@@ -9,9 +9,13 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/tarantool/go-tarantool"
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
+	"io/ioutil"
 	"log"
+	"path/filepath"
+	"strings"
 )
 
 func init() {
@@ -38,12 +42,24 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	tntClient, err := tarantool.Connect(viper.GetString("tarantool.url"), tarantool.Opts{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	resp, err := tntClient.Eval(getLuaCode(), []interface{}{})
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println(resp)
+	}
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatal(err)
 	}
 	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "", services.DefaultCouriersReturnSize)
 	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
+
+	tntResolver := services.NewTntResolver(tntClient, logger)
 	gmapsResolver := services.NewGMapsResolver(gmaps, logger)
 	if err := couriersDao.EnsureMapping();
 		err != nil {
@@ -57,7 +73,7 @@ func main() {
 	api := controllers.APIService{
 		CouriersDAO: couriersDao,
 		OrdersDAO:   ordersDao,
-		GeoResolver: gmapsResolver,
+		GeoResolver: services.NewCachedResolver(tntResolver, gmapsResolver),
 		Logger:      logger,
 	}
 	router := gin.Default()
@@ -71,4 +87,22 @@ func main() {
 	if err := router.Run(viper.GetString("server.url")); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getLuaCode() string {
+	files, err := ioutil.ReadDir("./tnt_stored_procedures")
+	if err != nil {
+		log.Fatal(err)
+	}
+	buf := strings.Builder{}
+	for _, f := range files {
+		if filepath.Ext(f.Name()) == "lua" {
+			code, err := ioutil.ReadFile(f.Name())
+			if err != nil {
+				log.Fatal(err)
+			}
+			buf.Write(code)
+		}
+	}
+	return buf.String()
 }
