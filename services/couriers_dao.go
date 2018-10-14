@@ -8,6 +8,7 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 )
 
@@ -20,6 +21,8 @@ type CouriersElasticDAO struct {
 	defaultReturnSize int
 	l                 *zap.Logger
 }
+
+
 
 func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index string, defaultReturnSize int) *CouriersElasticDAO {
 	if logger == nil {
@@ -119,10 +122,22 @@ func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField, size in
 }
 
 func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Courier, error) {
-	m := &models.Courier{
-		Name:  courier.Name,
-		Phone: courier.Phone,
+	m := &courierWrapper{
+		Courier: models.Courier{
+			Name:  courier.Name,
+			Phone: courier.Phone,
+		},
 	}
+
+	m.Suggestions = elastic.NewSuggestField()
+
+	m.Suggestions.Input(courier.Name, strings.ToLower(courier.Name))
+
+	if courier.Phone != nil {
+		m.Suggestions.Input(*courier.Phone)
+	}
+
+	elastic.NewSuggestField()
 	id := uuid.NewV4().String()
 	res, err := c.client.Index().
 		Index(c.index).
@@ -136,7 +151,7 @@ func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Cour
 	}
 	m.ID = id
 	c.l.Sugar().Debugw("", zap.Any("res", res))
-	return m, nil
+	return &m.Courier, nil
 }
 
 func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Courier, error) {
@@ -146,7 +161,6 @@ func (c *CouriersElasticDAO) Update(courier *models.CourierUpdate) (*models.Cour
 		now := time.Now().Unix()
 		courier.LastSeen = &now
 	}
-
 	res, err := c.client.Update().
 		Index(c.index).
 		Type("_doc").
@@ -214,6 +228,35 @@ func (c *CouriersElasticDAO) EnsureMapping() error {
 
 	return nil
 }
+
+func (c *CouriersElasticDAO) Suggest(field string, prefix string, limit int) (models.Couriers, error) {
+	suggester := elastic.NewCompletionSuggester("couriers-suggester").
+		Field(field).
+		PrefixWithEditDistance(prefix, 1)
+	query := c.client.Search(c.index).Type("_doc").Suggester(suggester)
+
+	res, err := query.Do(context.Background())
+	if err != nil {
+		c.l.Error("fail to suggest", zap.Error(err))
+		return nil, err
+	}
+	suggestions := res.Suggest["couriers-suggester"]
+	found := make(models.Couriers, 0)
+	for _, suggest := range suggestions {
+		for _, option := range suggest.Options {
+			var courier models.Courier
+			if err := json.Unmarshal(*option.Source, &courier);
+				err != nil {
+				return nil, err
+			}
+			courier.ID = option.Id
+			found = append(found, &courier)
+		}
+	}
+
+	return found, err
+}
+
 func (c *CouriersElasticDAO) resolveDefaultReturnSize(size int) int {
 	if size <= 0 {
 		return c.defaultReturnSize
@@ -235,7 +278,7 @@ func (c *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {
 								"type": "geo_point"
 							},
 							"address": {
-								"type": "completion"
+								"type": "text"
 							}
 						}
 					},
@@ -246,9 +289,18 @@ func (c *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {
 					"last_seen": {
 						"type": "long",
 						"index": false
+					},
+					"suggestions": {
+						"type": "completion",
+						"analyzer": "whitespace"
 					}
 				}
 			}
 		}		
 	}`
+}
+
+type courierWrapper struct {
+	Suggestions *elastic.SuggestField `json:"suggestions,omitempty"`
+	models.Courier
 }
