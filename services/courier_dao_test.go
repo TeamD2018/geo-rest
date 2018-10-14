@@ -46,6 +46,9 @@ var (
 		"TestGetCouriersByBoxFieldEmpty",
 		"TestExistsCourierNotFound",
 		"TestExistsCourierOK",
+		"TestSuggestByPhoneOK",
+		"TestSuggestByNameOK",
+		"TestSuggestByPhoneFuzzyOK",
 	}
 	testsWithDeleteIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
@@ -64,6 +67,9 @@ var (
 		"TestGetCouriersByBoxFieldEmpty",
 		"TestExistsCourierNotFound",
 		"TestExistsCourierOK",
+		"TestSuggestByPhoneOK",
+		"TestSuggestByNameOK",
+		"TestSuggestByPhoneFuzzyOK",
 	}
 )
 
@@ -450,6 +456,50 @@ func (s *CourierTestSuite) TestExistsCourierNotFound() {
 	isExists, err := service.Exists(uuid.NewV4().String())
 	s.NoError(err)
 	s.False(isExists)
+}
+
+func (s *CourierTestSuite) TestSuggestByPhoneOK() {
+	service := s.GetService()
+	phone := "79123456789"
+	name := "Vasya"
+	courierCreate := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	courier, _ := service.Create(courierCreate)
+	service.client.Refresh(service.index).Do(context.Background())
+	cs, err := service.Suggest("suggestions", "79", 200)
+	s.NoError(err)
+	s.Contains(cs, courier)
+}
+func (s *CourierTestSuite) TestSuggestByNameOK() {
+	service := s.GetService()
+	phone := "79123456789"
+	name := "Vasya"
+	courierCreate := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	courier, _ := service.Create(courierCreate)
+	service.client.Refresh(service.index).Do(context.Background())
+	cs, err := service.Suggest("suggestions", "va", 200)
+	s.NoError(err)
+	s.Contains(cs, courier)
+}
+
+func (s *CourierTestSuite) TestSuggestByPhoneFuzzyOK() {
+	service := s.GetService()
+	phone := "79123456789"
+	name := "Vasya"
+	courierCreate := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	courier, _ := service.Create(courierCreate)
+	service.client.Refresh(service.index).Do(context.Background())
+	cs, err := service.Suggest("suggestions", "7913", 200)
+	s.NoError(err)
+	s.Contains(cs, courier)
 }
 
 func TestIntegrationCouriersDAO(t *testing.T) {
