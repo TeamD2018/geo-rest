@@ -60,13 +60,16 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 		return
 	}
 	courier.ID = &courierID
-	if updated, err := api.CouriersDAO.Update(courier); err != nil {
+	updated, err := api.CouriersDAO.Update(courier)
+	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
-	} else {
-		ctx.JSON(http.StatusOK, updated)
-		return
 	}
+	if err := api.CourierRouteDAO.AddPointToRoute(courierID, updated.Location.Point); err != nil {
+		//TODO: need info
+	}
+	ctx.JSON(http.StatusOK, updated)
+	return
 }
 
 func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
@@ -106,7 +109,14 @@ func (api *APIService) DeleteCourier(ctx *gin.Context) {
 		return
 	}
 	if err := api.CouriersDAO.Delete(courierID); err != nil {
+		api.Logger.Sugar().Error(err)
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
+	}
+	if err := api.CourierRouteDAO.DeleteCourier(courierID); err != nil {
+		api.Logger.Sugar().Error(err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
 	}
 	ctx.Status(http.StatusNoContent)
 }

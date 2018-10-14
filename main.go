@@ -65,16 +65,18 @@ func main() {
 		err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
 	}
-	if err := ordersDao.EnsureMapping();
-		err != nil {
+	if err := ordersDao.EnsureMapping(); err != nil {
 		logger.Fatal("Fail to ensure orders mapping: ", zap.Error(err))
 	}
 
+	tntRouteDao := services.NewTarantoolRouteDAO(tntClient)
+
 	api := controllers.APIService{
-		CouriersDAO: couriersDao,
-		OrdersDAO:   ordersDao,
-		GeoResolver: services.NewCachedResolver(tntResolver, gmapsResolver),
-		Logger:      logger,
+		CouriersDAO:     couriersDao,
+		OrdersDAO:       ordersDao,
+		CourierRouteDAO: tntRouteDao,
+		GeoResolver:     services.NewCachedResolver(tntResolver, gmapsResolver),
+		Logger:          logger,
 	}
 	router := gin.Default()
 

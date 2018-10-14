@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	spaceName = "geo_cache"
-	indexName = "address"
+	spaceGeoCacheName = "geo_cache"
+	indexName         = "address"
 )
 
 type TntResolver struct {
@@ -24,7 +24,7 @@ func NewTntResolver(client *tarantool.Connection, logger *zap.Logger) *TntResolv
 
 func (tnt *TntResolver) Resolve(location *models.Location, ctx context.Context) error {
 	var point = make([]interface{}, 0)
-	if err := tnt.client.GetTyped(spaceName, indexName, tarantool.StringKey{*location.Address}, &point); err != nil {
+	if err := tnt.client.GetTyped(spaceGeoCacheName, indexName, tarantool.StringKey{*location.Address}, &point); err != nil {
 		log.Println(err)
 	} else {
 		if len(point) == 0 {
@@ -40,7 +40,7 @@ func (tnt *TntResolver) SaveToCache(location *models.Location) error {
 	var tuple = make([]interface{}, 2)
 	tuple[0] = *location.Address
 	tuple[1] = map[string]float64{"lat": location.Point.Lat, "lon": location.Point.Lon}
-	resp, err := tnt.client.Insert(spaceName, tuple)
+	resp, err := tnt.client.Insert(spaceGeoCacheName, tuple)
 	if err != nil {
 		return err
 	}
