@@ -27,6 +27,7 @@ type OrdersControllersTestSuite struct {
 	testOrderCreate *models.OrderCreate
 	testOrderUpdate *models.OrderUpdate
 	ordersDAOMock   *mocks.OrdersDAOMock
+	suggestorMock   *mocks.CouriersSuggestorMock
 }
 
 func (oc *OrdersControllersTestSuite) SetupSuite() {
@@ -84,6 +85,7 @@ func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	geoResolverMock := new(mocks.GeoResolverMock)
 	geoResolverMock.On("Resolve", mock.Anything, mock.Anything).Return(nil)
 	oc.api.GeoResolver = geoResolverMock
+	oc.suggestorMock = new(mocks.CouriersSuggestorMock)
 }
 
 func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_Created() {
@@ -146,7 +148,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_UnexpectedError
 	oc.ordersDAOMock.On("Create", mock.Anything).Return(nil, errors.New("unexpected"))
 	oc.api.OrdersDAO = oc.ordersDAOMock
 	georesolver := new(mocks.GeoResolverMock)
-	georesolver.On("Resolve",mock.Anything, mock.Anything).Return(nil)
+	georesolver.On("Resolve", mock.Anything, mock.Anything).Return(nil)
 	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
@@ -253,7 +255,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_OK_If_Resolver_
 	oc.ordersDAOMock.On("Update", mock.Anything).Return(oc.testOrder, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
 	georesolver := new(mocks.GeoResolverMock)
-	georesolver.On("Resolve",mock.Anything, mock.Anything).Return(errors.New("test error"))
+	georesolver.On("Resolve", mock.Anything, mock.Anything).Return(errors.New("test error"))
 	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
@@ -336,4 +338,22 @@ func (oc *OrdersControllersTestSuite) TestAPIService_GetOrdersForCourier_OK() {
 	oc.NoError(err)
 	oc.Equal(http.StatusOK, w.Code)
 	oc.Contains(got, oc.testOrder)
+}
+
+func (oc *OrdersControllersTestSuite) TestAPIService_SuggestCouriers_OK() {
+	oc.suggestorMock.On("Suggest", mock.Anything, mock.Anything).Return(models.Couriers{oc.testCourier}, nil)
+	oc.api.CourierSuggester = oc.suggestorMock
+
+	params := parameters.Suggestion{Prefix: "Test", Limit: 200}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/suggestions/couriers", toByteReader(params))
+	oc.router.ServeHTTP(w, req)
+
+	var got models.Couriers
+	err := json.Unmarshal(w.Body.Bytes(), &got)
+
+	oc.NoError(err)
+	oc.Equal(http.StatusOK, w.Code)
+	oc.Contains(got, oc.testCourier)
 }
