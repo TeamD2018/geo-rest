@@ -106,6 +106,9 @@ func (api *APIService) SuggestCourier(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
+	if suggestParams.Limit <= 0 {
+		suggestParams.Limit = 200
+	}
 	if couriers, err := api.CourierSuggester.Suggest("suggestions", &suggestParams); err != nil {
 		api.Logger.Error("fail to suggest couriers", zap.Error(err), zap.String("prefix", suggestParams.Prefix))
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)

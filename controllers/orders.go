@@ -55,15 +55,13 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		return
 	}
 	inCtx := context.Background()
-	if err := api.GeoResolver.Resolve(order.Destination, inCtx);
-		err != nil {
+	if err := api.GeoResolver.Resolve(order.Destination, inCtx); err != nil {
 		api.Logger.Error("fail to resolve destination",
 			zap.Error(err),
 			zap.String("order_id", orderID),
 			zap.Any("dest", order.Destination))
 	}
-	if err := api.GeoResolver.Resolve(order.Source, inCtx);
-		err != nil {
+	if err := api.GeoResolver.Resolve(order.Source, inCtx); err != nil {
 		api.Logger.Error("fail to resolve source",
 			zap.Error(err),
 			zap.String("order_id", orderID),
@@ -105,15 +103,13 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 	}
 	order.CourierID = &courierID
 	exCtx := context.Background()
-	if err := api.GeoResolver.Resolve(&order.Destination, exCtx);
-		err != nil {
+	if err := api.GeoResolver.Resolve(&order.Destination, exCtx); err != nil {
 		api.Logger.Error("fail to resolve destination",
 			zap.Error(err),
 			zap.String("courier_id", *order.CourierID),
 			zap.Any("dest", order.Destination))
 	}
-	if err := api.GeoResolver.Resolve(&order.Source, exCtx);
-		err != nil {
+	if err := api.GeoResolver.Resolve(&order.Source, exCtx); err != nil {
 		api.Logger.Error("fail to resolve source",
 			zap.Error(err),
 			zap.String("courier_id", *order.CourierID),

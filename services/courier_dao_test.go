@@ -458,8 +458,6 @@ func (s *CourierTestSuite) TestExistsCourierNotFound() {
 	s.False(isExists)
 }
 
-
-
 func TestIntegrationCouriersDAO(t *testing.T) {
 	suite.Run(t, new(CourierTestSuite))
 }

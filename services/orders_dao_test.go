@@ -146,7 +146,7 @@ func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_ExcludeDeliver
 	up, err := s.ordersDao.Update(&makeDelivered)
 	s.NoError(err)
 	if err != nil {
-		if !s.Equal(deliveredTime, up.DeliveredAt){
+		if !s.Equal(deliveredTime, up.DeliveredAt) {
 			return
 		}
 	}

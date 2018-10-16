@@ -76,8 +76,7 @@ func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField, size int) (mo
 
 	for _, item := range res.Hits.Hits {
 		var courier models.Courier
-		if err := json.Unmarshal(*item.Source, &courier);
-			err != nil {
+		if err := json.Unmarshal(*item.Source, &courier); err != nil {
 			return nil, err
 		}
 		courier.ID = item.Id
@@ -109,8 +108,7 @@ func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField, size in
 
 	for _, item := range res.Hits.Hits {
 		var courier models.Courier
-		if err := json.Unmarshal(*item.Source, &courier);
-			err != nil {
+		if err := json.Unmarshal(*item.Source, &courier); err != nil {
 			return nil, err
 		}
 		courier.ID = item.Id

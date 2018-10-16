@@ -49,8 +49,7 @@ func (cs *CouriersSuggesterElastic) Suggest(field string, suggestion *parameters
 	for _, suggest := range suggestions {
 		for _, option := range suggest.Options {
 			var courier models.Courier
-			if err := json.Unmarshal(*option.Source, &courier);
-				err != nil {
+			if err := json.Unmarshal(*option.Source, &courier); err != nil {
 				return nil, err
 			}
 			courier.ID = option.Id

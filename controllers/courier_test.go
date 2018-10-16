@@ -19,12 +19,12 @@ import (
 
 type ControllerCouriersTestSuite struct {
 	suite.Suite
-	api					*APIService
-	router          	*gin.Engine
-	testCourier     	*models.Courier
-	testCourierCreate	*models.CourierCreate
-	testCourierUpdate	*models.CourierUpdate
-	couriersDAOMock		*mocks.CouriersDAOMock
+	api               *APIService
+	router            *gin.Engine
+	testCourier       *models.Courier
+	testCourierCreate *models.CourierCreate
+	testCourierUpdate *models.CourierUpdate
+	couriersDAOMock   *mocks.CouriersDAOMock
 }
 
 func (ts *ControllerCouriersTestSuite) SetupSuite() {
@@ -40,14 +40,14 @@ func (ts *ControllerCouriersTestSuite) SetupSuite() {
 	testPhone := "Test phone"
 
 	ts.testCourier = &models.Courier{
-		ID:       "550e8400-e29b-41d4-a716-446655440000",
-		Name:     "Test Name",
-		Phone:    &testPhone,
+		ID:    "550e8400-e29b-41d4-a716-446655440000",
+		Name:  "Test Name",
+		Phone: &testPhone,
 	}
 
 	ts.testCourierCreate = &models.CourierCreate{
-		Name: ts.testCourier.Name,
-		Phone:ts.testCourier.Phone,
+		Name:  ts.testCourier.Name,
+		Phone: ts.testCourier.Phone,
 	}
 
 	testLocation := "Test location"
@@ -163,7 +163,7 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByCircleField()
 
 func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByBoxField() {
 	boxField := &models.BoxField{
-		TopLeftPoint: elastic.GeoPointFromLatLon(10, 10),
+		TopLeftPoint:     elastic.GeoPointFromLatLon(10, 10),
 		BottomRightPoint: elastic.GeoPointFromLatLon(20, 20),
 	}
 

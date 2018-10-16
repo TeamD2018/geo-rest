@@ -47,12 +47,10 @@ func main() {
 	gmapsResolver := services.NewGMapsResolver(gmaps, logger)
 	couriersSuggester := services.NewCouriersSuggesterElastic(elasticClient, couriersDao, logger)
 	couriersSuggester.SetFuzziness(2)
-	if err := couriersDao.EnsureMapping();
-		err != nil {
+	if err := couriersDao.EnsureMapping(); err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
 	}
-	if err := ordersDao.EnsureMapping();
-		err != nil {
+	if err := ordersDao.EnsureMapping(); err != nil {
 		logger.Fatal("Fail to ensure orders mapping: ", zap.Error(err))
 	}
 
