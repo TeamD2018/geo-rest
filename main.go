@@ -46,6 +46,7 @@ func main() {
 	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
 	gmapsResolver := services.NewGMapsResolver(gmaps, logger)
 	couriersSuggester := services.NewCouriersSuggesterElastic(elasticClient, couriersDao, logger)
+	couriersSuggester.SetFuzziness(2)
 	if err := couriersDao.EnsureMapping();
 		err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
