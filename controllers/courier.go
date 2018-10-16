@@ -5,6 +5,7 @@ import (
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -96,6 +97,20 @@ func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
 	} else {
 		ctx.JSON(http.StatusOK, couriers)
 		return
+	}
+}
+
+func (api *APIService) SuggestCourier(ctx *gin.Context) {
+	suggestParams := parameters.Suggestion{}
+	if err := ctx.BindQuery(&suggestParams); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+		return
+	}
+	if couriers, err := api.CourierSuggester.Suggest("suggestions", &suggestParams); err != nil {
+		api.Logger.Error("fail to suggest couriers", zap.Error(err), zap.String("prefix", suggestParams.Prefix))
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+	} else {
+		ctx.JSON(http.StatusOK, couriers)
 	}
 }
 

@@ -45,6 +45,7 @@ func main() {
 	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "", services.DefaultCouriersReturnSize)
 	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
 	gmapsResolver := services.NewGMapsResolver(gmaps, logger)
+	couriersSuggester := services.NewCouriersSuggesterElastic(elasticClient, couriersDao, logger)
 	if err := couriersDao.EnsureMapping();
 		err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
@@ -55,10 +56,11 @@ func main() {
 	}
 
 	api := controllers.APIService{
-		CouriersDAO: couriersDao,
-		OrdersDAO:   ordersDao,
-		GeoResolver: gmapsResolver,
-		Logger:      logger,
+		CouriersDAO:      couriersDao,
+		OrdersDAO:        ordersDao,
+		GeoResolver:      gmapsResolver,
+		CourierSuggester: couriersSuggester,
+		Logger:           logger,
 	}
 	router := gin.Default()
 

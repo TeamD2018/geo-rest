@@ -38,6 +38,9 @@ func (cs *CouriersSuggesterElastic) Suggest(field string, suggestion *parameters
 	query := db.Search(cs.CouriersMapper.GetIndex()).Type("_doc").Suggester(suggester)
 	res, err := query.Do(context.Background())
 	if err != nil {
+		if elastic.IsNotFound(err) {
+			return make(models.Couriers, 0), nil
+		}
 		cs.logger.Error("fail to suggest", zap.Error(err))
 		return nil, err
 	}
