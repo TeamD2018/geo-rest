@@ -36,7 +36,7 @@ func (s *OrdersTestSuite) BeforeTest(suiteName, testName string) {
 	s.ordersDao = NewOrdersElasticDAO(s.client, l, s.couriersDao, "")
 	s.couriersDao.index = uuid.NewV4().String()
 	s.couriersDao.EnsureMapping()
-	s.ordersDao.Index = uuid.NewV4().String()
+	s.ordersDao.index = uuid.NewV4().String()
 	s.ordersDao.EnsureMapping()
 	testCourierCreate := models.CourierCreate{Name: "Test"}
 	s.testCourier, _ = s.couriersDao.Create(&testCourierCreate)
@@ -50,11 +50,11 @@ func (s *OrdersTestSuite) BeforeTest(suiteName, testName string) {
 		},
 	}
 	s.testOrder, _ = s.ordersDao.Create(&testOrderCreate)
-	s.client.Refresh(s.ordersDao.Index, s.couriersDao.index).Do(context.Background())
+	s.client.Refresh(s.ordersDao.index, s.couriersDao.index).Do(context.Background())
 }
 
 func (s *OrdersTestSuite) AfterTest(suiteName, testName string) {
-	s.client.DeleteIndex(s.ordersDao.Index, s.couriersDao.index).Do(context.Background())
+	s.client.DeleteIndex(s.ordersDao.index, s.couriersDao.index).Do(context.Background())
 }
 
 func (s *OrdersTestSuite) TearDownSuite() {
@@ -150,7 +150,7 @@ func (s OrdersTestSuite) TestOrdersElasticDAO_GetOrdersForCourier_ExcludeDeliver
 			return
 		}
 	}
-	s.ordersDao.Elastic.Refresh(s.ordersDao.Index).Do(context.Background())
+	s.ordersDao.Elastic.Refresh(s.ordersDao.index).Do(context.Background())
 	orders, err := s.ordersDao.GetOrdersForCourier(
 		s.testCourier.ID,
 		0,
@@ -203,7 +203,7 @@ func (s OrdersTestSuite) TestOrdersElasticDAO_Update_CourierIDOnly_OK() {
 func (s OrdersTestSuite) TestOrdersElasticDAO_Delete_OK() {
 	err := s.ordersDao.Delete(s.testOrder.ID)
 	s.Assert().NoError(err)
-	exists, err := s.client.Exists().Index(s.ordersDao.Index).Type("_doc").Id(s.testOrder.ID).Do(context.Background())
+	exists, err := s.client.Exists().Index(s.ordersDao.index).Type("_doc").Id(s.testOrder.ID).Do(context.Background())
 	s.Assert().NoError(err)
 	s.Assert().False(exists)
 }

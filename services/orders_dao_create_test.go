@@ -45,12 +45,12 @@ func (s *OrdersCreateTestSuite) BeforeTest(suiteName, testName string) {
 			Point: elastic.GeoPointFromLatLon(1, 1),
 		},
 	}
-	s.client.Refresh(s.ordersDao.Index, s.couriersDao.index).Do(context.Background())
+	s.client.Refresh(s.ordersDao.index, s.couriersDao.index).Do(context.Background())
 
 }
 
 func (s *OrdersCreateTestSuite) AfterTest(suiteName, testName string) {
-	s.client.DeleteIndex(s.couriersDao.index, s.ordersDao.Index).Do(context.Background())
+	s.client.DeleteIndex(s.couriersDao.index, s.ordersDao.index).Do(context.Background())
 }
 
 func (s *OrdersCreateTestSuite) TearDownSuite() {
@@ -100,7 +100,7 @@ func (s OrdersCreateTestSuite) TestOrdersElasticDAO_EnsureMapping() {
 		return
 	}
 
-	exists, err := s.client.IndexExists(s.ordersDao.Index).Do(context.Background())
+	exists, err := s.client.IndexExists(s.ordersDao.index).Do(context.Background())
 	s.Assert().NoError(err)
 	s.Assert().True(exists)
 }
@@ -112,7 +112,7 @@ func (s OrdersCreateTestSuite) TestOrdersElasticDAO_Create() {
 	}
 	res, err := s.client.
 		Exists().
-		Index(s.ordersDao.Index).
+		Index(s.ordersDao.index).
 		Type("_doc").
 		Id(created.ID).
 		Do(context.Background())
