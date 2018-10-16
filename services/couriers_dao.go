@@ -22,8 +22,6 @@ type CouriersElasticDAO struct {
 	l                 *zap.Logger
 }
 
-
-
 func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index string, defaultReturnSize int) *CouriersElasticDAO {
 	if logger == nil {
 		logger, _ = zap.NewDevelopment()
@@ -130,9 +128,10 @@ func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Cour
 	}
 
 	m.Suggestions = elastic.NewSuggestField()
-
-	m.Suggestions.Input(courier.Name, strings.ToLower(courier.Name))
-
+	searchableParts := strings.Split(courier.Name, " ")
+	for _, part := range searchableParts {
+		m.Suggestions.Input(part, strings.ToLower(part))
+	}
 	if courier.Phone != nil {
 		m.Suggestions.Input(*courier.Phone)
 	}
@@ -229,39 +228,15 @@ func (c *CouriersElasticDAO) EnsureMapping() error {
 	return nil
 }
 
-func (c *CouriersElasticDAO) Suggest(field string, prefix string, limit int) (models.Couriers, error) {
-	suggester := elastic.NewCompletionSuggester("couriers-suggester").
-		Field(field).
-		PrefixWithEditDistance(prefix, 1)
-	query := c.client.Search(c.index).Type("_doc").Suggester(suggester)
-
-	res, err := query.Do(context.Background())
-	if err != nil {
-		c.l.Error("fail to suggest", zap.Error(err))
-		return nil, err
-	}
-	suggestions := res.Suggest["couriers-suggester"]
-	found := make(models.Couriers, 0)
-	for _, suggest := range suggestions {
-		for _, option := range suggest.Options {
-			var courier models.Courier
-			if err := json.Unmarshal(*option.Source, &courier);
-				err != nil {
-				return nil, err
-			}
-			courier.ID = option.Id
-			found = append(found, &courier)
-		}
-	}
-
-	return found, err
-}
-
 func (c *CouriersElasticDAO) resolveDefaultReturnSize(size int) int {
 	if size <= 0 {
 		return c.defaultReturnSize
 	}
 	return size
+}
+
+func (c *CouriersElasticDAO) GetIndex() string {
+	return c.index
 }
 
 func (c *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {

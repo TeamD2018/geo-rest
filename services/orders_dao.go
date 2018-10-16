@@ -17,7 +17,7 @@ const OrdersIndex = "order"
 type OrdersElasticDAO struct {
 	Elastic     *elastic.Client
 	couriersDAO interfaces.ICouriersDAO
-	Index       string
+	index       string
 	Logger      *zap.Logger
 }
 
@@ -33,7 +33,7 @@ func NewOrdersElasticDAO(client *elastic.Client,
 	}
 	return &OrdersElasticDAO{
 		Elastic:     client,
-		Index:       index,
+		index:       index,
 		Logger:      logger,
 		couriersDAO: couriersDAO,
 	}
@@ -42,7 +42,7 @@ func NewOrdersElasticDAO(client *elastic.Client,
 func (od *OrdersElasticDAO) Get(orderID string) (*models.Order, error) {
 	db := od.Elastic
 	orderRaw, err := db.Get().
-		Index(od.Index).
+		Index(od.index).
 		Type("_doc").
 		Id(orderID).
 		Do(context.Background())
@@ -77,7 +77,7 @@ func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Ord
 	order.CreatedAt = time.Now().Unix()
 	id := uuid.NewV4().String()
 	ret, err := db.Index().
-		Index(od.Index).
+		Index(od.index).
 		Type("_doc").
 		Id(id).
 		BodyJson(order).
@@ -103,7 +103,7 @@ func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, e
 		}
 	}
 	orderRaw, err := db.Update().
-		Index(od.Index).
+		Index(od.index).
 		Type("_doc").
 		Id(id).
 		Doc(*update).
@@ -124,7 +124,7 @@ func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, e
 func (od *OrdersElasticDAO) Delete(orderID string) error {
 	db := od.Elastic
 	_, err := db.Delete().
-		Index(od.Index).
+		Index(od.index).
 		Type("_doc").
 		Id(orderID).
 		Do(context.Background())
@@ -155,7 +155,7 @@ func (od *OrdersElasticDAO) GetOrdersForCourier(
 	if excludeDelivered {
 		ordersQuery = ordersQuery.MustNot(elastic.NewExistsQuery("delivered_at"))
 	}
-	res, err := db.Search(od.Index).Type("_doc").Query(ordersQuery).Do(context.Background())
+	res, err := db.Search(od.index).Type("_doc").Query(ordersQuery).Do(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -191,8 +191,12 @@ func (od *OrdersElasticDAO) EnsureMapping() error {
 	return nil
 }
 
+func (od *OrdersElasticDAO) GetIndex() string {
+	return od.index
+}
+
 func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
-	return od.Index, `{
+	return od.index, `{
 		"mappings": {
 			"_doc": {
 				"properties": {
