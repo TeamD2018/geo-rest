@@ -1,6 +1,6 @@
 package parameters
 
 type Suggestion struct {
-	Prefix string `json:"prefix"`
-	Limit  int    `json:"limit"`
+	Prefix string `form:"prefix"`
+	Limit  int    `form:"limit"`
 }
