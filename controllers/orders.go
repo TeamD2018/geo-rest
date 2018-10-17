@@ -94,6 +94,15 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
+	orders, err := api.OrdersDAO.GetOrdersForCourier(*courierID, 0, parameters.WithLowerThreshold, parameters.ExcludeDelivered)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+	}
+	if len(orders) == 0 {
+		if err := api.CourierRouteDAO.DeleteCourier(*courierID); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		}
+	}
 	ctx.JSON(http.StatusOK, created)
 }
 

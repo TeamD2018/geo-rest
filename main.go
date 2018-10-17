@@ -18,6 +18,10 @@ import (
 	"strings"
 )
 
+const (
+	createCouriersRouteSpaceFuncName = "create_couriers_route_space"
+	createResolverCacheSpaceFuncName = "create_resolver_cache"
+)
 func init() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.StringP("config", "c", "./config.toml", "path to config for geo-rest service")
@@ -46,11 +50,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	resp, err := tntClient.Eval(getLuaCode(), []interface{}{})
+	code := getLuaCode()
+	_, err = tntClient.Eval(code, []interface{}{})
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		log.Println(resp)
+	}
+	_, err = tntClient.Call17(createCouriersRouteSpaceFuncName, []interface{}{})
+	_, err = tntClient.Call17(createResolverCacheSpaceFuncName, []interface{}{})
+	if err != nil {
+		log.Fatal(err)
 	}
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -92,14 +100,15 @@ func main() {
 }
 
 func getLuaCode() string {
-	files, err := ioutil.ReadDir("./tnt_stored_procedures")
+	dirname := "./tnt_stored_procedures/"
+	files, err := ioutil.ReadDir(dirname)
 	if err != nil {
 		log.Fatal(err)
 	}
 	buf := strings.Builder{}
 	for _, f := range files {
-		if filepath.Ext(f.Name()) == "lua" {
-			code, err := ioutil.ReadFile(f.Name())
+		if filepath.Ext(f.Name()) == ".lua" {
+			code, err := ioutil.ReadFile(dirname + f.Name())
 			if err != nil {
 				log.Fatal(err)
 			}

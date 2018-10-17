@@ -5,7 +5,9 @@ import (
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/gin-gonic/gin"
 	"github.com/satori/go.uuid"
+	"log"
 	"net/http"
+	"time"
 )
 
 func (api *APIService) CreateCourier(ctx *gin.Context) {
@@ -65,7 +67,12 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
-	if err := api.CourierRouteDAO.AddPointToRoute(courierID, updated.Location.Point); err != nil {
+	pointWithTs := &models.PointWithTs{
+		Point: updated.Location.Point,
+		Ts: uint64(time.Now().Unix()),
+	}
+	if err := api.CourierRouteDAO.AddPointToRoute(courierID, pointWithTs); err != nil {
+		log.Println(err)
 		//TODO: need info
 	}
 	ctx.JSON(http.StatusOK, updated)
