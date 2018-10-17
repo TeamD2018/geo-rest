@@ -9,9 +9,18 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/tarantool/go-tarantool"
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
+	"io/ioutil"
 	"log"
+	"path/filepath"
+	"strings"
+)
+
+const (
+	createCouriersRouteSpaceFuncName = "create_couriers_route_space"
+	createResolverCacheSpaceFuncName = "create_resolver_cache"
 )
 
 func init() {
@@ -38,12 +47,28 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	tntClient, err := tarantool.Connect(viper.GetString("tarantool.url"), tarantool.Opts{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	code := getLuaCode()
+	_, err = tntClient.Eval(code, []interface{}{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = tntClient.Call17(createCouriersRouteSpaceFuncName, []interface{}{})
+	_, err = tntClient.Call17(createResolverCacheSpaceFuncName, []interface{}{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatal(err)
 	}
 	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "", services.DefaultCouriersReturnSize)
 	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
+
+	tntResolver := services.NewTntResolver(tntClient, logger)
 	gmapsResolver := services.NewGMapsResolver(gmaps, logger)
 	couriersSuggester := services.NewCouriersSuggesterElastic(elasticClient, couriersDao, logger)
 	couriersSuggester.SetFuzziness(2)
@@ -54,10 +79,13 @@ func main() {
 		logger.Fatal("Fail to ensure orders mapping: ", zap.Error(err))
 	}
 
+	tntRouteDao := services.NewTarantoolRouteDAO(tntClient)
+
 	api := controllers.APIService{
 		CouriersDAO:      couriersDao,
 		OrdersDAO:        ordersDao,
-		GeoResolver:      gmapsResolver,
+		CourierRouteDAO:  tntRouteDao,
+		GeoResolver:      services.NewCachedResolver(tntResolver, gmapsResolver),
 		CourierSuggester: couriersSuggester,
 		Logger:           logger,
 	}
@@ -72,4 +100,23 @@ func main() {
 	if err := router.Run(viper.GetString("server.url")); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getLuaCode() string {
+	dirname := "./tnt_stored_procedures/"
+	files, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	buf := strings.Builder{}
+	for _, f := range files {
+		if filepath.Ext(f.Name()) == ".lua" {
+			code, err := ioutil.ReadFile(dirname + f.Name())
+			if err != nil {
+				log.Fatal(err)
+			}
+			buf.Write(code)
+		}
+	}
+	return buf.String()
 }

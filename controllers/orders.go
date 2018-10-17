@@ -92,6 +92,15 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
+	orders, err := api.OrdersDAO.GetOrdersForCourier(*courierID, 0, parameters.WithLowerThreshold, parameters.ExcludeDelivered)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+	}
+	if len(orders) == 0 {
+		if err := api.CourierRouteDAO.DeleteCourier(*courierID); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		}
+	}
 	ctx.JSON(http.StatusOK, created)
 }
 
@@ -130,6 +139,13 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 			ctx.AbortWithStatusJSON(err.HttpStatus(), err)
 			return
 		}
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
+	}
+	err = api.CourierRouteDAO.CreateCourierWithOrder(*order.CourierID, created.ID)
+	if err != nil {
+		api.Logger.Error("fail to create order", zap.String("courier_id", courierID), zap.Error(err))
+		//TODO: error handling
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
