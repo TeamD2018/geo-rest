@@ -261,10 +261,6 @@ func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_OK_If_Resolver_
 	oc.ordersDAOMock.On("Update", mock.Anything).Return(oc.testOrder, nil)
 	oc.ordersDAOMock.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(models.Orders{oc.testOrder}, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
-	//georesolver := new(mocks.GeoResolverMock)
-	//georesolver.On("Resolve", mock.Anything, mock.Anything).Return(errors.New("test error"))
-	//georesolver.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mock.AnythingOfType("models.Orders"), mock.AnythingOfType("error"))
-	//oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s/orders/%s", oc.testOrder.CourierID, oc.testOrder.ID)
