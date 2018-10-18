@@ -28,7 +28,7 @@ type OrdersControllersTestSuite struct {
 	testOrderUpdate *models.OrderUpdate
 	ordersDAOMock   *mocks.OrdersDAOMock
 	geoRouteMock    *mocks.GeoRouteMock
-	suggestorMock   *mocks.CouriersSuggestorMock
+	suggesterMock   *mocks.CouriersSuggestorMock
 }
 
 func (oc *OrdersControllersTestSuite) SetupSuite() {
@@ -87,7 +87,7 @@ func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	geoResolverMock.On("Resolve", mock.Anything, mock.Anything).Return(nil)
 	geoResolverMock.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mock.AnythingOfType("models.Orders"), mock.AnythingOfType("error"))
 	oc.api.GeoResolver = geoResolverMock
-	oc.suggestorMock = new(mocks.CouriersSuggestorMock)
+	oc.suggesterMock = new(mocks.CouriersSuggestorMock)
 	oc.geoRouteMock = new(mocks.GeoRouteMock)
 }
 
@@ -347,8 +347,8 @@ func (oc *OrdersControllersTestSuite) TestAPIService_GetOrdersForCourier_OK() {
 }
 
 func (oc *OrdersControllersTestSuite) TestAPIService_SuggestCouriers_OK() {
-	oc.suggestorMock.On("Suggest", mock.Anything, mock.Anything).Return(models.Couriers{oc.testCourier}, nil)
-	oc.api.CourierSuggester = oc.suggestorMock
+	oc.suggesterMock.On("Suggest", mock.Anything, mock.Anything).Return(models.Couriers{oc.testCourier}, nil)
+	oc.api.CourierSuggester = oc.suggesterMock
 
 	params := parameters.Suggestion{Prefix: "Test", Limit: 200}
 
