@@ -54,7 +54,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = migrations.Driver{Client: tntClient, Path: "./tnt_stored_procedures", Logger: logger}.Run()
+	err = migrations.Driver{Client: tntClient, Logger: logger}.Run()
 	if err != nil {
 		logger.Fatal("fail to perform migrations", zap.Error(err))
 	}

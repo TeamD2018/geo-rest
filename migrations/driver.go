@@ -9,14 +9,13 @@ import (
 )
 
 type Driver struct {
-	Path   string
 	Logger *zap.Logger
 	Client *tarantool.Connection
 }
 
 func (d Driver) Run() error {
 	migrations := strings.Builder{}
-	box := packr.NewBox(d.Path)
+	box := packr.NewBox("./tnt_stored_procedures")
 	box.Walk(func(name string, file packr.File) error {
 		if s, err := ioutil.ReadAll(file); err != nil {
 			return err
