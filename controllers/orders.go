@@ -142,7 +142,7 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
-	err = api.CourierRouteDAO.CreateCourierWithOrder(*order.CourierID, created.ID)
+	err = api.CourierRouteDAO.CreateCourier(*order.CourierID)
 	if err != nil {
 		api.Logger.Error("fail to create order", zap.String("courier_id", courierID), zap.Error(err))
 		//TODO: error handling

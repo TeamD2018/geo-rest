@@ -24,6 +24,7 @@ type ControllerCouriersTestSuite struct {
 	testCourier       *models.Courier
 	testCourierCreate *models.CourierCreate
 	testCourierUpdate *models.CourierUpdate
+	geoRouteMock      *mocks.GeoRouteMock
 	couriersDAOMock   *mocks.CouriersDAOMock
 }
 
@@ -66,6 +67,7 @@ func TestUnitControllersCouriers(t *testing.T) {
 
 func (ts *ControllerCouriersTestSuite) BeforeTest(suiteName, testName string) {
 	ts.couriersDAOMock = new(mocks.CouriersDAOMock)
+	ts.geoRouteMock = new(mocks.GeoRouteMock)
 }
 
 func (ts *ControllerCouriersTestSuite) TestAPIService_CreateCourier_Created() {
@@ -105,7 +107,9 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_GetCourierById_OK() {
 func (ts *ControllerCouriersTestSuite) TestAPIService_UpdateCourier_OK() {
 	ts.testCourier.Location = ts.testCourierUpdate.Location
 	ts.couriersDAOMock.On("Update", mock.Anything).Return(ts.testCourier, nil)
+	ts.geoRouteMock.On("AddPointToRoute", mock.Anything, mock.Anything).Return(nil)
 	ts.api.CouriersDAO = ts.couriersDAOMock
+	ts.api.CourierRouteDAO = ts.geoRouteMock
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s", ts.testCourier.ID)
@@ -123,6 +127,8 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_UpdateCourier_OK() {
 func (ts *ControllerCouriersTestSuite) TestAPIService_DeleteOrder_NoContent() {
 	ts.couriersDAOMock.On("Delete", ts.testCourier.ID).Return(nil)
 	ts.api.CouriersDAO = ts.couriersDAOMock
+	ts.geoRouteMock.On("DeleteCourier", ts.testCourier.ID).Return(nil)
+	ts.api.CourierRouteDAO = ts.geoRouteMock
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s", ts.testCourier.ID)

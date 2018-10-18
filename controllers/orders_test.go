@@ -27,6 +27,7 @@ type OrdersControllersTestSuite struct {
 	testOrderCreate *models.OrderCreate
 	testOrderUpdate *models.OrderUpdate
 	ordersDAOMock   *mocks.OrdersDAOMock
+	geoRouteMock    *mocks.GeoRouteMock
 	suggestorMock   *mocks.CouriersSuggestorMock
 }
 
@@ -84,13 +85,17 @@ func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	oc.ordersDAOMock = new(mocks.OrdersDAOMock)
 	geoResolverMock := new(mocks.GeoResolverMock)
 	geoResolverMock.On("Resolve", mock.Anything, mock.Anything).Return(nil)
+	geoResolverMock.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mock.AnythingOfType("models.Orders"), mock.AnythingOfType("error"))
 	oc.api.GeoResolver = geoResolverMock
 	oc.suggestorMock = new(mocks.CouriersSuggestorMock)
+	oc.geoRouteMock = new(mocks.GeoRouteMock)
 }
 
 func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_Created() {
 	oc.ordersDAOMock.On("Create", mock.Anything).Return(oc.testOrder, nil)
+	oc.geoRouteMock.On("CreateCourier", mock.Anything).Return(nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
+	oc.api.CourierRouteDAO = oc.geoRouteMock
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s/orders", oc.testOrder.CourierID)
@@ -110,6 +115,7 @@ func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_Created_If_Reso
 	oc.api.OrdersDAO = oc.ordersDAOMock
 	georesolver := new(mocks.GeoResolverMock)
 	georesolver.On("Resolve", mock.Anything, mock.Anything).Return(errors.New("test error"))
+	georesolver.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mock.AnythingOfType("models.Orders"), mock.AnythingOfType("error"))
 	oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
@@ -253,10 +259,12 @@ func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_UnexpectedError
 func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_OK_If_Resolver_Failed() {
 	oc.testOrder.Destination = *oc.testOrderUpdate.Destination
 	oc.ordersDAOMock.On("Update", mock.Anything).Return(oc.testOrder, nil)
+	oc.ordersDAOMock.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(models.Orders{oc.testOrder}, nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
-	georesolver := new(mocks.GeoResolverMock)
-	georesolver.On("Resolve", mock.Anything, mock.Anything).Return(errors.New("test error"))
-	oc.api.GeoResolver = georesolver
+	//georesolver := new(mocks.GeoResolverMock)
+	//georesolver.On("Resolve", mock.Anything, mock.Anything).Return(errors.New("test error"))
+	//georesolver.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mock.AnythingOfType("models.Orders"), mock.AnythingOfType("error"))
+	//oc.api.GeoResolver = georesolver
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s/orders/%s", oc.testOrder.CourierID, oc.testOrder.ID)
@@ -274,7 +282,9 @@ func (oc *OrdersControllersTestSuite) TestAPIService_UpdateOrder_OK_If_Resolver_
 func (oc *OrdersControllersTestSuite) TestAPIService_DeleteOrder_NoContent() {
 
 	oc.ordersDAOMock.On("Delete", oc.testOrder.ID).Return(nil)
+	oc.geoRouteMock.On("DeleteCourier", oc.testOrder.CourierID).Return(nil)
 	oc.api.OrdersDAO = oc.ordersDAOMock
+	oc.api.CourierRouteDAO = oc.geoRouteMock
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s/orders/%s", oc.testOrder.CourierID, oc.testOrder.ID)

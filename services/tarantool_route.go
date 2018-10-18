@@ -32,7 +32,7 @@ func NewTarantoolRouteDAO(client *tarantool.Connection) *TarantoolRouteDAO {
 	return &TarantoolRouteDAO{client: client}
 }
 
-func (tnt *TarantoolRouteDAO) CreateCourierWithOrder(courierID, orderID string) error {
+func (tnt *TarantoolRouteDAO) CreateCourier(courierID string) error {
 	_, err := tnt.client.Call17(addCourierWithOrderFuncName, []interface{}{courierID})
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (tnt *TarantoolRouteDAO) AddPointToRoute(courierID string, point *models.Po
 	return nil
 }
 
-func (tnt *TarantoolRouteDAO) GetRoute(courierID, orderID string) ([]*models.PointWithTs, error) {
+func (tnt *TarantoolRouteDAO) GetRoute(courierID string) ([]*models.PointWithTs, error) {
 	resp, err := tnt.client.Call17(getRouteFuncName, []interface{}{courierID})
 	points := make([]*models.PointWithTs, len(resp.Data))
 	if err != nil {
