@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/TeamD2018/geo-rest/controllers"
+	"github.com/TeamD2018/geo-rest/migrations"
 	"github.com/TeamD2018/geo-rest/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,10 +13,7 @@ import (
 	"github.com/tarantool/go-tarantool"
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
-	"io/ioutil"
 	"log"
-	"path/filepath"
-	"strings"
 )
 
 const (
@@ -37,6 +35,10 @@ func init() {
 }
 
 func main() {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Fatal(err)
+	}
 	elasticClient, err := elastic.NewClient(
 		elastic.SetURL(viper.GetString("elastic.url")),
 		elastic.SetSniff(viper.GetBool("elastic.sniff")))
@@ -51,17 +53,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	code := getLuaCode()
-	_, err = tntClient.Eval(code, []interface{}{})
+
+	err = migrations.Driver{Client: tntClient, Path: "./tnt_stored_procedures", Logger: logger}.Run()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("fail to perform migrations", zap.Error(err))
 	}
 	_, err = tntClient.Call17(createCouriersRouteSpaceFuncName, []interface{}{})
 	_, err = tntClient.Call17(createResolverCacheSpaceFuncName, []interface{}{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -100,23 +98,4 @@ func main() {
 	if err := router.Run(viper.GetString("server.url")); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func getLuaCode() string {
-	dirname := "./tnt_stored_procedures/"
-	files, err := ioutil.ReadDir(dirname)
-	if err != nil {
-		log.Fatal(err)
-	}
-	buf := strings.Builder{}
-	for _, f := range files {
-		if filepath.Ext(f.Name()) == ".lua" {
-			code, err := ioutil.ReadFile(dirname + f.Name())
-			if err != nil {
-				log.Fatal(err)
-			}
-			buf.Write(code)
-		}
-	}
-	return buf.String()
 }
