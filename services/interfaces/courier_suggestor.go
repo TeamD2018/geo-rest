@@ -7,5 +7,6 @@ import (
 
 type CourierSuggester interface {
 	Suggest(field string, suggestion *parameters.Suggestion) (models.Couriers, error)
-	SetFuzziness(fuzziness int)
+	SetFuzziness(fuzziness int) CourierSuggester
+	SetFuzzinessThreshold(threshold int) CourierSuggester
 }

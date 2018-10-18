@@ -17,6 +17,15 @@ type CouriersSuggesterElastic struct {
 	CouriersMapper interfaces.Mapper
 	logger         *zap.Logger
 	fuzziness      int
+	threshold      int
+}
+
+const CouriersDefaultFuzziness = 2
+const CouriersDefaultFuzzinessThreshold = 5
+
+func (cs *CouriersSuggesterElastic) SetFuzzinessThreshold(threshold int) interfaces.CourierSuggester {
+	cs.threshold = threshold
+	return cs
 }
 
 func NewCouriersSuggesterElastic(client *elastic.Client, mapper interfaces.Mapper, logger *zap.Logger) *CouriersSuggesterElastic {
@@ -24,7 +33,8 @@ func NewCouriersSuggesterElastic(client *elastic.Client, mapper interfaces.Mappe
 		Elastic:        client,
 		CouriersMapper: mapper,
 		logger:         logger,
-		fuzziness:      0,
+		fuzziness:      CouriersDefaultFuzziness,
+		threshold:      CouriersDefaultFuzzinessThreshold,
 	}
 }
 
@@ -59,6 +69,7 @@ func (cs *CouriersSuggesterElastic) Suggest(field string, suggestion *parameters
 	return found, err
 }
 
-func (cs *CouriersSuggesterElastic) SetFuzziness(fuzziness int) {
+func (cs *CouriersSuggesterElastic) SetFuzziness(fuzziness int) interfaces.CourierSuggester {
 	cs.fuzziness = fuzziness
+	return cs
 }

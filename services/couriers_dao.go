@@ -128,7 +128,7 @@ func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Cour
 	m.Suggestions = elastic.NewSuggestField()
 	searchableParts := strings.Split(courier.Name, " ")
 	for _, part := range searchableParts {
-		m.Suggestions.Input(part, strings.ToLower(part))
+		m.Suggestions.Input(strings.ToLower(part))
 	}
 	if courier.Phone != nil {
 		m.Suggestions.Input(*courier.Phone)

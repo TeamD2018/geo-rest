@@ -28,6 +28,9 @@ func init() {
 	if err := viper.BindPFlags(pflag.CommandLine); err != nil {
 		panic("err in bind flag")
 	}
+
+	viper.SetDefault("suggestions.couriers.fuzziness", services.CouriersDefaultFuzziness)
+	viper.SetDefault("suggestions.couriers.threshold", services.CouriersDefaultFuzzinessThreshold)
 	viper.SetConfigFile(viper.GetString("config"))
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
@@ -53,7 +56,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	err = migrations.Driver{Client: tntClient, Logger: logger}.Run()
 	if err != nil {
 		logger.Fatal("fail to perform migrations", zap.Error(err))
@@ -68,8 +70,11 @@ func main() {
 
 	tntResolver := services.NewTntResolver(tntClient, logger)
 	gmapsResolver := services.NewGMapsResolver(gmaps, logger)
-	couriersSuggester := services.NewCouriersSuggesterElastic(elasticClient, couriersDao, logger)
-	couriersSuggester.SetFuzziness(2)
+
+	couriersSuggester := services.NewCouriersSuggesterElastic(elasticClient, couriersDao, logger).
+		SetFuzziness(viper.GetInt("suggestions.couriers.fuzziness")).
+		SetFuzzinessThreshold(viper.GetInt("suggestions.couriers.threshold"))
+
 	if err := couriersDao.EnsureMapping(); err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
 	}
