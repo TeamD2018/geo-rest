@@ -36,6 +36,7 @@ func (ts *ControllerCouriersTestSuite) SetupSuite() {
 		GeoResolver: geoResolverMock,
 	}
 	gin.DisableConsoleColor()
+	gin.SetMode(gin.TestMode)
 	ts.router = gin.New()
 	SetupRouters(ts.router, ts.api)
 	testPhone := "Test phone"
