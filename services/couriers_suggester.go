@@ -41,9 +41,14 @@ func NewCouriersSuggesterElastic(client *elastic.Client, mapper interfaces.Mappe
 
 func (cs *CouriersSuggesterElastic) Suggest(field string, suggestion *parameters.Suggestion) (models.Couriers, error) {
 	db := cs.Elastic
+	fuzzyOptions := elastic.NewFuzzyCompletionSuggesterOptions().
+		MinLength(cs.threshold).
+		EditDistance(cs.fuzziness).
+		UnicodeAware(true)
 	suggester := elastic.NewCompletionSuggester(Suggester).
 		Field(field).
-		PrefixWithEditDistance(strings.ToLower(suggestion.Prefix), cs.fuzziness).
+		FuzzyOptions(fuzzyOptions).
+		Prefix(strings.ToLower(suggestion.Prefix)).
 		Size(suggestion.Limit)
 
 	query := db.Search(cs.CouriersMapper.GetIndex()).Type("_doc").Suggester(suggester)
