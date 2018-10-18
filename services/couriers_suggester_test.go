@@ -105,7 +105,7 @@ func (s *CourierSuggesterTestSuite) SetupSuite() {
 	s.client = c
 	s.pool = pool
 	s.resource = resource
-	s.logger, _ = zap.NewDevelopment()
+	s.logger = zap.NewNop()
 	s.dao = NewCouriersElasticDAO(s.client, s.logger, "", 0)
 	s.suggester = NewCouriersSuggesterElastic(s.client, s.dao, s.logger)
 	s.suggester.SetFuzziness(1)
