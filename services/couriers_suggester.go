@@ -1,3 +1,5 @@
+//+build elastic
+
 package services
 
 import (
@@ -8,6 +10,7 @@ import (
 	"github.com/TeamD2018/geo-rest/services/interfaces"
 	"github.com/olivere/elastic"
 	"go.uber.org/zap"
+	"strings"
 )
 
 const Suggester string = "couriers-suggester"
@@ -42,7 +45,7 @@ func (cs *CouriersSuggesterElastic) Suggest(field string, suggestion *parameters
 	db := cs.Elastic
 	suggester := elastic.NewCompletionSuggester(Suggester).
 		Field(field).
-		PrefixWithEditDistance(suggestion.Prefix, cs.fuzziness).
+		PrefixWithEditDistance(strings.ToLower(suggestion.Prefix), cs.fuzziness).
 		Size(suggestion.Limit)
 
 	query := db.Search(cs.CouriersMapper.GetIndex()).Type("_doc").Suggester(suggester)

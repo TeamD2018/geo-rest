@@ -34,8 +34,8 @@ var (
 var (
 	TestNameABC            = "ABCname"
 	TestNameEFG            = "EFGname"
-	TestNameWhitespacesABC = "Name ABC"
-	TestNameWhitespacesEFG = "Name EFG"
+	TestNameWhitespacesABC = "Name ABCname"
+	TestNameWhitespacesEFG = "Name EFGname"
 )
 
 var (
@@ -108,7 +108,6 @@ func (s *CourierSuggesterTestSuite) SetupSuite() {
 	s.logger = zap.NewNop()
 	s.dao = NewCouriersElasticDAO(s.client, s.logger, "", 0)
 	s.suggester = NewCouriersSuggesterElastic(s.client, s.dao, s.logger)
-	s.suggester.SetFuzziness(1)
 }
 
 func (s *CourierSuggesterTestSuite) TestCourierSuggesterTestSuite_Suggest_ByPhone_OK() {
@@ -144,9 +143,21 @@ func (s *CourierSuggesterTestSuite) TestCourierSuggesterTestSuite_Suggest_ByName
 
 }
 
+func (s *CourierSuggesterTestSuite) TestCourierSuggesterTestSuite_Suggest_ByNameMixedCase_OK() {
+	service := s.suggester
+
+	got, err := service.Suggest("suggestions", &parameters.Suggestion{Prefix: "aBcN", Limit: 200})
+	s.NoError(err)
+	want := prefs["ABC"]
+
+	s.logger.Debug("arrays", zap.Any("got", got), zap.Any("want", want))
+	s.ElementsMatch(got, want)
+
+}
+
 func (s *CourierSuggesterTestSuite) TestCourierSuggesterTestSuite_Suggest_ByNameFuzzy_OK() {
 	service := s.suggester
-	got, err := service.Suggest("suggestions", &parameters.Suggestion{Prefix: "ADC", Limit: 200})
+	got, err := service.Suggest("suggestions", &parameters.Suggestion{Prefix: "ADCname", Limit: 200})
 	s.NoError(err)
 	want := prefs["ABC"]
 	s.ElementsMatch(got, want)
@@ -154,7 +165,7 @@ func (s *CourierSuggesterTestSuite) TestCourierSuggesterTestSuite_Suggest_ByName
 
 func (s *CourierSuggesterTestSuite) TestCourierSuggesterTestSuite_Suggest_ByPhoneFuzzy_OK() {
 	service := s.suggester
-	got, err := service.Suggest("suggestions", &parameters.Suggestion{Prefix: "9134", Limit: 200})
+	got, err := service.Suggest("suggestions", &parameters.Suggestion{Prefix: "91341", Limit: 200})
 	s.NoError(err)
 	want := prefs["913"]
 	s.ElementsMatch(got, want)
