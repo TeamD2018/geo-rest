@@ -24,7 +24,7 @@ func (m *GeoRouteMock) DeleteCourier(courierID string) error {
 	return args.Error(0)
 }
 
-func (m *GeoRouteMock) GetRoute(courierID string) ([]*models.PointWithTs, error) {
+func (m *GeoRouteMock) GetRoute(courierID string, since int64) ([]*models.PointWithTs, error) {
 	args := m.Called(courierID)
 	return args.Get(0).([]*models.PointWithTs), args.Error(1)
 }
