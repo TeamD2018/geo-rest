@@ -132,6 +132,7 @@ func (api *APIService) GetRouteForCourier(ctx *gin.Context) {
 	courierRouteParams.CourierID = ctx.Param("courier_id")
 	if err := ctx.BindQuery(&courierRouteParams); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+		return
 	}
 	if courierRouteParams.Since < 0 {
 		courierRouteParams.Since = 0
@@ -141,8 +142,10 @@ func (api *APIService) GetRouteForCourier(ctx *gin.Context) {
 			zap.String("courier_id", courierRouteParams.CourierID),
 			zap.Int64("since", courierRouteParams.Since))
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
 	} else {
-		ctx.JSON(http.StatusOK, points)
+		geoHistory := models.RouteResponse{GeoHistory: points}
+		ctx.JSON(http.StatusOK, geoHistory)
 	}
 }
 
