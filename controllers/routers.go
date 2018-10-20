@@ -20,6 +20,7 @@ func SetupRouters(router *gin.Engine, api *APIService) {
 	g.GET("/:courier_id", api.GetCourierByID)
 	g.PUT("/:courier_id", api.UpdateCourier)
 	g.DELETE("/:courier_id", api.DeleteCourier)
+	g.GET("/:courier_id/geo_history", api.GetRouteForCourier)
 
 	router.GET("/suggestions/couriers", api.SuggestCourier)
 }

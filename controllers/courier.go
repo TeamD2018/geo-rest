@@ -70,7 +70,7 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 	}
 	pointWithTs := &models.PointWithTs{
 		Point: updated.Location.Point,
-		Ts: uint64(time.Now().Unix()),
+		Ts:    uint64(time.Now().Unix()),
 	}
 	if err := api.CourierRouteDAO.AddPointToRoute(courierID, pointWithTs); err != nil {
 		log.Println(err)
@@ -124,6 +124,25 @@ func (api *APIService) SuggestCourier(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 	} else {
 		ctx.JSON(http.StatusOK, couriers)
+	}
+}
+
+func (api *APIService) GetRouteForCourier(ctx *gin.Context) {
+	courierRouteParams := parameters.CourierRoute{}
+	courierRouteParams.CourierID = ctx.Param("courier_id")
+	if err := ctx.BindQuery(&courierRouteParams); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+	}
+	if courierRouteParams.Since < 0 {
+		courierRouteParams.Since = 0
+	}
+	if points, err := api.CourierRouteDAO.GetRoute(courierRouteParams.CourierID, courierRouteParams.Since); err != nil {
+		api.Logger.Error("fail to get route", zap.Error(err),
+			zap.String("courier_id", courierRouteParams.CourierID),
+			zap.Int64("since", courierRouteParams.Since))
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+	} else {
+		ctx.JSON(http.StatusOK, points)
 	}
 }
 

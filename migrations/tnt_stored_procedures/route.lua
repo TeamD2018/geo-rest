@@ -37,9 +37,19 @@ function delete_courier(courier_id)
     box.space.couriers_route:delete { courier_id }
 end
 
-function get_route(courier_id)
+function get_route(courier_id, since)
     if type(courier_id) ~= 'string' then
         error('courier_id must be a string')
     end
-    return box.space.couriers_route.index.courier_id:get { courier_id }[3]
+    local temp_res = box.space.couriers_route.index.courier_id:get { courier_id }
+    if temp_res == nil then
+        error('courier with ' .. courier_id .. ' not found')
+    end
+    local res = {}
+    for _, v in pairs(temp_res[2]) do
+        if v.ts >= since then
+            table.insert(res, v)
+        end
+    end
+    return res
 end

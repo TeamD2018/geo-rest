@@ -60,14 +60,14 @@ func (tnt *TarantoolRouteDAO) AddPointToRoute(courierID string, point *models.Po
 	return nil
 }
 
-func (tnt *TarantoolRouteDAO) GetRoute(courierID string) ([]*models.PointWithTs, error) {
-	resp, err := tnt.client.Call17(getRouteFuncName, []interface{}{courierID})
-	points := make([]*models.PointWithTs, len(resp.Data))
+func (tnt *TarantoolRouteDAO) GetRoute(courierID string, since int64) ([]*models.PointWithTs, error) {
+	resp, err := tnt.client.Call17(getRouteFuncName, []interface{}{courierID, since})
+	points := make([]*models.PointWithTs, len(resp.Data[0].([]interface{})))
 	if err != nil {
 		tnt.l.Sugar().Errorw("msg", "resp", resp, "error", err)
 		return nil, err
 	}
-	for i, p := range resp.Data {
+	for i, p := range resp.Data[0].([]interface{}) {
 		points[i] = &models.PointWithTs{
 			Point: elastic.GeoPointFromLatLon(p.(map[interface{}]interface{})["lat"].(float64), p.(map[interface{}]interface{})["lon"].(float64)),
 			Ts:    p.(map[interface{}]interface{})["ts"].(uint64),
