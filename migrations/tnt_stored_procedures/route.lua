@@ -47,7 +47,7 @@ function get_route(courier_id, since)
     end
     local res = {}
     for _, v in pairs(temp_res[2]) do
-        if v.ts >= since then
+        if v.ts > since then
             table.insert(res, v)
         end
     end
