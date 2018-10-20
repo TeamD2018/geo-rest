@@ -61,6 +61,9 @@ func main() {
 		logger.Fatal("fail to perform migrations", zap.Error(err))
 	}
 	_, err = tntClient.Call17(createCouriersRouteSpaceFuncName, []interface{}{})
+	if err != nil {
+		log.Fatal(err)
+	}
 	_, err = tntClient.Call17(createResolverCacheSpaceFuncName, []interface{}{})
 	if err != nil {
 		log.Fatal(err)
@@ -82,7 +85,7 @@ func main() {
 		logger.Fatal("Fail to ensure orders mapping: ", zap.Error(err))
 	}
 
-	tntRouteDao := services.NewTarantoolRouteDAO(tntClient)
+	tntRouteDao := services.NewTarantoolRouteDAO(tntClient, logger)
 
 	api := controllers.APIService{
 		CouriersDAO:      couriersDao,
