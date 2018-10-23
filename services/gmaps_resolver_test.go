@@ -62,7 +62,7 @@ func (s GMapsResolverTestSuite) TestGMapsResolver_Resolve_Point() {
 
 func (s GMapsResolverTestSuite) TestGMapsResolver_Resolve_Another_Point() {
 	location := &models.Location{
-		Point: elastic.GeoPointFromLatLon(55.7454,37.3623,),
+		Point: elastic.GeoPointFromLatLon(55.7454,37.3623),
 	}
 
 	err := s.service.Resolve(location, context.Background())
