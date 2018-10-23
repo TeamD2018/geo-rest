@@ -55,6 +55,20 @@ func (s GMapsResolverTestSuite) TestGMapsResolver_Resolve_Point() {
 		Point: elastic.GeoPointFromLatLon(37.4231778, -122.0852514),
 	}
 	err := s.service.Resolve(location, context.Background())
-	s.NoError(err)
-	s.EqualValues(addr, *location.Address)
+	if s.NoError(err) {
+		s.EqualValues(addr, *location.Address)
+	}
+}
+
+func (s GMapsResolverTestSuite) TestGMapsResolver_Resolve_Another_Point() {
+	location := &models.Location{
+		Point: elastic.GeoPointFromLatLon(55.7454,37.3623,),
+	}
+
+	err := s.service.Resolve(location, context.Background())
+	if s.NoError(err) {
+		s.NotEmpty(*location.Address)
+		log.Println(*location.Address)
+	}
+
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/olivere/elastic"
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
+	"log"
 )
 
 type GMapsResolver struct {
@@ -24,6 +25,13 @@ func (gm *GMapsResolver) Resolve(location *models.Location, ctx context.Context)
 	if location == nil || (location.Point != nil && location.Address != nil) {
 		return nil
 	}
+	if location.Address != nil {
+		resolvedPoint, err := gm.resolveAddr(*location.Address, ctx)
+		if err != nil {
+			return err
+		}
+		location.Point = resolvedPoint
+	}
 	if location.Point != nil {
 		resolvedAddr, err := gm.resolvePoint(location.Point, ctx)
 		if err != nil {
@@ -31,13 +39,6 @@ func (gm *GMapsResolver) Resolve(location *models.Location, ctx context.Context)
 		}
 		location.Address = &resolvedAddr
 		return nil
-	}
-	if location.Address != nil {
-		resolvedPoint, err := gm.resolveAddr(*location.Address, ctx)
-		if err != nil {
-			return err
-		}
-		location.Point = resolvedPoint
 	}
 	return nil
 }
@@ -47,14 +48,26 @@ func (gm *GMapsResolver) resolvePoint(point *elastic.GeoPoint, ctx context.Conte
 			Lat: point.Lat,
 			Lng: point.Lon,
 		},
-		LocationType: []maps.GeocodeAccuracy{maps.GeocodeAccuracyRooftop},
-		ResultType:   []string{"street_address"},
-		Language:     "ru",
+		ResultType: []string{
+			"street_address",
+			"administrative_area_level_2",
+			"administrative_area_level_3",
+			"colloquial_area",
+			"sublocality",
+			"premise",
+			"subpremise",
+			"natural_feature",
+			"airport",
+			"park",
+			"point_of_interest",
+		},
+		Language: "ru",
 	}
 	results, err := gm.Maps.ReverseGeocode(ctx, req)
 	if err != nil {
 		return "", err
 	}
+	log.Println(results[0].FormattedAddress)
 	reversed := results[0]
 	return reversed.FormattedAddress, nil
 }
