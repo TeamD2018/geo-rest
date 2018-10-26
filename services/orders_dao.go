@@ -197,40 +197,119 @@ func (od *OrdersElasticDAO) GetIndex() string {
 
 func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
 	return od.index, `{
-		"mappings": {
-			"_doc": {
-				"properties": {
-					"courier_id": {
-						"type": "keyword"
-					},
-					"created_at": {
-						"type": "long"
-					},
-					"delivered_at": {
-						"type": "long"
-					},
-					"destination": {
-						"properties": {
-							"point": {
-								"type": "geo_point"
-							},
-							"address": {
-								"type": "completion"
-							}
-						}
-					},
-					"source": {
-						"properties": {
-							"point": {
-								"type": "geo_point"
-							},
-							"address": {
-								"type": "completion"
-							}
-						}
-					}
-				}	
-			}
-		}		
-	}`
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "autocomplete": {
+          "tokenizer": "autocomplete",
+          "filter": [
+            "lowercase",
+            "remove_frequent_words",
+            "synonym",
+            "min_letter_trigram_len",
+            "discard_empty_strings",
+            "unique"
+          ]
+        },
+        "autocomplete_search": {
+          "tokenizer": "whitespace",
+          "filter": [
+            "lowercase",
+            "min_token_length",
+            "split_words",
+            "remove_frequent_words"
+          ]
+        }
+      },
+      "filter": {
+        "split_words": {
+          "type": "word_delimiter",
+          "preserve_original": true
+        },
+        "synonym": {
+          "type": "synonym",
+          "synonyms": [
+            "стр => строение",
+            "корп => корпус",
+            "кв => квартира",
+            "пр => проспект",
+            "пер => переулок",
+            "пл => площадь"
+          ]
+        },
+        "remove_frequent_words": {
+          "type": "stop",
+          "stopwords": [
+            "улица",
+            "yл.",
+            "ул",
+            "дом"
+          ]
+        },
+        "min_letter_trigram_len": {
+          "type": "pattern_replace",
+          "pattern": "^\\D{1,2}$"
+        },
+        "discard_empty_strings": {
+          "type": "length",
+          "min": 1
+        },
+        "min_token_length": {
+          "min": 3,
+          "type": "length"
+        }
+      },
+      "tokenizer": {
+        "autocomplete": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 15,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "_doc": {
+      "properties": {
+        "courier_id": {
+          "type": "keyword"
+        },
+        "created_at": {
+          "type": "long"
+        },
+        "delivered_at": {
+          "type": "long"
+        },
+        "destination": {
+          "properties": {
+            "point": {
+              "type": "geo_point"
+            },
+            "address": {
+              "type": "text",
+              "analyzer": "autocomplete",
+              "search_analyzer": "autocomplete_search"
+            }
+          }
+        },
+        "source": {
+          "properties": {
+            "point": {
+              "type": "geo_point"
+            },
+            "address": {
+              "type": "text",
+              "analyzer": "autocomplete",
+              "search_analyzer": "autocomplete_search"
+            }
+          }
+        }
+      }
+    }
+  }
+}`
 }
