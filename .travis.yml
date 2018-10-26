@@ -76,12 +76,12 @@ jobs:
     deploy:
     - provider: script
       skip_cleanup: true
-      script: bash deploy.sh 35.204.198.186
+      script: bash deploy.sh $DEPLOY_TARGET
       on:
         branch: master
     - provider: script
       skip_cleanup: true
-      script: bash deploy.sh 35.204.198.186
+      script: bash deploy.sh $DEPLOY_TARGET
       on:
         branch: develop
     before_deploy:
