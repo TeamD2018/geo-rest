@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/TeamD2018/geo-rest/services/interfaces"
+	"github.com/TeamD2018/geo-rest/services/suggestions"
 	"github.com/olivere/elastic"
 )
 
@@ -13,13 +13,13 @@ type OrdersSuggestEngine struct {
 	FuzzinessThreshold int
 }
 
-func (ose *OrdersSuggestEngine) ParseSearchResponse(result *elastic.SearchResult) interfaces.EngineSuggestResults {
+func (ose *OrdersSuggestEngine) ParseSearchResponse(result *elastic.SearchResult) suggestions.EngineSuggestResults {
 	if result.TotalHits() == 0 {
 		return nil
 	}
-	results := make(interfaces.EngineSuggestResults, 0, result.TotalHits())
+	results := make(suggestions.EngineSuggestResults, 0, result.TotalHits())
 	for _, hit := range result.Hits.Hits {
-		results = append(results, interfaces.SuggestResult{Id: hit.Id, Source: hit.Source})
+		results = append(results, suggestions.SuggestResult{Id: hit.Id, Source: hit.Source})
 	}
 	return results
 }

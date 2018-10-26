@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/TeamD2018/geo-rest/services/interfaces"
+	"github.com/TeamD2018/geo-rest/services/suggestions"
 	"github.com/olivere/elastic"
 	"strings"
 )
@@ -31,12 +31,12 @@ func (cse *CouriersSuggestEngine) CreateSearchRequest(input string) (*elastic.Se
 	return elastic.NewSearchRequest().SearchSource(source).Index(cse.Index).Type("_doc")
 }
 
-func (cse *CouriersSuggestEngine) ParseSearchResponse(result *elastic.SearchResult) interfaces.EngineSuggestResults {
+func (cse *CouriersSuggestEngine) ParseSearchResponse(result *elastic.SearchResult) suggestions.EngineSuggestResults {
 	suggestResults := result.Suggest[CouriersSuggesterName]
-	results := make(interfaces.EngineSuggestResults, 0)
+	results := make(suggestions.EngineSuggestResults, 0)
 	for _, suggestion := range suggestResults {
 		for _, option := range suggestion.Options {
-			results = append(results, interfaces.SuggestResult{Id: option.Id, Source: option.Source})
+			results = append(results, suggestions.SuggestResult{Id: option.Id, Source: option.Source})
 		}
 	}
 	return results

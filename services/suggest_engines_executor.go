@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"github.com/TeamD2018/geo-rest/services/interfaces"
+	"github.com/TeamD2018/geo-rest/services/suggestions"
 	"github.com/olivere/elastic"
 )
 
@@ -16,22 +17,31 @@ type NamedSuggestEngine struct {
 	interfaces.SuggestEngine
 }
 
+func NewSuggestEngineExecutor(client *elastic.Client) *SuggestEngineExecutor {
+	return &SuggestEngineExecutor{
+		Elastic: client,
+	}
+}
+
 func (see *SuggestEngineExecutor) AddEngine(name string, engine interfaces.SuggestEngine) {
 	see.Executors = append(see.Executors, NamedSuggestEngine{name, engine})
 }
 
-func (see *SuggestEngineExecutor) Suggest(input string) (interfaces.SuggestResults, error) {
-	results := make(interfaces.SuggestResults)
-	mutlisearch := see.Elastic.MultiSearch()
+func (see *SuggestEngineExecutor) Suggest(input string) (suggestions.SuggestResults, error) {
+	results := make(suggestions.SuggestResults)
+	multisearch := see.Elastic.MultiSearch()
 	total := 0
 	for _, executor := range see.Executors {
-		mutlisearch.Add(executor.CreateSearchRequest(input))
+		req := executor.CreateSearchRequest(input)
+		multisearch.Add(req)
 		total++
 	}
-	res, err := mutlisearch.MaxConcurrentSearches(total).Do(context.Background())
+	res, err := multisearch.MaxConcurrentSearches(total).Do(context.Background())
+
 	if err != nil {
 		return nil, err
 	}
+
 	for i, response := range res.Responses {
 		executor := see.Executors[i]
 		executorName := executor.Name
