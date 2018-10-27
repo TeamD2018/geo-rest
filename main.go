@@ -89,11 +89,11 @@ func main() {
 		Fuzziness:          "1",
 		FuzzinessThreshold: 5,
 		Limit:              15,
-		Field:              "destination",
+		Field:              "destination.address",
 		Index:              ordersDao.GetIndex(),
 	}
 
-	suggestersExecutor := services.NewSuggestEngineExecutor(elasticClient)
+	suggestersExecutor := services.NewSuggestEngineExecutor(elasticClient, logger)
 	suggestersExecutor.AddEngine("orders-engine", &ordersSuggestDestinationEngine)
 	suggestersExecutor.AddEngine("couriers-engine", &couriersSuggestEngine)
 
