@@ -31,8 +31,9 @@ const (
 )
 
 var (
-	courierId         = "550e8400-e29b-41d4-a716-446655440000"
+	courierId         string
 	testCourierCreate = models.CourierCreate{Name: "test-courier"}
+	testCourier       *models.Courier
 )
 
 var (
@@ -83,10 +84,6 @@ var (
 	orderAddressComplexWithHouseShorthand *models.Order
 )
 
-func (s *TestSuggestEnginesExecutor) BeforeTest(suiteName, testName string) {
-
-}
-
 func (s *TestSuggestEnginesExecutor) SetupSuite() {
 	log.SetFlags(log.Lshortfile)
 	pool, err := dockertest.NewPool("")
@@ -122,6 +119,8 @@ func (s *TestSuggestEnginesExecutor) SetupSuite() {
 	s.resource = resource
 	s.logger = zap.NewNop()
 	s.couriersDao = NewCouriersElasticDAO(s.client, s.logger, "couriers", 100)
+	testCourier, _ = s.couriersDao.Create(&testCourierCreate)
+	courierId = testCourier.ID
 	s.ordersDao = NewOrdersElasticDAO(s.client, s.logger, s.couriersDao, "orders")
 	s.ordersEngine = OrdersSuggestEngine{
 		Field:              "destination.address",
@@ -144,7 +143,7 @@ func (s *TestSuggestEnginesExecutor) SetupSuite() {
 	if err := s.ordersDao.EnsureMapping(); err != nil {
 		s.FailNow("orders dao  mapping failed", err.Error())
 	}
-	orderAddressSlash, _ = s.ordersDao.Create(createOrderAddressSlash)
+	orderAddressSlash, _ := s.ordersDao.Create(createOrderAddressSlash)
 	orderAddressNoStreetKeyword, _ = s.ordersDao.Create(createOrderAddressNoStreetKeyword)
 	orderAddressSimpleWithHouse, _ = s.ordersDao.Create(createOrderAddressSimpleWithHouse)
 	orderAddressWithDistrict, _ = s.ordersDao.Create(createOrderAddressWithDistrict)
