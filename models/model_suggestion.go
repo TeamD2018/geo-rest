@@ -20,6 +20,7 @@ func SuggestionFromRawInput(ordersRaw, couriersRaw suggestions.EngineSuggestResu
 		if err := json.Unmarshal(*rawOrder.Source, &order); err != nil {
 			return nil, err
 		}
+		order.ID = rawOrder.Id
 		suggestion.Orders = append(suggestion.Orders, &order)
 	}
 	for _, rawCourier := range couriersRaw {
@@ -27,6 +28,7 @@ func SuggestionFromRawInput(ordersRaw, couriersRaw suggestions.EngineSuggestResu
 		if err := json.Unmarshal(*rawCourier.Source, &courier); err != nil {
 			return nil, err
 		}
+		courier.ID = rawCourier.Id
 		suggestion.Couriers = append(suggestion.Couriers, &courier)
 	}
 	return &suggestion, nil
