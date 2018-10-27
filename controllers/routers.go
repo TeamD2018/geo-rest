@@ -23,4 +23,5 @@ func SetupRouters(router *gin.Engine, api *APIService) {
 	g.GET("/:courier_id/geo_history", api.GetRouteForCourier)
 
 	router.GET("/suggestions/couriers", api.SuggestCourier)
+	router.GET("/suggestions", api.Suggest)
 }

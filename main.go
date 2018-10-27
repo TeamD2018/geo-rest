@@ -78,6 +78,25 @@ func main() {
 		SetFuzziness(viper.GetInt("suggestions.couriers.fuzziness")).
 		SetFuzzinessThreshold(viper.GetInt("suggestions.couriers.threshold"))
 
+	couriersSuggestEngine := services.CouriersSuggestEngine{
+		Fuzziness:          "2",
+		FuzzinessThreshold: 5,
+		Limit:              15,
+		Field:              "suggestions",
+		Index:              couriersDao.GetIndex(),
+	}
+	ordersSuggestDestinationEngine := services.OrdersSuggestEngine{
+		Fuzziness:          "1",
+		FuzzinessThreshold: 5,
+		Limit:              15,
+		Field:              "destination",
+		Index:              ordersDao.GetIndex(),
+	}
+
+	suggestersExecutor := services.NewSuggestEngineExecutor(elasticClient)
+	suggestersExecutor.AddEngine("orders-engine", &ordersSuggestDestinationEngine)
+	suggestersExecutor.AddEngine("couriers-engine", &couriersSuggestEngine)
+
 	if err := couriersDao.EnsureMapping(); err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
 	}
@@ -88,12 +107,13 @@ func main() {
 	tntRouteDao := services.NewTarantoolRouteDAO(tntClient, logger)
 
 	api := controllers.APIService{
-		CouriersDAO:      couriersDao,
-		OrdersDAO:        ordersDao,
-		CourierRouteDAO:  tntRouteDao,
-		GeoResolver:      services.NewCachedResolver(tntResolver, gmapsResolver),
-		CourierSuggester: couriersSuggester,
-		Logger:           logger,
+		CouriersDAO:       couriersDao,
+		OrdersDAO:         ordersDao,
+		CourierRouteDAO:   tntRouteDao,
+		GeoResolver:       services.NewCachedResolver(tntResolver, gmapsResolver),
+		CourierSuggester:  couriersSuggester,
+		Logger:            logger,
+		SuggesterExecutor: suggestersExecutor,
 	}
 	router := gin.Default()
 
