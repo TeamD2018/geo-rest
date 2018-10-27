@@ -197,13 +197,14 @@ func (od *OrdersElasticDAO) GetIndex() string {
 
 func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
 	return od.index, `{
-  "settings": {
+ "settings": {
     "analysis": {
       "analyzer": {
         "autocomplete": {
           "tokenizer": "autocomplete",
           "filter": [
             "lowercase",
+            "split_words",
             "remove_frequent_words",
             "synonym",
             "min_letter_trigram_len",
@@ -215,8 +216,9 @@ func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
           "tokenizer": "whitespace",
           "filter": [
             "lowercase",
-            "min_token_length",
             "split_words",
+            "min_letter_trigram_len",
+            "discard_empty_strings",
             "remove_frequent_words"
           ]
         }
@@ -224,7 +226,7 @@ func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
       "filter": {
         "split_words": {
           "type": "word_delimiter",
-          "preserve_original": true
+          "preserve_original": false
         },
         "synonym": {
           "type": "synonym",
