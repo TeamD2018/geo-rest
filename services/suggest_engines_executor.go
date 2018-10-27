@@ -5,10 +5,12 @@ import (
 	"github.com/TeamD2018/geo-rest/services/interfaces"
 	"github.com/TeamD2018/geo-rest/services/suggestions"
 	"github.com/olivere/elastic"
+	"go.uber.org/zap"
 )
 
 type SuggestEngineExecutor struct {
 	Executors []NamedSuggestEngine
+	Logger    *zap.Logger
 	Elastic   *elastic.Client
 }
 
@@ -17,9 +19,10 @@ type NamedSuggestEngine struct {
 	interfaces.SuggestEngine
 }
 
-func NewSuggestEngineExecutor(client *elastic.Client) *SuggestEngineExecutor {
+func NewSuggestEngineExecutor(client *elastic.Client, logger *zap.Logger) *SuggestEngineExecutor {
 	return &SuggestEngineExecutor{
 		Elastic: client,
+		Logger:  logger,
 	}
 }
 

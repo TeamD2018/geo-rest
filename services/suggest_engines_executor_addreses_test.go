@@ -59,6 +59,7 @@ var (
 	AddressNoStreetWithAvenueFull       = "проспект Вернадского 14А"
 
 	AddressSimpleHouseInput                      = "Тагильская дом 2"
+	AddressSimpleHouseMinimalInput               = "Тагильская 2"
 	AddressSimpleShorthandHouseInput             = "Тагильская д2"
 	AddressStreetShorthandInput                  = "у Тагильская"
 	AddressStreetAndHouseShorthandInput          = "у Тагильская д2"
@@ -129,7 +130,7 @@ func (s *TestSuggestEnginesExecutor) SetupSuite() {
 		Index:              s.ordersDao.GetIndex(),
 		FuzzinessThreshold: 3,
 	}
-	s.executor = NewSuggestEngineExecutor(s.client)
+	s.executor = NewSuggestEngineExecutor(s.client, s.logger)
 	s.executor.AddEngine(ordersEngine, &s.ordersEngine)
 	var (
 		createOrderAddressSlash                     = &models.OrderCreate{CourierID: &courierId, Destination: models.Location{Address: &TestAddressSlash}}
@@ -174,6 +175,8 @@ func (s *TestSuggestEnginesExecutor) SetupSuite() {
 		"AddressComplexWithHouseInput":          {orderAddressWithHouse},
 		"AddressComplexWithHouseLowercaseInput": {orderAddressWithHouse},
 		"AddressComplexWithHouseShorthandInput": {orderAddressComplexWithHouseShorthand},
+
+		"AddressSimpleHouseMinimalInput": {orderAddressSimpleWithHouse},
 	}
 
 }
@@ -451,7 +454,20 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	want := ordersOutputs["AddressComplexWithHouseShorthandInput"]
 	s.ElementsMatch(want, got.Orders)
 }
-
+func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddressSimpleHouseMinimalInput() {
+	results, err := s.executor.Suggest(AddressSimpleHouseMinimalInput)
+	if !s.NoError(err) {
+		return
+	}
+	orders := results[ordersEngine]
+	couriers := results[couriersEngine]
+	got, err := models.SuggestionFromRawInput(orders, couriers)
+	if !s.NoError(err) {
+		return
+	}
+	want := ordersOutputs["AddressSimpleHouseMinimalInput"]
+	s.ElementsMatch(want, got.Orders)
+}
 func TestIntegrationSuggestEnginesExecutor(t *testing.T) {
 	suite.Run(t, new(TestSuggestEnginesExecutor))
 }
