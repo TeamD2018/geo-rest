@@ -16,7 +16,7 @@ func (api *APIService) Suggest(ctx *gin.Context) {
 	}
 	results, err := api.SuggesterExecutor.Suggest(params.Input)
 	if err != nil {
-		api.Logger.Error("fail to get suggestions", zap.String("input", input), zap.Error(err))
+		api.Logger.Error("fail to get suggestions", zap.String("input", params.Input), zap.Error(err))
 	}
 	ordersRaw := results["orders-engine"]
 	couriersRaw := results["couriers-engine"]
