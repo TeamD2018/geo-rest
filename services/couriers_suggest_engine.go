@@ -18,11 +18,15 @@ type CouriersSuggestEngine struct {
 
 func (cse *CouriersSuggestEngine) CreateSearchRequest(input string) (*elastic.SearchRequest) {
 	fuzzyOptions := elastic.NewFuzzyCompletionSuggesterOptions().
-		MinLength(cse.FuzzinessThreshold).
-		EditDistance(cse.Fuzziness).
 		UnicodeAware(true)
+	if cse.FuzzinessThreshold > 0 {
+		fuzzyOptions.MinLength(cse.FuzzinessThreshold)
+	}
+	if cse.Fuzziness != "" {
+		fuzzyOptions.EditDistance(cse.Fuzziness)
+	}
 
-	suggester := elastic.NewCompletionSuggester(Suggester).
+	suggester := elastic.NewCompletionSuggester(CouriersSuggesterName).
 		Field(cse.Field).
 		FuzzyOptions(fuzzyOptions).
 		Prefix(strings.ToLower(input)).
