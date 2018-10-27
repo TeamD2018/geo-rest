@@ -79,8 +79,7 @@ func main() {
 		SetFuzzinessThreshold(viper.GetInt("suggestions.couriers.threshold"))
 
 	couriersSuggestEngine := services.CouriersSuggestEngine{
-		Fuzziness:          "2",
-		FuzzinessThreshold: 5,
+		Fuzziness:          "AUTO",
 		Limit:              15,
 		Field:              "suggestions",
 		Index:              couriersDao.GetIndex(),
