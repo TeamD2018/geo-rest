@@ -78,11 +78,17 @@ func main() {
 		SetFuzziness(viper.GetInt("suggestions.couriers.fuzziness")).
 		SetFuzzinessThreshold(viper.GetInt("suggestions.couriers.threshold"))
 
-	couriersSuggestEngine := services.CouriersSuggestEngine{
-		Fuzziness:          "AUTO",
-		Limit:              15,
-		Field:              "suggestions",
-		Index:              couriersDao.GetIndex(),
+	couriersSuggestEngine := services.PrefixSuggestEngine{
+		Fuzziness: "AUTO",
+		Limit:     15,
+		Field:     "suggestions",
+		Index:     couriersDao.GetIndex(),
+	}
+	ordersPrefixSuggestEngine := services.PrefixSuggestEngine{
+		Fuzziness: "0",
+		Limit:     15,
+		Field:     "order_suggestions",
+		Index:     ordersDao.GetIndex(),
 	}
 	ordersSuggestDestinationEngine := services.OrdersSuggestEngine{
 		Fuzziness:          "1",
@@ -95,6 +101,7 @@ func main() {
 	suggestersExecutor := services.NewSuggestEngineExecutor(elasticClient, logger)
 	suggestersExecutor.AddEngine("orders-engine", &ordersSuggestDestinationEngine)
 	suggestersExecutor.AddEngine("couriers-engine", &couriersSuggestEngine)
+	suggestersExecutor.AddEngine("orders-prefix-engine", &ordersPrefixSuggestEngine)
 
 	if err := couriersDao.EnsureMapping(); err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))

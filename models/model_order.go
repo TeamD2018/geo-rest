@@ -17,12 +17,15 @@ type Order struct {
 	Destination Location `json:"destination,omitempty"`
 
 	Source Location `json:"source,omitempty"`
+
+	OrderNumber int `json:"order_number"`
 }
 
 type OrderCreate struct {
 	CourierID   *string  `json:"courier_id"`
 	Destination Location `json:"destination"`
 	Source      Location `json:"source"`
+	OrderNumber int      `json:"order_number"`
 }
 
 type OrderUpdate struct {

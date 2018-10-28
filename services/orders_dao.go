@@ -9,6 +9,7 @@ import (
 	"github.com/olivere/elastic"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
+	"strconv"
 	"time"
 )
 
@@ -70,11 +71,13 @@ func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Ord
 	if !exists {
 		return nil, models.ErrEntityNotFound.SetParameter(*orderCreate.CourierID)
 	}
-	var order models.Order
+	var order orderWrapper
 	order.Source = orderCreate.Source
 	order.Destination = orderCreate.Destination
 	order.CourierID = *orderCreate.CourierID
+	order.OrderNumber = orderCreate.OrderNumber
 	order.CreatedAt = time.Now().Unix()
+	order.Suggestions = elastic.NewSuggestField(strconv.Itoa(order.OrderNumber))
 	id := uuid.NewV4().String()
 	ret, err := db.Index().
 		Index(od.index).
@@ -86,7 +89,7 @@ func (od *OrdersElasticDAO) Create(orderCreate *models.OrderCreate) (*models.Ord
 		return nil, err
 	}
 	order.ID = ret.Id
-	return &order, nil
+	return &order.Order, nil
 }
 
 func (od *OrdersElasticDAO) Update(update *models.OrderUpdate) (*models.Order, error) {
@@ -286,6 +289,13 @@ func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
         "delivered_at": {
           "type": "long"
         },
+		"order_number": {
+          "type": "integer"
+        },
+		"order_suggestions": {
+		  "type": "completion",
+		  "analyzer": "whitespace"
+		},
         "destination": {
           "properties": {
             "point": {
@@ -314,4 +324,9 @@ func (od *OrdersElasticDAO) GetMapping() (indexName string, mapping string) {
     }
   }
 }`
+}
+
+type orderWrapper struct {
+	Suggestions *elastic.SuggestField `json:"order_suggestions,omitempty"`
+	models.Order
 }
