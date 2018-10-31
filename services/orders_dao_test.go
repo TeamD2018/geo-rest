@@ -208,6 +208,16 @@ func (s OrdersTestSuite) TestOrdersElasticDAO_Delete_OK() {
 	s.Assert().False(exists)
 }
 
+func (s OrdersTestSuite) TestOrdersElasticDAO_DeleteOrdersForCourier_OK() {
+	err := s.ordersDao.DeleteOrdersForCourier(s.testOrder.CourierID)
+	if !s.Assert().NoError(err) {
+		return
+	}
+	exists, err := s.client.Exists().Index(s.ordersDao.index).Type("_doc").Id(s.testOrder.ID).Do(context.Background())
+	s.Assert().NoError(err)
+	s.Assert().False(exists)
+}
+
 func TestIntegrationOrdersSuite(t *testing.T) {
 	suite.Run(t, new(OrdersTestSuite))
 }

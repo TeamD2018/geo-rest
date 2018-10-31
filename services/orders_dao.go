@@ -140,6 +140,19 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 	return nil
 }
 
+func (od *OrdersElasticDAO) DeleteOrdersForCourier(courierID string) error {
+	db := od.Elastic
+	courierIDQuery := elastic.NewTermQuery("courier_id", courierID)
+	_, err := db.DeleteByQuery(od.GetIndex()).Query(courierIDQuery).Do(context.Background())
+	if err != nil {
+		if elastic.IsNotFound(err) {
+			return models.ErrEntityNotFound.SetParameter(courierID)
+		}
+		return err
+	}
+	return nil
+}
+
 func (od *OrdersElasticDAO) GetOrdersForCourier(
 	courierID string,
 	since int64,
