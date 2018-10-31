@@ -26,6 +26,7 @@ type ControllerCouriersTestSuite struct {
 	testCourierUpdate *models.CourierUpdate
 	geoRouteMock      *mocks.GeoRouteMock
 	couriersDAOMock   *mocks.CouriersDAOMock
+	ordersDAOMock     *mocks.OrdersDAOMock
 }
 
 func (ts *ControllerCouriersTestSuite) SetupSuite() {
@@ -68,6 +69,7 @@ func TestUnitControllersCouriers(t *testing.T) {
 
 func (ts *ControllerCouriersTestSuite) BeforeTest(suiteName, testName string) {
 	ts.couriersDAOMock = new(mocks.CouriersDAOMock)
+	ts.ordersDAOMock = new(mocks.OrdersDAOMock)
 	ts.geoRouteMock = new(mocks.GeoRouteMock)
 }
 
@@ -130,6 +132,8 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_DeleteOrder_NoContent() {
 	ts.api.CouriersDAO = ts.couriersDAOMock
 	ts.geoRouteMock.On("DeleteCourier", ts.testCourier.ID).Return(nil)
 	ts.api.CourierRouteDAO = ts.geoRouteMock
+	ts.ordersDAOMock.On("GetOrdersForCourier", ts.testCourier.ID).Return(models.Orders{}, nil)
+	ts.api.OrdersDAO = ts.ordersDAOMock
 
 	w := httptest.NewRecorder()
 	url := fmt.Sprintf("/couriers/%s", ts.testCourier.ID)
