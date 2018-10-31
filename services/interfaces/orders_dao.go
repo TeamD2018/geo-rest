@@ -14,4 +14,5 @@ type IOrdersDao interface {
 		since int64,
 		asc parameters.DirectionFlag,
 		excludeDelivered parameters.DeliveredFlag) (models.Orders, error)
+	DeleteOrdersForCourier(courierID string) error
 }
