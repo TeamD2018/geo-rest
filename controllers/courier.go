@@ -165,5 +165,18 @@ func (api *APIService) DeleteCourier(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
+	if orders, err := api.OrdersDAO.GetOrdersForCourier(courierID, 0, true, false); err != nil {
+		api.Logger.Sugar().Error(err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
+	} else {
+		for _, o := range orders {
+			if err := api.OrdersDAO.Delete(o.ID); err != nil {
+				api.Logger.Sugar().Error(err)
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+				return
+			}
+		}
+	}
 	ctx.Status(http.StatusNoContent)
 }
