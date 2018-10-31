@@ -61,6 +61,11 @@ func (o *OrdersDAOMock) Delete(orderID string) error {
 	return args.Error(0)
 }
 
+func (o *OrdersDAOMock) DeleteOrdersForCourier(orderID string) error {
+	args := o.Called(orderID)
+	return args.Error(0)
+}
+
 func (o *OrdersDAOMock) GetOrdersForCourier(courierID string, since int64, asc parameters.DirectionFlag, excludeDelivered parameters.DeliveredFlag) (models.Orders, error) {
 	args := o.Called(courierID, since, asc, excludeDelivered)
 	v := args.Get(0)

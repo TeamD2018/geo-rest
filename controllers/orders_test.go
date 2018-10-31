@@ -86,6 +86,7 @@ func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	geoResolverMock := new(mocks.GeoResolverMock)
 	geoResolverMock.On("Resolve", mock.Anything, mock.Anything).Return(nil)
 	geoResolverMock.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mock.AnythingOfType("models.Orders"), mock.AnythingOfType("error"))
+	oc.ordersDAOMock.On("DeleteOrdersForCourier", mock.AnythingOfType("string")).Return(nil)
 	oc.api.GeoResolver = geoResolverMock
 	oc.suggesterMock = new(mocks.CouriersSuggestorMock)
 	oc.geoRouteMock = new(mocks.GeoRouteMock)
