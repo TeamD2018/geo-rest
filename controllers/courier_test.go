@@ -132,7 +132,7 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_DeleteOrder_NoContent() {
 	ts.api.CouriersDAO = ts.couriersDAOMock
 	ts.geoRouteMock.On("DeleteCourier", ts.testCourier.ID).Return(nil)
 	ts.api.CourierRouteDAO = ts.geoRouteMock
-	ts.ordersDAOMock.On("GetOrdersForCourier", ts.testCourier.ID).Return(models.Orders{}, nil)
+	ts.ordersDAOMock.On("GetOrdersForCourier", ts.testCourier.ID, 0, true, false).Return(models.Orders{}, nil)
 	ts.api.OrdersDAO = ts.ordersDAOMock
 
 	w := httptest.NewRecorder()
