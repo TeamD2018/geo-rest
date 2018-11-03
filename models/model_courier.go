@@ -12,5 +12,6 @@ type Courier struct {
 	Phone *string `json:"phone,omitempty"`
 
 	// Time in UTC format(ms)
-	LastSeen *int64 `json:"last_seen,omitempty"`
+	LastSeen    *int64 `json:"last_seen,omitempty"`
+	OrdersCount int    `json:"orders_count"`
 }
