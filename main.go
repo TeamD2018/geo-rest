@@ -68,6 +68,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ordersCountTracker := services.NewTarantoolOrdersCountTracker(tntClient, logger)
+
 	couriersDao := services.NewCouriersElasticDAO(elasticClient, logger, "", services.DefaultCouriersReturnSize)
 	ordersDao := services.NewOrdersElasticDAO(elasticClient, logger, couriersDao, "")
 
@@ -113,13 +116,14 @@ func main() {
 	tntRouteDao := services.NewTarantoolRouteDAO(tntClient, logger)
 
 	api := controllers.APIService{
-		CouriersDAO:       couriersDao,
-		OrdersDAO:         ordersDao,
-		CourierRouteDAO:   tntRouteDao,
-		GeoResolver:       services.NewCachedResolver(tntResolver, gmapsResolver),
-		CourierSuggester:  couriersSuggester,
-		Logger:            logger,
-		SuggesterExecutor: suggestersExecutor,
+		CouriersDAO:        couriersDao,
+		OrdersDAO:          ordersDao,
+		CourierRouteDAO:    tntRouteDao,
+		GeoResolver:        services.NewCachedResolver(tntResolver, gmapsResolver),
+		CourierSuggester:   couriersSuggester,
+		Logger:             logger,
+		SuggesterExecutor:  suggestersExecutor,
+		OrdersCountTracker: ordersCountTracker,
 	}
 	router := gin.Default()
 
