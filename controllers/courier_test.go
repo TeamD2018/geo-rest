@@ -27,6 +27,7 @@ type ControllerCouriersTestSuite struct {
 	geoRouteMock      *mocks.GeoRouteMock
 	couriersDAOMock   *mocks.CouriersDAOMock
 	ordersDAOMock     *mocks.OrdersDAOMock
+	ordersTrackerMock *mocks.OrdersCountTrackerMock
 }
 
 func (ts *ControllerCouriersTestSuite) SetupSuite() {
@@ -71,6 +72,12 @@ func (ts *ControllerCouriersTestSuite) BeforeTest(suiteName, testName string) {
 	ts.couriersDAOMock = new(mocks.CouriersDAOMock)
 	ts.ordersDAOMock = new(mocks.OrdersDAOMock)
 	ts.geoRouteMock = new(mocks.GeoRouteMock)
+	ts.ordersTrackerMock = new(mocks.OrdersCountTrackerMock)
+	ts.ordersTrackerMock.On("Inc", mock.AnythingOfType("string")).Return(nil)
+	ts.ordersTrackerMock.On("Dec", mock.AnythingOfType("string")).Return(nil)
+	ts.ordersTrackerMock.On("Drop", mock.AnythingOfType("string")).Return(nil)
+	ts.ordersTrackerMock.On("Sync", mock.Anything).Return(nil)
+	ts.api.OrdersCountTracker = ts.ordersTrackerMock
 }
 
 func (ts *ControllerCouriersTestSuite) TestAPIService_CreateCourier_Created() {

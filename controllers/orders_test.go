@@ -20,15 +20,16 @@ import (
 
 type OrdersControllersTestSuite struct {
 	suite.Suite
-	api             *APIService
-	router          *gin.Engine
-	testCourier     *models.Courier
-	testOrder       *models.Order
-	testOrderCreate *models.OrderCreate
-	testOrderUpdate *models.OrderUpdate
-	ordersDAOMock   *mocks.OrdersDAOMock
-	geoRouteMock    *mocks.GeoRouteMock
-	suggesterMock   *mocks.CouriersSuggestorMock
+	api               *APIService
+	router            *gin.Engine
+	testCourier       *models.Courier
+	testOrder         *models.Order
+	testOrderCreate   *models.OrderCreate
+	testOrderUpdate   *models.OrderUpdate
+	ordersDAOMock     *mocks.OrdersDAOMock
+	geoRouteMock      *mocks.GeoRouteMock
+	suggesterMock     *mocks.CouriersSuggestorMock
+	ordersTrackerMock *mocks.OrdersCountTrackerMock
 }
 
 func (oc *OrdersControllersTestSuite) SetupSuite() {
@@ -83,6 +84,7 @@ func TestUnitControllersOrders(t *testing.T) {
 
 func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	oc.ordersDAOMock = new(mocks.OrdersDAOMock)
+
 	geoResolverMock := new(mocks.GeoResolverMock)
 	geoResolverMock.On("Resolve", mock.Anything, mock.Anything).Return(nil)
 	geoResolverMock.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mock.AnythingOfType("models.Orders"), mock.AnythingOfType("error"))
@@ -90,6 +92,12 @@ func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	oc.api.GeoResolver = geoResolverMock
 	oc.suggesterMock = new(mocks.CouriersSuggestorMock)
 	oc.geoRouteMock = new(mocks.GeoRouteMock)
+	oc.ordersTrackerMock = new(mocks.OrdersCountTrackerMock)
+	oc.ordersTrackerMock.On("Inc", mock.AnythingOfType("string")).Return(nil)
+	oc.ordersTrackerMock.On("Dec", mock.AnythingOfType("string")).Return(nil)
+	oc.ordersTrackerMock.On("Drop", mock.AnythingOfType("string")).Return(nil)
+	oc.ordersTrackerMock.On("Sync", mock.Anything).Return(nil)
+	oc.api.OrdersCountTracker = oc.ordersTrackerMock
 }
 
 func (oc *OrdersControllersTestSuite) TestAPIService_CreateOrder_Created() {
