@@ -32,13 +32,16 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	if courier, err := api.CouriersDAO.GetByID(courierID); err != nil {
+	courier, err := api.CouriersDAO.GetByID(courierID)
+	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, models.ErrEntityNotFound.SetParameter(courierID))
 		return
-	} else {
-		ctx.JSON(http.StatusOK, courier)
-		return
 	}
+	if err := api.OrdersCountTracker.Sync(models.Couriers{courier}); err != nil {
+		api.Logger.Error("fail to sync courier counter", zap.Error(err))
+	}
+	ctx.JSON(http.StatusOK, courier)
+	return
 }
 
 func (api *APIService) MiddlewareGeoSearch(ctx *gin.Context) {
@@ -76,6 +79,10 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 		log.Println(err)
 		//TODO: need info
 	}
+	if err := api.OrdersCountTracker.Sync(models.Couriers{updated}); err != nil {
+		api.Logger.Error("fail to sync order counter", zap.Error(err), zap.String("courier_id", courierID))
+	}
+
 	ctx.JSON(http.StatusOK, updated)
 	return
 }
@@ -86,13 +93,16 @@ func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	if couriers, err := api.CouriersDAO.GetByCircleField(searchParams.ToCircleField(), searchParams.Size); err != nil {
+	couriers, err := api.CouriersDAO.GetByCircleField(searchParams.ToCircleField(), searchParams.Size)
+	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
-	} else {
-		ctx.JSON(http.StatusOK, couriers)
-		return
 	}
+	if err := api.OrdersCountTracker.Sync(couriers); err != nil {
+		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
+	}
+	ctx.JSON(http.StatusOK, couriers)
+	return
 }
 
 func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
@@ -101,13 +111,18 @@ func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	if couriers, err := api.CouriersDAO.GetByBoxField(searchParams.ToBoxField(), searchParams.Size); err != nil {
+	couriers, err := api.CouriersDAO.GetByBoxField(searchParams.ToBoxField(), searchParams.Size)
+	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
-	} else {
-		ctx.JSON(http.StatusOK, couriers)
-		return
 	}
+	if err := api.OrdersCountTracker.Sync(couriers); err != nil {
+		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
+	}
+
+	ctx.JSON(http.StatusOK, couriers)
+	return
+
 }
 
 func (api *APIService) SuggestCourier(ctx *gin.Context) {
@@ -119,12 +134,15 @@ func (api *APIService) SuggestCourier(ctx *gin.Context) {
 	if suggestParams.Limit <= 0 {
 		suggestParams.Limit = 200
 	}
-	if couriers, err := api.CourierSuggester.Suggest("suggestions", &suggestParams); err != nil {
+	couriers, err := api.CourierSuggester.Suggest("suggestions", &suggestParams)
+	if err != nil {
 		api.Logger.Error("fail to suggest couriers", zap.Error(err), zap.String("prefix", suggestParams.Prefix))
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
-	} else {
-		ctx.JSON(http.StatusOK, couriers)
 	}
+	if err := api.OrdersCountTracker.Sync(couriers); err != nil {
+		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
+	}
+	ctx.JSON(http.StatusOK, couriers)
 }
 
 func (api *APIService) GetRouteForCourier(ctx *gin.Context) {
@@ -172,5 +190,10 @@ func (api *APIService) DeleteCourier(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
+
+	if err := api.OrdersCountTracker.Drop(ctx.Param("courier_id")); err != nil {
+		api.Logger.Error("fail to drop orders counter", zap.Error(err), zap.String("courier_id", courierID))
+	}
+
 	ctx.Status(http.StatusNoContent)
 }

@@ -21,10 +21,13 @@ func (api *APIService) Suggest(ctx *gin.Context) {
 	}
 	ordersRaw := append(results["orders-engine"], results["orders-prefix-engine"]...)
 	couriersRaw := results["couriers-engine"]
-	if suggestion, err := models.SuggestionFromRawInput(ordersRaw, couriersRaw);
-		err != nil {
+	suggestion, err := models.SuggestionFromRawInput(ordersRaw, couriersRaw)
+	if err != nil {
 		api.Logger.Error("fail to build suggestion from elastic results", zap.Error(err))
-	} else {
-		ctx.JSON(http.StatusOK, suggestion)
 	}
+
+	if err := api.OrdersCountTracker.Sync(suggestion.Couriers); err != nil {
+		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
+	}
+	ctx.JSON(http.StatusOK, suggestion)
 }

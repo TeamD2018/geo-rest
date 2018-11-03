@@ -6,11 +6,12 @@ import (
 )
 
 type APIService struct {
-	OrdersDAO         interfaces.IOrdersDao
-	CouriersDAO       interfaces.ICouriersDAO
-	CourierRouteDAO   interfaces.GeoRouteInterface
-	GeoResolver       interfaces.GeoResolver
-	CourierSuggester  interfaces.CourierSuggester
-	Logger            *zap.Logger
-	SuggesterExecutor interfaces.SuggestExecutor
+	OrdersDAO          interfaces.IOrdersDao
+	CouriersDAO        interfaces.ICouriersDAO
+	CourierRouteDAO    interfaces.GeoRouteInterface
+	GeoResolver        interfaces.GeoResolver
+	CourierSuggester   interfaces.CourierSuggester
+	Logger             *zap.Logger
+	SuggesterExecutor  interfaces.SuggestExecutor
+	OrdersCountTracker interfaces.OrdersCountTracker
 }

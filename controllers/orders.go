@@ -149,6 +149,11 @@ func (api *APIService) CreateOrder(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
+
+	if err := api.OrdersCountTracker.Inc(ctx.Param("courier_id")); err != nil {
+		api.Logger.Error("fail to increment order counter", zap.Error(err))
+	}
+
 	ctx.JSON(http.StatusCreated, created)
 }
 
@@ -205,6 +210,11 @@ func (api *APIService) DeleteOrder(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
 	}
+
+	if err := api.OrdersCountTracker.Dec(ctx.Param("courier_id")); err != nil {
+		api.Logger.Error("fail to decrement order counter", zap.Error(err))
+	}
+
 	ctx.Status(http.StatusNoContent)
 }
 
