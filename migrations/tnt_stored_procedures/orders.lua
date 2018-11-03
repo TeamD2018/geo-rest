@@ -7,16 +7,25 @@ create_courier_orders_space()
 
 function inc_courier_orders_counter(courier_id)
     local s = box.space.courier_orders
-    s:upsert({ courier_id, 1 }, { { '+', 2, 1 } })
+    if not s then
+        return s:upsert({ courier_id, 1 }, { { '+', 2, 1 } })
+    end
+    return nil, error('space "courier_orders" not exist')
 end
 
 function dec_courier_orders_counter(courier_id)
     local s = box.space.courier_orders
-    s:upsert({ courier_id, 0 }, { { '-', 2, 1 } })
+    if not s then
+        return s:upsert({ courier_id, 0 }, { { '-', 2, 1 } })
+    end
+    return nil, error('space "courier_orders" not exist')
 end
 
 function get_or_create_counter(courier_id)
-    local s       = box.space.courier_orders
+    local s = box.space.courier_orders
+    if s == nil then
+        return nil, error('space "courier_orders" not exist')
+    end
     local counter = s:get(courier_id)
     if not counter then
         return s:insert { courier_id, 0 }
@@ -26,7 +35,10 @@ end
 
 function drop_courier_orders_counter(courier_id)
     local s = box.space.courier_orders
-    s:delete(courier_id)
+    if s == nil then
+        return nil, error('space "courier_orders" not exist')
+    end
+    return s:delete(courier_id)
 end
 
 function get_counters(ids)
