@@ -113,6 +113,14 @@ func (s *TarantoolRouteTestSuite) TestAddPointToRouteOK() {
 	}
 }
 
+func (s *TarantoolRouteTestSuite) TestTarantoolRouteTestSuit_GetRoute_OK_IfNoCourierExists(){
+	points, err := s.routeDAO.GetRoute(s.testCourier.ID, 0)
+	if !s.NoError(err) {
+		return
+	}
+	s.Empty(points)
+}
+
 func TestIntegrationTarantoolTestSuite(t *testing.T) {
 	suite.Run(t, new(TarantoolRouteTestSuite))
 }

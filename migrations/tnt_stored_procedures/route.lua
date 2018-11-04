@@ -10,14 +10,14 @@ function add_courier(courier_id)
     if type(courier_id) ~= 'string' then
         error('courier_id must be a string')
     end
-    s:replace { courier_id, {} }
+    return s:replace { courier_id, {} }
 end
 
 function add_point_to_route(courier_id, point)
     local courier_id_idx = box.space.couriers_route.index.courier_id
-    local res = box.space.couriers_route.index.courier_id:get { courier_id }
+    local res            = box.space.couriers_route.index.courier_id:get { courier_id }
     if res == nil then
-        error('courier with ' .. courier_id .. ' not found')
+        res = add_courier(courier_id)
     end
     local route = res[2]
     if point.lat == nil or point.lon == nil then
@@ -43,7 +43,7 @@ function get_route(courier_id, since)
     end
     local temp_res = box.space.couriers_route.index.courier_id:get { courier_id }
     if temp_res == nil then
-        error('courier with ' .. courier_id .. ' not found')
+        return {}
     end
     local res = {}
     for _, v in pairs(temp_res[2]) do
