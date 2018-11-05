@@ -78,6 +78,37 @@ func (s *TarantoolOrdersCountTrackerTestSuite) TestTarantoolOrdersCountTracker_I
 	s.Equal(1, have[0].OrdersCount)
 }
 
+func (s *TarantoolOrdersCountTrackerTestSuite) TestTarantoolOrdersCountTracker_IncAndGet_OK() {
+	current, err := s.tracker.IncAndGet(courierTestID)
+	if !s.NoError(err) {
+		return
+	}
+	s.Equal(1, current)
+}
+
+func (s *TarantoolOrdersCountTrackerTestSuite) TestTarantoolOrdersCountTracker_DecAndGet_OK() {
+	current, err := s.tracker.DecAndGet(courierTestID)
+	if !s.NoError(err) {
+		return
+	}
+	s.Equal(0, current)
+}
+
+func (s *TarantoolOrdersCountTrackerTestSuite) TestTarantoolOrdersCountTracker_Inc2xDecAndGet_OK() {
+	if !s.NoError(s.tracker.Inc(courierTestID)) {
+		return
+	}
+	if !s.NoError(s.tracker.Inc(courierTestID)) {
+		return
+	}
+	current, err := s.tracker.DecAndGet(courierTestID)
+	if !s.NoError(err) {
+		return
+	}
+	s.Equal(1, current)
+}
+
+
 func (s *TarantoolOrdersCountTrackerTestSuite) TestTarantoolOrdersCountTracker_Dec_OK() {
 	have := models.Couriers{{ID: courierTestID, OrdersCount: -1}}
 
