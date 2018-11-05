@@ -75,14 +75,19 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 		Point: updated.Location.Point,
 		Ts:    uint64(time.Now().Unix()),
 	}
-	if err := api.CourierRouteDAO.AddPointToRoute(courierID, pointWithTs); err != nil {
-		log.Println(err)
-		//TODO: need info
+	if orders, err := api.OrdersDAO.GetOrdersForCourier(courierID, 0, true, true); err != nil {
+		api.Logger.Error("fail to retrieve counter orders", zap.Error(err), zap.String("courier_id", courierID))
+	} else {
+		if orders != nil && len(orders) != 0 {
+			if err := api.CourierRouteDAO.AddPointToRoute(courierID, pointWithTs); err != nil {
+				log.Println(err)
+				//TODO: need info
+			}
+		}
 	}
 	if err := api.OrdersCountTracker.Sync(models.Couriers{updated}); err != nil {
 		api.Logger.Error("fail to sync order counter", zap.Error(err), zap.String("courier_id", courierID))
 	}
-
 	ctx.JSON(http.StatusOK, updated)
 	return
 }
