@@ -120,6 +120,8 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_UpdateCourier_OK() {
 	ts.testCourier.Location = ts.testCourierUpdate.Location
 	ts.couriersDAOMock.On("Update", mock.Anything).Return(ts.testCourier, nil)
 	ts.geoRouteMock.On("AddPointToRoute", mock.Anything, mock.Anything).Return(nil)
+	ts.ordersDAOMock.On("GetOrdersForCourier", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(models.Orders{}, nil)
+	ts.api.OrdersDAO = ts.ordersDAOMock
 	ts.api.CouriersDAO = ts.couriersDAOMock
 	ts.api.CourierRouteDAO = ts.geoRouteMock
 
