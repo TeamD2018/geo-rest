@@ -76,6 +76,8 @@ func (ts *ControllerCouriersTestSuite) BeforeTest(suiteName, testName string) {
 	ts.ordersTrackerMock.On("Inc", mock.AnythingOfType("string")).Return(nil)
 	ts.ordersTrackerMock.On("Dec", mock.AnythingOfType("string")).Return(nil)
 	ts.ordersTrackerMock.On("Drop", mock.AnythingOfType("string")).Return(nil)
+	ts.ordersTrackerMock.On("IncAndGet", mock.AnythingOfType("string")).Return(1, nil)
+	ts.ordersTrackerMock.On("DecAndGet", mock.AnythingOfType("string")).Return(1, nil)
 	ts.ordersTrackerMock.On("Sync", mock.Anything).Return(nil)
 	ts.api.OrdersCountTracker = ts.ordersTrackerMock
 }

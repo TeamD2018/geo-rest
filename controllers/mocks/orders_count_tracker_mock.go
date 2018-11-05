@@ -14,6 +14,16 @@ func (octm *OrdersCountTrackerMock) Inc(courierId string) error {
 	return args.Error(0)
 }
 
+func (octm *OrdersCountTrackerMock) IncAndGet(courierId string) (int, error) {
+	args := octm.Called(courierId)
+	return args.Int(0), args.Error(1)
+}
+
+func (octm *OrdersCountTrackerMock) DecAndGet(courierId string) (int, error) {
+	args := octm.Called(courierId)
+	return args.Int(0), args.Error(1)
+}
+
 func (octm *OrdersCountTrackerMock) Dec(courierId string) error {
 	args := octm.Called(courierId)
 	return args.Error(0)

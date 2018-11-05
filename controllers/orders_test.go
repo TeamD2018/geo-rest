@@ -96,6 +96,8 @@ func (oc *OrdersControllersTestSuite) BeforeTest(suiteName, testName string) {
 	oc.ordersTrackerMock.On("Inc", mock.AnythingOfType("string")).Return(nil)
 	oc.ordersTrackerMock.On("Dec", mock.AnythingOfType("string")).Return(nil)
 	oc.ordersTrackerMock.On("Drop", mock.AnythingOfType("string")).Return(nil)
+	oc.ordersTrackerMock.On("IncAndGet", mock.AnythingOfType("string")).Return(1, nil)
+	oc.ordersTrackerMock.On("DecAndGet", mock.AnythingOfType("string")).Return(1, nil)
 	oc.ordersTrackerMock.On("Sync", mock.Anything).Return(nil)
 	oc.api.OrdersCountTracker = oc.ordersTrackerMock
 }
