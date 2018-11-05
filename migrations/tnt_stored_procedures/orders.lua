@@ -33,6 +33,18 @@ function get_or_create_counter(courier_id)
     return counter
 end
 
+function dec_and_get_orders_counter(courier_id)
+    dec_courier_orders_counter(courier_id)
+    counter = box.space.courier_orders:get(courier_id)
+    return counter[2]
+end
+
+function inc_and_get_orders_counter(courier_id)
+    inc_courier_orders_counter(courier_id)
+    counter = box.space.courier_orders:get(courier_id)
+    return counter[2]
+end
+
 function drop_courier_orders_counter(courier_id)
     local s = box.space.courier_orders
     if not s then
