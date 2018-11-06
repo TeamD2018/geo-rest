@@ -3,6 +3,7 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"github.com/TeamD2018/geo-rest/migrations"
 	"github.com/TeamD2018/geo-rest/models"
@@ -99,7 +100,6 @@ func (s *TarantoolResolverTestSuite) TestSaveToCache_OK() {
 	}
 	var point = make([]interface{}, 0)
 	err = s.client.Call17Typed(resolveFuncName, []interface{}{*location.Address}, &point)
-	//err = s.client.GetTyped(spaceGeoCacheName, indexName, tarantool.StringKey{S: *location.Address}, &point)
 	if !s.NoError(err) {
 		return
 	}
@@ -109,6 +109,34 @@ func (s *TarantoolResolverTestSuite) TestSaveToCache_OK() {
 	if s.Contains(point, testAddress) {
 		return
 	}
+}
+
+func (s *TarantoolResolverTestSuite) TestResolve_OK() {
+	point := elastic.GeoPointFromLatLon(testLat, testLon)
+	location := models.Location{
+		Address: &testAddress,
+		Point:   point,
+	}
+	err := s.resolver.SaveToCache(&location)
+	if !s.NoError(err) {
+		return
+	}
+	location.Point = nil
+
+	err = s.resolver.Resolve(&location, context.Background())
+
+	if !s.NoError(err) {
+		return
+	}
+
+	if !s.NotNil(location.Point) {
+		return
+	}
+
+	if !s.Equal(point, location.Point) {
+		return
+	}
+
 }
 
 func (s *TarantoolResolverTestSuite) TearDownSuite() {

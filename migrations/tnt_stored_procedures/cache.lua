@@ -17,3 +17,9 @@ end
 function resolve(address)
     return box.space.geo_cache:get { address }
 end
+
+---delete_from_cache
+---@param address string
+function delete_from_cache(address)
+    return box.space.geo_cache:delete { address }
+end
