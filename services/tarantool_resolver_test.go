@@ -14,20 +14,20 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"testing"
-	"time"
 )
 
 var (
-	testName  = "Vasya"
-	testPhone = "+79031109865"
-	testLat   = 55.797344
-	testLon   = 37.537746
+	//testName    = "Vasya"
+	//testPhone   = "+79031109865"
+	testAddress = "Some Address"
+	//testLat     = 55.797344
+	//testLon     = 37.537746
 )
 
-type TarantoolRouteTestSuite struct {
+type TarantoolResolverTestSuite struct {
 	suite.Suite
 	client          *tarantool.Connection
-	routeDAO        *TarantoolRouteDAO
+	resolver        *TntResolver
 	ordersDao       *OrdersElasticDAO
 	couriersDao     *CouriersElasticDAO
 	pool            *dockertest.Pool
@@ -37,7 +37,7 @@ type TarantoolRouteTestSuite struct {
 	testOrderCreate *models.OrderCreate
 }
 
-func (s *TarantoolRouteTestSuite) BeforeTest(suiteName, testName string) {
+func (s *TarantoolResolverTestSuite) BeforeTest(suiteName, testName string) {
 	s.testCourier = &models.Courier{
 		Name:  testName,
 		ID:    uuid.NewV4().String(),
@@ -48,7 +48,7 @@ func (s *TarantoolRouteTestSuite) BeforeTest(suiteName, testName string) {
 	}
 }
 
-func (s *TarantoolRouteTestSuite) SetupSuite() {
+func (s *TarantoolResolverTestSuite) SetupSuite() {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		s.FailNow("Could not connect to docker: %s", err)
@@ -69,7 +69,6 @@ func (s *TarantoolRouteTestSuite) SetupSuite() {
 		if err != nil {
 			return err
 		}
-
 		return err
 	}); err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
@@ -78,7 +77,7 @@ func (s *TarantoolRouteTestSuite) SetupSuite() {
 	s.pool = pool
 	s.resource = resource
 	s.logger = zap.NewNop()
-	s.routeDAO = NewTarantoolRouteDAO(c, s.logger)
+	s.resolver = NewTntResolver(c, s.logger)
 	//s.ordersDao = NewOrdersElasticDAO(s.client, s.logger, s.couriersDao, "")
 	//s.couriersDao = NewCouriersElasticDAO(s.client, s.logger, "", DefaultCouriersReturnSize)
 	err = migrations.Driver{Client: c, Logger: zap.NewExample()}.Run()
@@ -89,42 +88,32 @@ func (s *TarantoolRouteTestSuite) SetupSuite() {
 	}
 }
 
-func (s *TarantoolRouteTestSuite) TestCreateCourierOK() {
-	err := s.routeDAO.CreateCourier(s.testCourier.ID)
+func (s *TarantoolResolverTestSuite) TestSaveToCache_OK() {
+	location := models.Location{
+		Point:   elastic.GeoPointFromLatLon(testLat, testLon),
+		Address: &testAddress,
+	}
+	err := s.resolver.SaveToCache(&location)
 	if !s.NoError(err) {
 		return
 	}
-	err = s.routeDAO.DeleteCourier(s.testCourier.ID)
+	var point = make([]interface{}, 0)
+	err = s.client.GetTyped(spaceGeoCacheName, indexName, tarantool.StringKey{S: *location.Address}, &point)
 	if !s.NoError(err) {
+		return
+	}
+	if s.Len(point, 1) {
+		return
+	}
+	if s.Contains(point, testAddress) {
 		return
 	}
 }
 
-func (s *TarantoolRouteTestSuite) TestAddPointToRouteOK() {
-	err := s.routeDAO.CreateCourier(s.testCourier.ID)
-	if !s.NoError(err) {
-		return
-	}
-	err = s.routeDAO.AddPointToRoute(s.testCourier.ID, &models.PointWithTs{
-		Point: s.testCourier.Location.Point, Ts: uint64(time.Now().Unix()),
-	})
-	if !s.NoError(err) {
-		return
-	}
-}
-
-func (s *TarantoolRouteTestSuite) TestTarantoolRouteTestSuit_GetRoute_OK_IfNoCourierExists(){
-	points, err := s.routeDAO.GetRoute(s.testCourier.ID, 0)
-	if !s.NoError(err) {
-		return
-	}
-	s.Empty(points)
-}
-
-func (s *TarantoolRouteTestSuite) TearDownSuite() {
+func (s *TarantoolResolverTestSuite) TearDownSuite() {
 	s.Nil(s.pool.Purge(s.resource))
 }
 
-func TestIntegrationTarantoolTestSuite(t *testing.T) {
-	suite.Run(t, new(TarantoolRouteTestSuite))
+func TestIntegrationTarantoolResolverTestSuite(t *testing.T) {
+	suite.Run(t, new(TarantoolResolverTestSuite))
 }

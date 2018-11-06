@@ -18,7 +18,7 @@ func NewCachedResolver(tntresolver *TntResolver, gmapsresolver *GMapsResolver) *
 }
 
 func (c *CachedResolver) Resolve(location *models.Location, ctx context.Context) error {
-	if location.Address == nil {
+	if location == nil || location.Address == nil {
 		return c.gmapsResolver.Resolve(location, ctx)
 	}
 	if err := c.tntResolver.Resolve(location, ctx); err != nil {

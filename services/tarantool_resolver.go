@@ -4,14 +4,16 @@ import (
 	"context"
 	"github.com/TeamD2018/geo-rest/models"
 	"github.com/olivere/elastic"
+	"github.com/pkg/errors"
 	"github.com/tarantool/go-tarantool"
 	"go.uber.org/zap"
 	"log"
 )
 
 const (
-	spaceGeoCacheName = "geo_cache"
-	indexName         = "address"
+	spaceGeoCacheName   = "geo_cache"
+	indexName           = "address"
+	saveToCacheFuncName = "save_to_cache"
 )
 
 type TntResolver struct {
@@ -37,10 +39,11 @@ func (tnt *TntResolver) Resolve(location *models.Location, ctx context.Context) 
 }
 
 func (tnt *TntResolver) SaveToCache(location *models.Location) error {
-	var tuple = make([]interface{}, 2)
-	tuple[0] = *location.Address
-	tuple[1] = map[string]float64{"lat": location.Point.Lat, "lon": location.Point.Lon}
-	resp, err := tnt.client.Insert(spaceGeoCacheName, tuple)
+	if location == nil {
+		return errors.New("location is nil")
+	}
+	point := map[string]float64{"lat": location.Point.Lat, "lon": location.Point.Lon}
+	resp, err := tnt.client.Call17(saveToCacheFuncName, []interface{}{*location.Address, point})
 	if err != nil {
 		return err
 	}
