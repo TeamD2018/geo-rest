@@ -45,10 +45,16 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 	orderID := ctx.Param("order_id")
 	_, err := uuid.FromString(orderID)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat.SetParameter(orderID))
 		return
 	}
 
+	courierID := ctx.Param("courier_id")
+	_, err = uuid.FromString(courierID)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParametersNotFound)
+		return
+	}
 	var order models.OrderUpdate
 	if err := ctx.ShouldBind(&order); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
@@ -69,12 +75,11 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 	}
 
 	order.ID = &orderID
-	courierID := order.CourierID
 	order.CourierID = nil
 	created, err := api.OrdersDAO.Update(&order)
 	if err != nil {
 		api.Logger.Error("fail to update order",
-			zap.String("courier_id", *courierID),
+			zap.String("courier_id", courierID),
 			zap.String("order_id", orderID),
 			zap.Error(err))
 		switch err.(type) {
@@ -93,9 +98,9 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		return
 	}
 	if order.DeliveredAt != nil {
-		ordersCount, err := api.OrdersCountTracker.DecAndGet(*courierID)
+		ordersCount, err := api.OrdersCountTracker.DecAndGet(courierID)
 		if err == nil && ordersCount == 0 {
-			if err := api.CourierRouteDAO.DeleteCourier(*courierID); err != nil {
+			if err := api.CourierRouteDAO.DeleteCourier(courierID); err != nil {
 				api.Logger.Error("fail to cleanup courier route", zap.Error(err))
 			}
 		}
