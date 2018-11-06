@@ -5,10 +5,15 @@ end
 
 create_resolver_cache()
 
-
 ---save_to_cache
 ---@param address string
 ---@param point table
 function save_to_cache(address, point)
-    return box.space.geo_cache:replace{address, point}
+    return box.space.geo_cache:replace { address, point }
+end
+
+---resolve
+---@param address string
+function resolve(address)
+    return box.space.geo_cache:get { address }
 end

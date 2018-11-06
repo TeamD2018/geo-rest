@@ -14,6 +14,7 @@ const (
 	spaceGeoCacheName   = "geo_cache"
 	indexName           = "address"
 	saveToCacheFuncName = "save_to_cache"
+	resolveFuncName     = "resolve"
 )
 
 type TntResolver struct {

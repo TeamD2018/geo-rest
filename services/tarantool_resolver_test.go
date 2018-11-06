@@ -98,7 +98,8 @@ func (s *TarantoolResolverTestSuite) TestSaveToCache_OK() {
 		return
 	}
 	var point = make([]interface{}, 0)
-	err = s.client.GetTyped(spaceGeoCacheName, indexName, tarantool.StringKey{S: *location.Address}, &point)
+	err = s.client.Call17Typed(resolveFuncName, []interface{}{*location.Address}, &point)
+	//err = s.client.GetTyped(spaceGeoCacheName, indexName, tarantool.StringKey{S: *location.Address}, &point)
 	if !s.NoError(err) {
 		return
 	}
