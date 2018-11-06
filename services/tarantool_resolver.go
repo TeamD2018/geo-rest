@@ -23,6 +23,9 @@ func NewTntResolver(client *tarantool.Connection, logger *zap.Logger) *TntResolv
 }
 
 func (tnt *TntResolver) Resolve(location *models.Location, ctx context.Context) error {
+	if location == nil || location.Address == nil {
+		return nil
+	}
 	var point = make([]interface{}, 0)
 	if err := tnt.client.GetTyped(spaceGeoCacheName, indexName, tarantool.StringKey{*location.Address}, &point); err != nil {
 		log.Println(err)
