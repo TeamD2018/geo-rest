@@ -1,3 +1,5 @@
+// +build elastic
+
 package services
 
 import (
