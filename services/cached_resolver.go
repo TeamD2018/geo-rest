@@ -21,7 +21,10 @@ func (c *CachedResolver) Resolve(location *models.Location, ctx context.Context)
 	if location == nil {
 		return nil
 	}
-	if err := c.tntResolver.Resolve(location, context.Background()); err == models.ErrEntityNotFound {
+	if location.Address == nil {
+		return c.gmapsResolver.Resolve(location, ctx)
+	}
+	if err := c.tntResolver.Resolve(location, ctx); err != nil {
 		if err := c.gmapsResolver.Resolve(location, ctx); err != nil {
 			return err
 		}

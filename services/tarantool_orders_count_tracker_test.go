@@ -1,5 +1,3 @@
-// +build tarantool
-
 package services
 
 import (
@@ -109,6 +107,7 @@ func (s *TarantoolOrdersCountTrackerTestSuite) TestTarantoolOrdersCountTracker_I
 	}
 	s.Equal(1, current)
 }
+
 
 func (s *TarantoolOrdersCountTrackerTestSuite) TestTarantoolOrdersCountTracker_Dec_OK() {
 	have := models.Couriers{{ID: courierTestID, OrdersCount: -1}}
