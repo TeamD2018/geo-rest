@@ -20,7 +20,8 @@ import (
 var (
 	//testName    = "Vasya"
 	//testPhone   = "+79031109865"
-	testAddress = "Some Address"
+	testAddress        = "Some Address"
+	clearCacheFuncName = "clear_cache"
 	//testLat     = 55.797344
 	//testLon     = 37.537746
 )
@@ -36,6 +37,13 @@ type TarantoolResolverTestSuite struct {
 	logger          *zap.Logger
 	testCourier     *models.Courier
 	testOrderCreate *models.OrderCreate
+}
+
+func (s *TarantoolResolverTestSuite) AfterTest(suiteName, testName string) {
+	_, err := s.client.Call17(clearCacheFuncName, make([]interface{}, 0))
+	if !s.NoError(err) {
+		return
+	}
 }
 
 func (s *TarantoolResolverTestSuite) BeforeTest(suiteName, testName string) {
@@ -99,7 +107,7 @@ func (s *TarantoolResolverTestSuite) TestSaveToCache_OK() {
 		return
 	}
 	var point = make([]interface{}, 0)
-	err = s.client.Call17Typed(resolveFuncName, []interface{}{*location.Address}, &point)
+	err = s.client.Call17Typed(reversResolveFuncName, []interface{}{*location.Address}, &point)
 	if !s.NoError(err) {
 		return
 	}
@@ -111,7 +119,7 @@ func (s *TarantoolResolverTestSuite) TestSaveToCache_OK() {
 	}
 }
 
-func (s *TarantoolResolverTestSuite) TestResolve_OK() {
+func (s *TarantoolResolverTestSuite) TestRevertResolve_OK() {
 	point := elastic.GeoPointFromLatLon(testLat, testLon)
 	location := models.Location{
 		Address: &testAddress,
@@ -136,7 +144,33 @@ func (s *TarantoolResolverTestSuite) TestResolve_OK() {
 	if !s.Equal(point, location.Point) {
 		return
 	}
+}
 
+func (s *TarantoolResolverTestSuite) TestResolve_OK() {
+	point := elastic.GeoPointFromLatLon(testLat, testLon)
+	location := models.Location{
+		Address: &testAddress,
+		Point:   point,
+	}
+	err := s.resolver.SaveToCache(&location)
+	if !s.NoError(err) {
+		return
+	}
+	location.Address = nil
+
+	err = s.resolver.Resolve(&location, context.Background())
+
+	if !s.NoError(err) {
+		return
+	}
+
+	if !s.NotNil(location.Address) {
+		return
+	}
+
+	if !s.Equal(testAddress, *location.Address) {
+		return
+	}
 }
 
 func (s *TarantoolResolverTestSuite) TearDownSuite() {
