@@ -59,6 +59,9 @@ func (tnt *TntResolver) resolve(location *models.Location) error {
 }
 
 func (tnt *TntResolver) Resolve(location *models.Location, ctx context.Context) error {
+	if location == nil {
+		return errors.New("location is nil")
+	}
 	if location.Address == nil {
 		return tnt.resolve(location)
 	}
