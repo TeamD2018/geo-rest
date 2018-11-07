@@ -121,6 +121,10 @@ func (s *TarantoolRouteTestSuite) TestTarantoolRouteTestSuit_GetRoute_OK_IfNoCou
 	s.Empty(points)
 }
 
+func (s *TarantoolRouteTestSuite) TearDownSuite() {
+	s.Nil(s.pool.Purge(s.resource))
+}
+
 func TestIntegrationTarantoolTestSuite(t *testing.T) {
 	suite.Run(t, new(TarantoolRouteTestSuite))
 }
