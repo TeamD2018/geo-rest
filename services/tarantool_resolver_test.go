@@ -173,6 +173,18 @@ func (s *TarantoolResolverTestSuite) TestResolve_OK() {
 	}
 }
 
+func (s *TarantoolResolverTestSuite) TestResolve_NotFound() {
+	point := elastic.GeoPointFromLatLon(testLat, testLon)
+	location := models.Location{
+		Point:   point,
+	}
+	err := s.resolver.Resolve(&location, context.Background())
+
+	if !s.IsType(models.ErrEntityNotFound, err) {
+		return
+	}
+}
+
 func (s *TarantoolResolverTestSuite) TearDownSuite() {
 	s.Nil(s.pool.Purge(s.resource))
 }

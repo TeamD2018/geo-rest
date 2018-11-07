@@ -49,10 +49,11 @@ func (tnt *TntResolver) resolve(location *models.Location) error {
 		return err
 	} else {
 		log.Printf("%#v\n", address)
+		address = address[0].([]interface{})
 		if len(address) == 0 {
 			return models.ErrEntityNotFound
 		}
-		addressStr := ((address[0].([]interface{})[0].([]interface{}))[0]).(string)
+		addressStr := ((address[0].([]interface{}))[0]).(string)
 		location.Address = &addressStr
 	}
 	return nil
