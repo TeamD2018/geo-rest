@@ -14,6 +14,8 @@ import (
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
 	"log"
+	"net/http"
+	"time"
 )
 
 const (
@@ -44,7 +46,8 @@ func main() {
 	}
 	elasticClient, err := elastic.NewClient(
 		elastic.SetURL(viper.GetString("elastic.url")),
-		elastic.SetSniff(viper.GetBool("elastic.sniff")))
+		elastic.SetSniff(viper.GetBool("elastic.sniff")),
+		elastic.SetRetrier(elastic.NewBackoffRetrier(elastic.NewConstantBackoff(time.Second*5))))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -126,6 +129,13 @@ func main() {
 		OrdersCountTracker: ordersCountTracker,
 	}
 	router := gin.Default()
+
+	router.Use(func(ctx *gin.Context) {
+		if ctx.Request.Method == http.MethodPost || ctx.Request.Method == http.MethodPut {
+			body, _ := ctx.GetRawData()
+			logger.Debug("", zap.ByteString("body", body))
+		}
+	})
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = viper.GetStringSlice("cors.origins")
