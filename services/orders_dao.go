@@ -143,8 +143,11 @@ func (od *OrdersElasticDAO) Delete(orderID string) error {
 func (od *OrdersElasticDAO) DeleteOrdersForCourier(courierID string) error {
 	db := od.Elastic
 	courierIDQuery := elastic.NewTermQuery("courier_id", courierID)
-	_, err := db.DeleteByQuery(od.GetIndex()).Query(courierIDQuery).Do(context.Background())
+	res, err := db.DeleteByQuery(od.GetIndex()).Query(courierIDQuery).Do(context.Background())
 	if err != nil {
+		if res != nil {
+			od.Logger.Warn("fail to delete orders", zap.Any("response", res))
+		}
 		if elastic.IsNotFound(err) {
 			return models.ErrEntityNotFound.SetParameter(courierID)
 		}
