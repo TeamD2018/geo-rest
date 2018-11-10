@@ -129,7 +129,9 @@ func main() {
 	}
 	router := gin.Default()
 
-	router.Use(controllers.LogBody)
+	router.Use(func(ctx *gin.Context) {
+		ctx.Set(controllers.LoggerKey, logger)
+	}, controllers.LogBody)
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = viper.GetStringSlice("cors.origins")

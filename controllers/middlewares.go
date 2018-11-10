@@ -9,10 +9,10 @@ import (
 	"net/http"
 )
 
-var loggerKey = "logger"
+const LoggerKey = "logger"
 
 func LogBody(ctx *gin.Context) {
-	logger := ctx.Value(loggerKey).(*zap.Logger)
+	logger := ctx.Value(LoggerKey).(*zap.Logger)
 	if ctx.Request.Method == http.MethodPost || ctx.Request.Method == http.MethodPut {
 
 		buf, _ := ioutil.ReadAll(ctx.Request.Body)
