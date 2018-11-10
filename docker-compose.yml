@@ -13,7 +13,7 @@ services:
     - geo_rest_config.toml
   elastic:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    command: elasticsearch -Ehttp.port=9200 -Ehttp.cors.allow-origin="http://35.204.198.186:1358" -Ehttp.cors.enabled=true -Ehttp.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization -Ehttp.cors.allow-credentials=true
+    command: elasticsearch -Ehttp.port=9200 -Ehttp.cors.allow-origin="http://dc.utkin.xyz:1358" -Ehttp.cors.enabled=true -Ehttp.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization -Ehttp.cors.allow-credentials=true
     deploy:
       replicas: 1
       restart_policy:
