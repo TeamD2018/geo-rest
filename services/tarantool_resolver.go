@@ -7,12 +7,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tarantool/go-tarantool"
 	"go.uber.org/zap"
-	"log"
 )
 
 const (
-	spaceGeoCacheName     = "geo_cache"
-	indexName             = "address"
 	saveToCacheFuncName   = "save_to_cache"
 	reversResolveFuncName = "revers_resolve"
 	resolveFuncName       = "resolve"
@@ -20,16 +17,17 @@ const (
 
 type TntResolver struct {
 	client *tarantool.Connection
+	logger *zap.Logger
 }
 
 func NewTntResolver(client *tarantool.Connection, logger *zap.Logger) *TntResolver {
-	return &TntResolver{client: client}
+	return &TntResolver{client: client, logger: logger}
 }
 
 func (tnt *TntResolver) reverseResolve(location *models.Location) error {
 	var point = make([]interface{}, 0)
 	if err := tnt.client.Call17Typed(reversResolveFuncName, tarantool.StringKey{S: *location.Address}, &point); err != nil {
-		log.Println(err)
+		tnt.logger.Debug("tarantool return", zap.Error(err))
 	} else {
 		if len(point) == 0 {
 			return models.ErrEntityNotFound
@@ -45,10 +43,10 @@ func (tnt *TntResolver) resolve(location *models.Location) error {
 	var address = make([]interface{}, 0)
 	point := []float64{location.Point.Lat, location.Point.Lon}
 	if err := tnt.client.Call17Typed(resolveFuncName, []interface{}{point}, &address); err != nil {
-		log.Println(err)
+		tnt.logger.Debug("tarantool return", zap.Error(err))
 		return err
 	} else {
-		log.Printf("%#v\n", address)
+		tnt.logger.Debug("tarantool return", zap.Any("address", address))
 		address = address[0].([]interface{})
 		if len(address) == 0 {
 			return models.ErrEntityNotFound

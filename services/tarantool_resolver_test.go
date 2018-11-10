@@ -18,12 +18,8 @@ import (
 )
 
 var (
-	//testName    = "Vasya"
-	//testPhone   = "+79031109865"
 	testAddress        = "Some Address"
 	clearCacheFuncName = "clear_cache"
-	//testLat     = 55.797344
-	//testLon     = 37.537746
 )
 
 type TarantoolResolverTestSuite struct {
