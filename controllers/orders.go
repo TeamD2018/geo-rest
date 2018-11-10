@@ -56,12 +56,12 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		return
 	}
 	var order models.OrderUpdate
-	if err := ctx.ShouldBind(&order); err != nil {
+	if err := ctx.ShouldBindJSON(&order); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
 	inCtx := context.Background()
-	api.Logger.Debug("update data", zap.Any("orderUpdate", order),
+	api.Logger.Debug("update data after", zap.Any("orderUpdate", order),
 		zap.String("order_id", orderID),
 		zap.String("courier_id", courierID))
 	if err := api.GeoResolver.Resolve(order.Destination, inCtx); err != nil {
@@ -117,8 +117,9 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 func (api *APIService) CreateOrder(ctx *gin.Context) {
 	courierID := ctx.Param("courier_id")
 	var order models.OrderCreate
-	if err := ctx.ShouldBind(&order); err != nil {
+	if err := ctx.ShouldBindJSON(&order); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+		return
 	}
 	order.CourierID = &courierID
 	exCtx := context.Background()
