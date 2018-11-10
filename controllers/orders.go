@@ -61,6 +61,9 @@ func (api *APIService) UpdateOrder(ctx *gin.Context) {
 		return
 	}
 	inCtx := context.Background()
+	api.Logger.Debug("update data", zap.Any("orderUpdate", order),
+		zap.String("order_id", orderID),
+		zap.String("courier_id", courierID))
 	if err := api.GeoResolver.Resolve(order.Destination, inCtx); err != nil {
 		api.Logger.Error("fail to resolve destination",
 			zap.Error(err),
