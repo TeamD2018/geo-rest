@@ -14,7 +14,6 @@ import (
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -130,12 +129,7 @@ func main() {
 	}
 	router := gin.Default()
 
-	router.Use(func(ctx *gin.Context) {
-		if ctx.Request.Method == http.MethodPost || ctx.Request.Method == http.MethodPut {
-			body, _ := ctx.GetRawData()
-			logger.Debug("", zap.ByteString("body", body))
-		}
-	})
+	router.Use(controllers.LogBody)
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = viper.GetStringSlice("cors.origins")
