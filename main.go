@@ -14,6 +14,8 @@ import (
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
 	"log"
+	"net/http"
+	"os"
 	"time"
 )
 
@@ -32,9 +34,22 @@ func init() {
 
 	viper.SetDefault("suggestions.couriers.fuzziness", services.CouriersDefaultFuzziness)
 	viper.SetDefault("suggestions.couriers.threshold", services.CouriersDefaultFuzzinessThreshold)
-	viper.SetConfigFile(viper.GetString("config"))
-	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
+
+	if remoteConfigUrl, ok := os.LookupEnv("REMOTE_CONFIG"); ok {
+		resp, err := http.Get(remoteConfigUrl)
+		if err != nil {
+			panic(err)
+		}
+
+		viper.SetConfigType("toml")
+		if err := viper.ReadConfig(resp.Body); err != nil {
+			panic(err)
+		}
+	} else {
+		viper.SetConfigFile(viper.GetString("config"))
+		if err := viper.ReadInConfig(); err != nil {
+			panic(err)
+		}
 	}
 }
 
