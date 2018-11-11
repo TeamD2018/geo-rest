@@ -15,7 +15,6 @@ import (
 	"googlemaps.github.io/maps"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -27,6 +26,7 @@ const (
 func init() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.StringP("config", "c", "./config.toml", "path to config for geo-rest service")
+	remoteConfigUrl := pflag.StringP("remote-config", "r", "", "url to config for geo-rest service")
 	pflag.Parse()
 	if err := viper.BindPFlags(pflag.CommandLine); err != nil {
 		panic("err in bind flag")
@@ -35,8 +35,8 @@ func init() {
 	viper.SetDefault("suggestions.couriers.fuzziness", services.CouriersDefaultFuzziness)
 	viper.SetDefault("suggestions.couriers.threshold", services.CouriersDefaultFuzzinessThreshold)
 
-	if remoteConfigUrl, ok := os.LookupEnv("REMOTE_CONFIG"); ok {
-		resp, err := http.Get(remoteConfigUrl)
+	if *remoteConfigUrl != "" {
+		resp, err := http.Get(*remoteConfigUrl)
 		if err != nil {
 			panic(err)
 		}
