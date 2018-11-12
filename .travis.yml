@@ -94,6 +94,9 @@ jobs:
   - stage: deploy
     name: kubernetes
     language: bash
+    cache:
+      directories:
+      - "$HOME/google-cloud-sdk/"
     deploy:
     - provider: script
       skip_cleanup: true
@@ -108,9 +111,6 @@ jobs:
     before_deploy:
     - openssl aes-256-cbc -K $encrypted_eadb168e3f17_key -iv $encrypted_eadb168e3f17_iv
       -in google.json.enc -out ./google.json -d
-    - if [ ! -d ${HOME}/google-cloud-sdk ]; then
-        CLOUDSDK_CORE_DISABLE_PROMPTS=1 curl https://sdk.cloud.google.com | bash;
-      fi
     if: branch = master
     branches:
       only:
