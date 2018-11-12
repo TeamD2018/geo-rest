@@ -24,4 +24,4 @@ gcloud config set compute/zone $ZONE
 gcloud container clusters get-credentials $CLUSTER_NAME
 
 echo "Deploying..."
-kubectl set image deployment backend backend=nginx:$VERSION
+kubectl set image deployment backend geo-rest=teamd2018/geo-rest:$VERSION
