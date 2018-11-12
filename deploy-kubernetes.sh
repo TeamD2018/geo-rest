@@ -17,6 +17,7 @@ gcloud auth activate-service-account --key-file $SECRET_FILE
 gcloud config set project $GC_PROJECT
 gcloud config set compute/zone $ZONE
 gcloud container clusters get-credentials $CLUSTER_NAME
+gcloud components install kubectl
 
 echo "Deploying..."
 kubectl set image deployment backend backend=nginx:$VERSION
