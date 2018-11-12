@@ -6,7 +6,7 @@ VERSION=$4
 SECRET_FILE=$5
 
 PATH=$PATH:${HOME}/google-cloud-sdk/bin
-CLOUDSDK_CORE_DISABLE_PROMPTS=1
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
 echo "Installing Google Cloud SDK..."
 curl https://sdk.cloud.google.com | bash;
