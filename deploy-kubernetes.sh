@@ -8,13 +8,10 @@ SECRET_FILE=$5
 PATH=$PATH:${HOME}/google-cloud-sdk/bin
 CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
-echo "Setting up Google Cloud SDK"
-if [ ! -d ${HOME}/google-cloud-sdk ]; then
-    echo "Installing Google Cloud SDK..."
-    curl https://sdk.cloud.google.com | bash;
-    gcloud components update
-    gcloud components install kubectl
-fi
+echo "Installing Google Cloud SDK..."
+curl https://sdk.cloud.google.com | bash;
+gcloud components update
+gcloud components install kubectl
 
 gcloud auth activate-service-account --key-file $SECRET_FILE
 gcloud config set project $GC_PROJECT
