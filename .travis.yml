@@ -93,7 +93,7 @@ jobs:
 
   - stage: deploy
     name: kubernetes
-    language: python
+    language: bash
     deploy:
     - provider: script
       skip_cleanup: true
