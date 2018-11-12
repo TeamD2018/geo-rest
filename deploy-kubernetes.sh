@@ -10,6 +10,7 @@ CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
 echo "Setting up Google Cloud SDK"
 if [ ! -d ${HOME}/google-cloud-sdk ]; then
+    echo "Installing Google Cloud SDK..."
     curl https://sdk.cloud.google.com | bash;
     gcloud components update
     gcloud components install kubectl
