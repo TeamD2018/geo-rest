@@ -27,6 +27,7 @@ func init() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.StringP("config", "c", "./config.toml", "path to config for geo-rest service")
 	remoteConfigUrl := pflag.StringP("remote-config", "r", "", "url to config for geo-rest service")
+	pflag.StringP("mode", "m", "dev", "dev/prod mode")
 	pflag.Parse()
 	if err := viper.BindPFlags(pflag.CommandLine); err != nil {
 		panic("err in bind flag")
@@ -53,10 +54,43 @@ func init() {
 	}
 }
 
+type Mode string
+
+const (
+	Production  Mode = "prod"
+	Development Mode = "dev"
+)
+
+func ModeFromString(mode string) Mode {
+	switch mode {
+	case "prod":
+		return Mode(mode)
+	case "dev":
+		return Mode(mode)
+	default:
+		panic("INVALID MODE")
+	}
+}
+
+func GetLogger(mode Mode) (*zap.Logger, error) {
+	switch mode {
+	case Production:
+		return zap.NewProduction()
+	case Development:
+		return zap.NewDevelopment()
+	default:
+		return zap.NewDevelopment()
+	}
+}
+
 func main() {
-	logger, err := zap.NewDevelopment()
+	mode := ModeFromString(viper.GetString("mode"))
+	logger, err := GetLogger(mode)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if mode == Production {
+		gin.SetMode("release")
 	}
 	elasticClient, err := elastic.NewClient(
 		elastic.SetURL(viper.GetString("elastic.url")),
