@@ -26,7 +26,7 @@ services:
     networks:
     - geo-rest
   tarantool:
-    image: tarantool/tarantool:2
+    image: tarantool/tarantool:1.10.2
     deploy:
       replicas: 1
       restart_policy:
