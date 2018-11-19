@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"github.com/gobuffalo/packr"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/tarantool/go-tarantool"
 	"go.uber.org/zap"
 	"io/ioutil"
