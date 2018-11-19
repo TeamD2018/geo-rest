@@ -41,19 +41,6 @@ jobs:
       - develop
       - master
 
-  # - stage: test
-  #   env:
-  #   - GO111MODULE=on
-  #   - GOFLAGS=-mod=vendor
-  #   language: go
-  #   go:
-  #   - '1.11'
-  #   install:
-  #   - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | bash -s v1.10.2
-  #   - go mod vendor
-  #   script:
-  #     ./bin/golangci-lint run
-
   - stage: Build docker images
     name: "Geo rest"
     language: minimal
