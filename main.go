@@ -6,6 +6,7 @@ import (
 	"github.com/TeamD2018/geo-rest/migrations"
 	"github.com/TeamD2018/geo-rest/services"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
 	"github.com/spf13/pflag"
@@ -103,7 +104,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tntClient, err := tarantool.Connect(viper.GetString("tarantool.url"), tarantool.Opts{})
+	tntClient, err := tarantool.Connect(viper.GetString("tarantool.url"), tarantool.Opts{
+		User: viper.GetString("tarantool.user"),
+		Pass: viper.GetString("tarantool.pass"),
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -181,6 +185,8 @@ func main() {
 	router.Use(func(ctx *gin.Context) {
 		ctx.Set(controllers.LoggerKey, logger)
 	}, controllers.LogBody)
+
+	pprof.Register(router)
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = viper.GetStringSlice("cors.origins")

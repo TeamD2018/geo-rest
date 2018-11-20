@@ -31,6 +31,9 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    environment:
+      - TARANTOOL_USER_NAME=geo-rest-user
+      - TARANTOOL_USER_PASSWORD=bean4.tied
     networks:
     - geo-rest
 networks:
