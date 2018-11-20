@@ -6,7 +6,6 @@ import (
 	"github.com/olivere/elastic"
 	"go.uber.org/zap"
 	"googlemaps.github.io/maps"
-	"log"
 )
 
 type GMapsResolver struct {
@@ -67,7 +66,6 @@ func (gm *GMapsResolver) resolvePoint(point *elastic.GeoPoint, ctx context.Conte
 	if err != nil {
 		return "", err
 	}
-	log.Println(results[0].FormattedAddress)
 	reversed := results[0]
 	return reversed.FormattedAddress, nil
 }

@@ -180,7 +180,7 @@ func main() {
 		SuggesterExecutor:  suggestersExecutor,
 		OrdersCountTracker: ordersCountTracker,
 	}
-	router := gin.Default()
+	router := gin.New()
 
 	router.Use(func(ctx *gin.Context) {
 		ctx.Set(controllers.LoggerKey, logger)
