@@ -5,11 +5,9 @@
 
 Разработка сервиса осуществлялась в рамках итогого задания образовательного проекта [Технопарк](https://park.mail.ru/) от компании [Mail.Ru](https://mail.ru).
 
-## Getting Started
-
 Микросервис написан на языке Go и использует в качестве зависимостей БД Elasticsearch и Tarantool
 
-## Installation
+## Установка
 
 Для удобства установки всех зависимостей проекта и самого микросервиса используется [Docker](https://www.docker.com)
 
@@ -40,7 +38,7 @@ docker-compose up -f docker-compose.yml
 
 Доступное API расположено по адресу [openapi.track-delivery.club](openapi.track-delivery.club)
 
-## Team
+## Команда
 
 * [Данила Масленников](https://github.com/Dnnd)
 * [Даниил Котельников](https://github.com/zwirec)
