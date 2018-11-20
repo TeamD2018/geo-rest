@@ -15,7 +15,9 @@
 
 * Docker
 > Для установки Docker воспользуйтесь официальным [туториалом](https://docs.docker.com/install/linux/docker-ce/centos/)
+* [docker-compose](https://docs.docker.com/compose/install/#install-compose)
 
+# Установка
 
 * Склонируйте репозиторий, выполнив
 
@@ -26,7 +28,7 @@ git clone https://github.com/TeamD2018/geo-rest
 
 В качестве конфигурации сервис использует конфиг-файл с расширением .toml
 
-* Создайте файл `geo_rest_config.toml` в директории проекта или переименуйте `geo_rest_config.toml.example`
+* Создайте файл `geo_rest_config.toml` в директории проекта или переименуйте `geo_rest_config.example.toml`
 
 * Выполните
 
