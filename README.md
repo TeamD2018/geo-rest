@@ -36,7 +36,7 @@ docker-compose up -f docker-compose.yml
 
 Сервис будет доступен по адресу `server.url` указанному в конфиге
 
-Доступное API расположено по адресу [openapi.track-delivery.club](openapi.track-delivery.club)
+Доступное API расположено по адресу [openapi.track-delivery.club](http://openapi.track-delivery.club/)
 
 ## Команда
 
