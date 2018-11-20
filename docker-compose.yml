@@ -25,6 +25,8 @@ services:
         condition: on-failure
     networks:
     - geo-rest
+    volumes:
+    - esdata:/usr/share/elasticsearch/data
   tarantool:
     image: tarantool/tarantool:1.10.2
     deploy:
@@ -36,9 +38,15 @@ services:
       - TARANTOOL_USER_PASSWORD=bean4.tied
     networks:
     - geo-rest
+
+volumes:
+  esdata1:
+    driver: local
+
 networks:
   geo-rest:
     name: geo-rest
+
 configs:
   geo_rest_config.toml:
     external: true
