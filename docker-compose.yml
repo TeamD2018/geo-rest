@@ -40,7 +40,7 @@ services:
     - geo-rest
 
 volumes:
-  esdata1:
+  esdata:
     driver: local
 
 networks:
