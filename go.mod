@@ -15,13 +15,12 @@ require (
 	github.com/gin-gonic/gin v1.3.0
 	github.com/gobuffalo/buffalo-plugins v1.7.0 // indirect
 	github.com/gobuffalo/packd v0.0.0-20181120223505-a1fb7d1c9873 // indirect
-	github.com/gobuffalo/packr v1.21.3
+	github.com/gobuffalo/packr v1.21.3 // indirect
 	github.com/gobuffalo/packr/v2 v2.0.0-rc.6
 	github.com/gobuffalo/syncx v0.0.0-20181120194010-558ac7de985f // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/google/uuid v1.1.0 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.5 // indirect
 	github.com/lib/pq v1.0.0 // indirect
 	github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329 // indirect
@@ -29,8 +28,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/olivere/elastic v6.2.13+incompatible
-	github.com/onsi/ginkgo v1.7.0 // indirect
-	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
