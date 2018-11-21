@@ -15,9 +15,10 @@
 
 * Docker
 > Для установки Docker воспользуйтесь официальным [туториалом](https://docs.docker.com/install/linux/docker-ce/centos/)
-* [docker-compose](https://docs.docker.com/compose/install/#install-compose)
+* [Kubernetes](https://kubernetes.io/docs/setup/) или [docker-compose](https://docs.docker.com/compose/install/#install-compose)
 
-# Установка
+## [Установка через Kubernetes](https://github.com/TeamD2018/geo-rest-stuff/tree/master/deploy)
+## Установка через Docker-Compose
 
 * Склонируйте репозиторий, выполнив
 
