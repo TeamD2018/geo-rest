@@ -5,10 +5,13 @@ services:
     command: --config=/geo_rest_config.toml
     ports:
     - 8081:8080
+    restart: on-failure
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
+    volumes:
+      - "./geo_rest_config.toml:/geo_rest_config.toml"
     networks:
     - geo-rest
     configs:
@@ -29,6 +32,8 @@ services:
     - esdata:/usr/share/elasticsearch/data
   tarantool:
     image: tarantool/tarantool:1.10.2
+    ports:
+      - 3301:3301
     deploy:
       replicas: 1
       restart_policy:
