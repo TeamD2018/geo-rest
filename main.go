@@ -96,7 +96,8 @@ func main() {
 	elasticClient, err := elastic.NewClient(
 		elastic.SetURL(viper.GetString("elastic.url")),
 		elastic.SetSniff(viper.GetBool("elastic.sniff")),
-		elastic.SetRetrier(elastic.NewBackoffRetrier(elastic.NewConstantBackoff(time.Second*5))))
+		elastic.SetRetrier(elastic.NewBackoffRetrier(elastic.NewConstantBackoff(time.Second*5))),
+		elastic.SetHealthcheckTimeoutStartup(time.Second*60))
 	if err != nil {
 		log.Fatal(err)
 	}
