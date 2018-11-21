@@ -35,6 +35,12 @@ git clone https://github.com/TeamD2018/geo-rest
 ```
 docker-compose up -f docker-compose.yml
 ```
+or
+```
+docker-compose up -d -f docker-compose.yml
+```
+
+для запуска в фоновом режиме
 
 Сервис будет доступен по адресу `server.url` указанному в конфиге
 

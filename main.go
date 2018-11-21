@@ -6,6 +6,7 @@ import (
 	"github.com/TeamD2018/geo-rest/migrations"
 	"github.com/TeamD2018/geo-rest/services"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
 	"github.com/spf13/pflag"
@@ -27,6 +28,7 @@ func init() {
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.StringP("config", "c", "./config.toml", "path to config for geo-rest service")
 	remoteConfigUrl := pflag.StringP("remote-config", "r", "", "url to config for geo-rest service")
+	pflag.StringP("mode", "m", "dev", "dev/prod mode")
 	pflag.Parse()
 	if err := viper.BindPFlags(pflag.CommandLine); err != nil {
 		panic("err in bind flag")
@@ -53,10 +55,43 @@ func init() {
 	}
 }
 
+type Mode string
+
+const (
+	Production  Mode = "prod"
+	Development Mode = "dev"
+)
+
+func ModeFromString(mode string) Mode {
+	switch mode {
+	case "prod":
+		return Mode(mode)
+	case "dev":
+		return Mode(mode)
+	default:
+		panic("INVALID MODE")
+	}
+}
+
+func GetLogger(mode Mode) (*zap.Logger, error) {
+	switch mode {
+	case Production:
+		return zap.NewProduction()
+	case Development:
+		return zap.NewDevelopment()
+	default:
+		return zap.NewDevelopment()
+	}
+}
+
 func main() {
-	logger, err := zap.NewDevelopment()
+	mode := ModeFromString(viper.GetString("mode"))
+	logger, err := GetLogger(mode)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if mode == Production {
+		gin.SetMode("release")
 	}
 	elasticClient, err := elastic.NewClient(
 		elastic.SetURL(viper.GetString("elastic.url")),
@@ -69,7 +104,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tntClient, err := tarantool.Connect(viper.GetString("tarantool.url"), tarantool.Opts{})
+	tntClient, err := tarantool.Connect(viper.GetString("tarantool.url"), tarantool.Opts{
+		User: viper.GetString("tarantool.user"),
+		Pass: viper.GetString("tarantool.pass"),
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -142,11 +180,13 @@ func main() {
 		SuggesterExecutor:  suggestersExecutor,
 		OrdersCountTracker: ordersCountTracker,
 	}
-	router := gin.Default()
+	router := gin.New()
 
 	router.Use(func(ctx *gin.Context) {
 		ctx.Set(controllers.LoggerKey, logger)
 	}, controllers.LogBody)
+
+	pprof.Register(router)
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = viper.GetStringSlice("cors.origins")
