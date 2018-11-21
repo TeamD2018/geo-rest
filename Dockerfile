@@ -15,5 +15,5 @@ COPY --from=build /go/src/geo-rest ./
 RUN apk add --update ca-certificates
 
 EXPOSE 8080/tcp
-#ENV GIN_MODE=release
-ENTRYPOINT ["./geo-res]
+ENV GIN_MODE=release
+ENTRYPOINT ["./geo-rest"]
