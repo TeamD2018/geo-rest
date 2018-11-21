@@ -15,7 +15,7 @@ type Driver struct {
 
 func (d Driver) Run() error {
 	migrations := strings.Builder{}
-	box := packr.NewBox("./tnt_stored_procedures")
+	box := packr.New("Migrations", "./tnt_stored_procedures")
 	box.Walk(func(name string, file packr.File) error {
 		if s, err := ioutil.ReadAll(file); err != nil {
 			return err
