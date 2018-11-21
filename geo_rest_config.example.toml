@@ -1,0 +1,28 @@
+[google-maps]
+### we use google-maps api for geocoding addresses
+apikey="your-api-key"
+
+[cors]
+### list of urls for cors policy
+### it's for frontend part of project
+origins=["http://localhost:8080"]
+
+### server settings
+[server]
+### listen urls for server
+url=":8080"
+
+### elastic settings
+[elastic]
+url="http://localhost:9200"
+user="elastic"
+password="changeme"
+
+### use sniff=false if connect to elasticsearch not establish
+sniff=false
+
+### tarantool settings
+[tarantool]
+url="localhost:3301"
+user="guest"
+pass="guest"

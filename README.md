@@ -42,7 +42,6 @@ docker-compose up -d -f docker-compose.yml
 
 для запуска в фоновом режиме
 
-
 Сервис будет доступен по адресу `server.url` указанному в конфиге
 
 Доступное API расположено по адресу [openapi.track-delivery.club](http://openapi.track-delivery.club/)
