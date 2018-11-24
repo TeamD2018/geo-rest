@@ -14,6 +14,8 @@ FROM alpine:3.8 AS runtime
 COPY --from=build /go/src/geo-rest ./
 RUN apk add --update ca-certificates
 
+COPY ./migrations ./
+
 EXPOSE 8080/tcp
 ENV GIN_MODE=release
 ENTRYPOINT ["./geo-rest"]

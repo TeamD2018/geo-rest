@@ -1,4 +1,4 @@
-package migrations
+package migrations1
 
 import (
 	"github.com/gobuffalo/packr/v2"
