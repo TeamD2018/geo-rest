@@ -7,7 +7,7 @@ COPY . .
 ENV GO111MODULE=on
 ENV CGO_ENABLED=0
 
-RUN packr2 build -a -installsuffix cgo -tags=jsoniter --legacy -o geo-rest .
+RUN packr2 build -a -installsuffix cgo -tags=jsoniter -o geo-rest .
 
 FROM alpine:3.8 AS runtime
 
