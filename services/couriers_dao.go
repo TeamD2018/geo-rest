@@ -125,8 +125,9 @@ func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField, size in
 func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Courier, error) {
 	m := &courierWrapper{
 		Courier: models.Courier{
-			Name:  courier.Name,
-			Phone: courier.Phone,
+			Name:     courier.Name,
+			Phone:    courier.Phone,
+			IsActive: courier.IsActive,
 		},
 	}
 

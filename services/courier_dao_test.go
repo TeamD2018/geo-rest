@@ -107,7 +107,7 @@ func (s *CourierTestSuite) CreateCourier(courier *models.CourierCreate) string {
 
 func (s *CourierTestSuite) UpdateCourier(courier *models.CourierUpdate) {
 	service := s.GetService()
-	_, err := service.Update(courier)
+	res, err := service.Update(courier)
 	if !s.Assert().NoError(err) {
 		s.Assert().FailNow(err.Error())
 	}
@@ -453,6 +453,7 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldActiveOnly() {
 	}
 	idActive := s.CreateCourier(activeCourier)
 	idInactive := s.CreateCourier(inactiveCourier)
+
 	courierUpd := &models.CourierUpdate{
 		ID: &idActive,
 		Location: &models.Location{
