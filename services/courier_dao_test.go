@@ -107,7 +107,7 @@ func (s *CourierTestSuite) CreateCourier(courier *models.CourierCreate) string {
 
 func (s *CourierTestSuite) UpdateCourier(courier *models.CourierUpdate) {
 	service := s.GetService()
-	res, err := service.Update(courier)
+	_, err := service.Update(courier)
 	if !s.Assert().NoError(err) {
 		s.Assert().FailNow(err.Error())
 	}
