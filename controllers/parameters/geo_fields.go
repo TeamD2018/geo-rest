@@ -14,11 +14,13 @@ type CircleFieldQuery struct {
 	// Longitude
 	Lon float64 `form:"lon" binding:"min=-180,max=180"`
 
-	Radius int `form:"radius" binding:"required,gt=0"`
+	ActiveOnly bool `form:"active_only"`
+	Radius     int  `form:"radius" binding:"required,gt=0"`
 }
 
 type BoxFieldQuery struct {
 	Size       int     `form:"size"`
+	ActiveOnly bool    `form:"active_only"`
 	TopLeftLat float64 `form:"top_left_lat" binding:"min=-90,max=90"`
 	TopLeftLon float64 `form:"top_left_lon" binding:"min=-180,max=180"`
 

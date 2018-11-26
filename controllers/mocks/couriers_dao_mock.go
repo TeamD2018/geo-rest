@@ -19,13 +19,13 @@ func (c *CouriersDAOMock) GetByName(name string, size int) (models.Couriers, err
 	return args.Get(0).(models.Couriers), args.Error(1)
 }
 
-func (c *CouriersDAOMock) GetByBoxField(field *models.BoxField, size int) (models.Couriers, error) {
-	args := c.Called(field)
+func (c *CouriersDAOMock) GetByBoxField(field *models.BoxField, size int, isActive bool) (models.Couriers, error) {
+	args := c.Called(field, size, isActive)
 	return args.Get(0).(models.Couriers), args.Error(1)
 }
 
-func (c *CouriersDAOMock) GetByCircleField(field *models.CircleField, size int) (models.Couriers, error) {
-	args := c.Called(field)
+func (c *CouriersDAOMock) GetByCircleField(field *models.CircleField, size int, isActive bool) (models.Couriers, error) {
+	args := c.Called(field, size, isActive)
 	return args.Get(0).(models.Couriers), args.Error(1)
 }
 

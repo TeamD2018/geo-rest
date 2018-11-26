@@ -58,14 +58,17 @@ func (*CouriersElasticDAO) GetByName(name string, size int) (models.Couriers, er
 	return nil, nil
 }
 
-func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField, size int) (models.Couriers, error) {
+func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField, size int, activeOnly bool) (models.Couriers, error) {
 	boolQuery := elastic.NewBoolQuery()
 	boundingboxQuery := elastic.NewGeoBoundingBoxQuery("location.point").
-		TopLeftFromGeoPoint(field.TopLeftPoint).BottomRightFromGeoPoint(field.BottomRightPoint)
-	match := elastic.NewMatchAllQuery()
+		TopLeftFromGeoPoint(field.TopLeftPoint).
+		BottomRightFromGeoPoint(field.BottomRightPoint)
 	size = c.resolveDefaultReturnSize(size)
-	query := boolQuery.Must(match).Filter(boundingboxQuery)
-
+	query := boolQuery.Filter(boundingboxQuery)
+	if activeOnly {
+		activeOnlyFilter := elastic.NewTermsQuery("is_active", true)
+		query = query.Filter(activeOnlyFilter)
+	}
 	result := models.Couriers{}
 
 	size = c.resolveDefaultReturnSize(size)
@@ -85,15 +88,17 @@ func (c *CouriersElasticDAO) GetByBoxField(field *models.BoxField, size int) (mo
 	return result, nil
 }
 
-func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField, size int) (models.Couriers, error) {
+func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField, size int, activeOnly bool) (models.Couriers, error) {
 	boolQuery := elastic.NewBoolQuery()
 	geodistanceQuery := elastic.NewGeoDistanceQuery("location.point").
 		GeoPoint(field.Center).
 		Distance(fmt.Sprintf("%dm", field.Radius))
-	match := elastic.NewMatchAllQuery()
 
-	query := boolQuery.Must(match).
-		Filter(geodistanceQuery)
+	query := boolQuery.Filter(geodistanceQuery)
+	if activeOnly {
+		activeOnlyFilter := elastic.NewTermsQuery("is_active", true)
+		query = query.Filter(activeOnlyFilter)
+	}
 	size = c.resolveDefaultReturnSize(size)
 	end := c.client.Search(c.index).
 		Type("_doc").
@@ -120,8 +125,9 @@ func (c *CouriersElasticDAO) GetByCircleField(field *models.CircleField, size in
 func (c *CouriersElasticDAO) Create(courier *models.CourierCreate) (*models.Courier, error) {
 	m := &courierWrapper{
 		Courier: models.Courier{
-			Name:  courier.Name,
-			Phone: courier.Phone,
+			Name:     courier.Name,
+			Phone:    courier.Phone,
+			IsActive: courier.IsActive,
 		},
 	}
 
@@ -262,6 +268,9 @@ func (c *CouriersElasticDAO) GetMapping() (indexName string, mapping string) {
 					"last_seen": {
 						"type": "long",
 						"index": false
+					},
+					"is_active": {
+						"type": "boolean"
 					},
 					"suggestions": {
 						"type": "completion",

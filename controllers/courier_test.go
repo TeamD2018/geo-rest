@@ -163,7 +163,7 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByCircleField()
 
 	testCouriers := append(models.Couriers{}, ts.testCourier)
 
-	ts.couriersDAOMock.On("GetByCircleField", circleField).Return(testCouriers, nil)
+	ts.couriersDAOMock.On("GetByCircleField", circleField, 0, false).Return(testCouriers, nil)
 	ts.api.CouriersDAO = ts.couriersDAOMock
 
 	v := url.Values{}
@@ -192,7 +192,7 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByBoxField() {
 
 	testCouriers := append(models.Couriers{}, ts.testCourier)
 
-	ts.couriersDAOMock.On("GetByBoxField", boxField).Return(testCouriers, nil)
+	ts.couriersDAOMock.On("GetByBoxField", boxField, 0, false).Return(testCouriers, nil)
 	ts.api.CouriersDAO = ts.couriersDAOMock
 
 	v := url.Values{}
