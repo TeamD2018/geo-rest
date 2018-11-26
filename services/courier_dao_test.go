@@ -49,6 +49,7 @@ var (
 		"TestSuggestByPhoneOK",
 		"TestSuggestByNameOK",
 		"TestSuggestByPhoneFuzzyOK",
+		"TestGetCouriersByBoxFieldActiveOnly",
 	}
 	testsWithDeleteIndex = []string{
 		"TestCreateCourierWithNameAndPhone",
@@ -70,6 +71,7 @@ var (
 		"TestSuggestByPhoneOK",
 		"TestSuggestByNameOK",
 		"TestSuggestByPhoneFuzzyOK",
+		"TestGetCouriersByBoxFieldActiveOnly",
 	}
 )
 
@@ -128,7 +130,7 @@ func (s *CourierTestSuite) SetupSuite() {
 		s.FailNow("Could not connect to docker: %s", err)
 	}
 
-	resource, err := pool.Run("bitnami/elasticsearch", "latest", []string{})
+	resource, err := pool.Run("docker.elastic.co/elasticsearch/elasticsearch", "6.3.2", []string{"discovery.type=single-node"})
 	if err != nil {
 		s.FailNow("Could not start resource: %s", err)
 	}
@@ -354,7 +356,7 @@ func (s *CourierTestSuite) TestGetCouriersByCircleFieldOK() {
 	res, err := service.GetByCircleField(&models.CircleField{
 		Center: elastic.GeoPointFromLatLon(70.00005, 70.00005),
 		Radius: 1000,
-	}, 0)
+	}, 0, false)
 	s.Assert().NoError(err)
 	s.Assert().NotEmpty(res)
 	s.Assert().Len(res, 1)
@@ -380,7 +382,7 @@ func (s *CourierTestSuite) TestGetCouriersByCircleFieldEmpty() {
 	res, err := service.GetByCircleField(&models.CircleField{
 		Center: elastic.GeoPointFromLatLon(1, 1),
 		Radius: 1,
-	}, 0)
+	}, 0, false)
 	s.Assert().NoError(err)
 	s.Assert().Empty(res)
 }
@@ -405,7 +407,7 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldOK() {
 	res, err := service.GetByBoxField(&models.BoxField{
 		TopLeftPoint:     elastic.GeoPointFromLatLon(71.0, 69.0),
 		BottomRightPoint: elastic.GeoPointFromLatLon(0, 0),
-	}, 0)
+	}, 0, false)
 	s.Assert().NoError(err)
 	s.Assert().NotEmpty(res)
 	s.Assert().Len(res, 1)
@@ -431,9 +433,47 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldEmpty() {
 	res, err := service.GetByBoxField(&models.BoxField{
 		TopLeftPoint:     elastic.GeoPointFromLatLon(1, 1),
 		BottomRightPoint: elastic.GeoPointFromLatLon(0, 0),
-	}, 0)
+	}, 0, false)
 	s.Assert().NoError(err)
 	s.Assert().Empty(res)
+}
+
+func (s *CourierTestSuite) TestGetCouriersByBoxFieldActiveOnly() {
+	service := s.GetService()
+	phone := "79031189023"
+	activeCourier := &models.CourierCreate{
+		Name:     "Active",
+		Phone:    &phone,
+		IsActive: true,
+	}
+	inactiveCourier := &models.CourierCreate{
+		Name:     "Inactive",
+		Phone:    &phone,
+		IsActive: false,
+	}
+	idActive := s.CreateCourier(activeCourier)
+	idInactive := s.CreateCourier(inactiveCourier)
+	courierUpd := &models.CourierUpdate{
+		ID: &idActive,
+		Location: &models.Location{
+			Point: elastic.GeoPointFromLatLon(70.0, 70.0),
+		},
+	}
+	s.UpdateCourier(courierUpd)
+	courierUpd.ID = &idInactive
+	s.UpdateCourier(courierUpd)
+	s.client.Refresh(CourierIndex).Do(context.Background())
+	res, err := service.GetByBoxField(&models.BoxField{
+		TopLeftPoint:     elastic.GeoPointFromLatLon(71.0, 69.0),
+		BottomRightPoint: elastic.GeoPointFromLatLon(0, 0),
+	}, 0, true)
+	if !s.NoError(err) {
+		return
+	}
+	if !s.Len(res, 1) {
+		return
+	}
+	s.Equal(res[0].ID, idActive)
 }
 
 func (s *CourierTestSuite) TestExistsCourierOK() {

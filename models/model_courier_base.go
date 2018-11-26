@@ -6,9 +6,11 @@ type CourierUpdate struct {
 	Location *Location `json:"location,omitempty"`
 	Phone    *string   `json:"phone,omitempty"`
 	LastSeen *int64    `json:"last_seen,omitempty"`
+	IsActive *bool     `json:"is_active"`
 }
 
 type CourierCreate struct {
-	Name  string  `json:"name" binding:"required"`
-	Phone *string `json:"phone"`
+	Name     string  `json:"name" binding:"required"`
+	Phone    *string `json:"phone"`
+	IsActive bool    `json:"is_active"`
 }

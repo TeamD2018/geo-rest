@@ -68,7 +68,7 @@ func (s *OrdersTestSuite) SetupSuite() {
 		s.FailNow("Could not connect to docker: %s", err)
 	}
 
-	resource, err := pool.Run("bitnami/elasticsearch", "latest", []string{})
+	resource, err := pool.Run("docker.elastic.co/elasticsearch/elasticsearch", "6.3.2", []string{"discovery.type=single-node"})
 	if err != nil {
 		log.Println(err)
 		s.FailNow("Could not start resource: %s", err)

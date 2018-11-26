@@ -12,6 +12,7 @@ import (
 
 func (api *APIService) CreateCourier(ctx *gin.Context) {
 	var courier models.CourierCreate
+	courier.IsActive = true
 	if err := ctx.BindJSON(&courier); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
@@ -94,7 +95,7 @@ func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	couriers, err := api.CouriersDAO.GetByCircleField(searchParams.ToCircleField(), searchParams.Size)
+	couriers, err := api.CouriersDAO.GetByCircleField(searchParams.ToCircleField(), searchParams.Size, false)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return
@@ -112,7 +113,7 @@ func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
-	couriers, err := api.CouriersDAO.GetByBoxField(searchParams.ToBoxField(), searchParams.Size)
+	couriers, err := api.CouriersDAO.GetByBoxField(searchParams.ToBoxField(), searchParams.Size, searchParams.ActiveOnly)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
 		return

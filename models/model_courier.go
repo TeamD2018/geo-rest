@@ -14,4 +14,5 @@ type Courier struct {
 	// Time in UTC format(ms)
 	LastSeen    *int64 `json:"last_seen,omitempty"`
 	OrdersCount int    `json:"orders_count"`
+	IsActive    bool   `json:"is_active"`
 }
