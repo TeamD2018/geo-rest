@@ -18,4 +18,4 @@ COPY ./migrations ./
 
 EXPOSE 8080/tcp
 ENV GIN_MODE=release
-ENTRYPOINT ["./geo-rest"]
+ENTRYPOINT ["./geo-rest", "--mode", "prod"]
