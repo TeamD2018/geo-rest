@@ -59,7 +59,7 @@ func (s *TarantoolResolverTestSuite) SetupSuite() {
 		s.FailNow("Could not connect to docker: %s", err)
 	}
 
-	resource, err := pool.Run("tarantool/tarantool", "1", []string{})
+	resource, err := pool.Run("tarantool/tarantool", "1.10.2", []string{})
 	if err != nil {
 		s.FailNow("Could not start resource: %s", err)
 	}
