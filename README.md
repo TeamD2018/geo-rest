@@ -34,11 +34,11 @@ git clone https://github.com/TeamD2018/geo-rest
 * Выполните
 
 ```
-docker-compose up -f docker-compose.yml
+docker-compose -f docker-compose.yml up
 ```
 or
 ```
-docker-compose up -d -f docker-compose.yml
+docker-compose -f docker-compose.yml up -d
 ```
 
 для запуска в фоновом режиме
