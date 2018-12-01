@@ -8,7 +8,7 @@ import (
 type Suggestion struct {
 	Couriers Couriers `json:"couriers"`
 	Orders   Orders   `json:"orders"`
-	Polygons []*OSMPolygonSuggestion
+	Polygons []*OSMPolygonSuggestion `json:"polygons"`
 }
 
 type OSMPolygonSuggestion struct {
