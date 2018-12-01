@@ -12,9 +12,9 @@ type Suggestion struct {
 }
 
 type OSMPolygonSuggestion struct {
-	OSMID   int64
-	OSMType string
-	Name    string
+	OSMID   int64  `json:"osm_id"`
+	OSMType string `json:"osm_type"`
+	Name    string `json:"name"`
 }
 
 func SuggestionFromRawInput(ordersRaw, couriersRaw []suggestions.ElasticSuggestResult, polygons []*OSMPolygonSuggestion) (*Suggestion, error) {
