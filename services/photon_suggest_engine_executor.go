@@ -32,7 +32,11 @@ func (see *PhotonSuggestEngineExecutor) Suggest(input string) (suggestions.Sugge
 		if err != nil {
 			return nil, err
 		}
-		results[executor.Name] = executor.ParseSearchResponse(res)
+		if res, err := executor.ParseSearchResponse(res); err != nil {
+			return nil, err
+		} else {
+			results[executor.Name] = res
+		}
 	}
 	return results, nil
 }

@@ -6,7 +6,7 @@ import (
 
 type SuggestEngine interface {
 	CreateSearchRequest(input string) (interface{})
-	ParseSearchResponse(result interface{}) interface{}
+	ParseSearchResponse(result interface{}) (interface{}, error)
 }
 
 type SuggestExecutor interface {

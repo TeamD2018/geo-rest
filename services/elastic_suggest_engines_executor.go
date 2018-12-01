@@ -48,7 +48,12 @@ func (see *ElasticSuggestEngineExecutor) Suggest(input string) (suggestions.Sugg
 	for i, response := range res.Responses {
 		executor := see.Executors[i]
 		executorName := executor.Name
-		results[executorName] = executor.ParseSearchResponse(response)
+		if res, err := executor.ParseSearchResponse(response); err != nil {
+			return nil, err
+		} else {
+			results[executorName] = res
+		}
+
 	}
 	return results, nil
 }
