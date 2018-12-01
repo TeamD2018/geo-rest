@@ -48,6 +48,8 @@ func (api *APIService) MiddlewareGeoSearch(ctx *gin.Context) {
 	if ctx.Request.URL.Query().Get("radius") != "" {
 		api.GetCouriersByCircleField(ctx)
 		return
+	} else if ctx.Request.URL.Query().Get("osm_id") != "" {
+		api.GetCourierByPolygon(ctx)
 	} else {
 		api.GetCouriersByBoxField(ctx)
 		return
@@ -124,7 +126,25 @@ func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, couriers)
 	return
+}
 
+func (api *APIService) GetCourierByPolygon(ctx *gin.Context) {
+	searchParams := parameters.PolygonQuery{}
+	if err := ctx.Bind(&searchParams); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
+		return
+	}
+	polygon, err := api.RegionResolver.ResolveRegion(searchParams.ToOSMEntity())
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
+	}
+	couriers, err := api.CouriersDAO.GetByPolygon(polygon, searchParams.Size, searchParams.ActiveOnly)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, models.ErrServerError)
+		return
+	}
+	ctx.JSON(http.StatusOK, couriers)
 }
 
 func (api *APIService) SuggestCourier(ctx *gin.Context) {
