@@ -21,7 +21,7 @@ require (
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/google/uuid v1.1.0 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
-	github.com/json-iterator/go v1.1.5 // indirect
+	github.com/json-iterator/go v1.1.5
 	github.com/lib/pq v1.0.0 // indirect
 	github.com/mailru/easyjson v0.0.0-20180823135443-60711f1a8329 // indirect
 	github.com/mattn/go-isatty v0.0.4 // indirect
