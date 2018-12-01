@@ -14,18 +14,19 @@ type PrefixSuggestEngine struct {
 	FuzzinessThreshold int
 }
 
-func (ops *PrefixSuggestEngine) ParseSearchResponse(result *elastic.SearchResult) suggestions.EngineSuggestResults {
+func (ops *PrefixSuggestEngine) ParseSearchResponse(response interface{}) interface{} {
+	result := response.(*elastic.SearchResult)
 	suggestResults := result.Suggest[CouriersSuggesterName]
-	results := make(suggestions.EngineSuggestResults, 0)
+	results := make([]suggestions.ElasticSuggestResult, 0)
 	for _, suggestion := range suggestResults {
 		for _, option := range suggestion.Options {
-			results = append(results, suggestions.SuggestResult{Id: option.Id, Source: option.Source})
+			results = append(results, suggestions.ElasticSuggestResult{Id: option.Id, Source: option.Source})
 		}
 	}
 	return results
 }
 
-func (ops *PrefixSuggestEngine) CreateSearchRequest(input string) (*elastic.SearchRequest) {
+func (ops *PrefixSuggestEngine) CreateSearchRequest(input string) (interface{}) {
 	fuzzyOptions := elastic.NewFuzzyCompletionSuggesterOptions().
 		UnicodeAware(true)
 	if ops.FuzzinessThreshold > 0 {
