@@ -7,6 +7,7 @@ import (
 	"github.com/TeamD2018/geo-rest/services"
 	"github.com/TeamD2018/geo-rest/services/photon"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
 	"github.com/spf13/pflag"
@@ -187,11 +188,14 @@ func main() {
 
 	tntRouteDao := services.NewTarantoolRouteDAO(tntClient, logger)
 
+	reverser := services.NewRegionResolver(viper.GetString("nominatim.url"), logger)
+
 	api := controllers.APIService{
 		CouriersDAO:        couriersDao,
 		OrdersDAO:          ordersDao,
 		CourierRouteDAO:    tntRouteDao,
 		GeoResolver:        services.NewCachedResolver(tntResolver, gmapsResolver),
+		RegionResolver:     reverser,
 		CourierSuggester:   couriersSuggester,
 		Logger:             logger,
 		SuggestionService:  suggestService,
@@ -202,6 +206,8 @@ func main() {
 	router.Use(func(ctx *gin.Context) {
 		ctx.Set(controllers.LoggerKey, logger)
 	}, controllers.LogBody)
+
+	pprof.Register(router)
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = viper.GetStringSlice("cors.origins")
