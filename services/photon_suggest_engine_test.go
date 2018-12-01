@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"github.com/TeamD2018/geo-rest/models"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
@@ -14,29 +15,50 @@ type PhotonSuggestEngineTestSuite struct {
 	engine *PhotonSuggestEngine
 }
 
+type lookupServiceMock struct {
+	mock.Mock
+}
+
+func (lsm lookupServiceMock) Lookup(entity *models.OSMEntity) (string, error) {
+	args := lsm.Called(entity)
+	return args.String(0), args.Error(1)
+}
+
 func (s *PhotonSuggestEngineTestSuite) SetupSuite() {
 	s.engine = &PhotonSuggestEngine{
 		OSMType: "R",
 		Limit:   10,
 		Tags:    []string{"boundary:administrative", "place:suburb"},
+		ConcurrentLookupService: &ConcurrentLookupService{
+			Concurrency: 5,
+		},
 	}
 }
 
 func (s *PhotonSuggestEngineTestSuite) TestPhotonSuggestEngine_ParseSearchResponse_OK() {
+	s.setupLookupMock(5, "Example", nil)
 	response := IzamilovoSuburbTagResponse.Bytes()
 	result, err := s.engine.ParseSearchResponse(response)
 	if !s.NoError(err) {
 		return
 	}
-	if !s.IsType(result, []*models.OSMPolygonSuggestion{}) {
+	if !s.IsType([]*models.OSMPolygonSuggestion{}, result,) {
 		return
 	}
 	expected := models.OSMPolygonSuggestion{
 		OSMID:   1319245,
 		OSMType: "R",
-		Name:    "Izmaylovo District",
+		Name:    "Example",
 	}
 	s.EqualValues(result, []*models.OSMPolygonSuggestion{&expected})
+}
+func (s *PhotonSuggestEngineTestSuite) setupLookupMock(concurrency int, retstr string, reterr error) {
+	lookupMock := new(lookupServiceMock)
+	lookupMock.On("Lookup", mock.Anything).Return(retstr, reterr)
+	s.engine.ConcurrentLookupService = &ConcurrentLookupService{
+		Concurrency:   5,
+		LookupService: lookupMock,
+	}
 }
 
 func TestPhotonSuggestEngineTestSuite(t *testing.T) {

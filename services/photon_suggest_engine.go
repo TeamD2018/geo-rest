@@ -2,15 +2,17 @@ package services
 
 import (
 	"github.com/TeamD2018/geo-rest/models"
+	"github.com/TeamD2018/geo-rest/services/interfaces"
 	"github.com/TeamD2018/geo-rest/services/photon"
 	"github.com/json-iterator/go"
 	"strings"
 )
 
 type PhotonSuggestEngine struct {
-	Tags    []string
-	OSMType string
-	Limit   int
+	Tags                    []string
+	OSMType                 string
+	Limit                   int
+	ConcurrentLookupService interfaces.IConcurrentLookupService
 }
 
 type SuggestionFeatures struct {
@@ -51,18 +53,27 @@ func (ops *PhotonSuggestEngine) ParseSearchResponse(response interface{}) (inter
 	if err := jsoniter.Unmarshal(result, &features); err != nil {
 		return nil, err
 	}
-	filteredFeatures := make([]*models.OSMPolygonSuggestion, 0, len(features.Features))
+	resolvedNames := make(chan *models.OSMPolygonSuggestion, ops.Limit)
+	entities := make(chan *models.OSMEntity)
+	errc := make(chan error)
+	join := ops.ConcurrentLookupService.LookupAll(entities, resolvedNames, errc)
 	for _, feature := range features.Features {
 		props := feature.Properties
 		if props.OSMType == ops.OSMType {
-			filteredFeatures = append(filteredFeatures, &models.OSMPolygonSuggestion{
-				OSMID:   props.OSMID,
-				OSMType: props.OSMType,
-				Name:    props.Name,
-			})
+			entities <- &models.OSMEntity{OSMType: props.OSMType, OSMID: int(props.OSMID)}
 		}
 	}
-	return filteredFeatures, nil
+	close(entities)
+	join()
+	err, more := <-errc
+	if more {
+		return nil, err
+	}
+	collected := make([]*models.OSMPolygonSuggestion, 0, len(features.Features))
+	for result := range resolvedNames {
+		collected = append(collected, result)
+	}
+	return collected, nil
 }
 
 func (ops *PhotonSuggestEngine) CreateSearchRequest(input string, ) (interface{}) {

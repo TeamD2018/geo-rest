@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"github.com/TeamD2018/geo-rest/models"
 	"github.com/TeamD2018/geo-rest/services/suggestions"
 )
 
@@ -16,4 +17,11 @@ type SuggestExecutor interface {
 
 type SuggestionService interface {
 	Suggest(input string) (suggestions.SuggestResults, error)
+}
+
+type IConcurrentLookupService interface {
+	LookupAll(
+		source <-chan *models.OSMEntity,
+		destination chan<- *models.OSMPolygonSuggestion,
+		errc chan<- error) func()
 }
