@@ -156,7 +156,7 @@ func main() {
 		Field:              "destination.address",
 		Index:              ordersDao.GetIndex(),
 	}
-	photonPolygonSuggestonEngine := &services.PhotonSuggestEngine{
+	photonPolygonSuggestionEngine := &services.PhotonSuggestEngine{
 		Limit:   5,
 		OSMType: "R",
 		Tags:    []string{"boundary:administrative"},
@@ -169,8 +169,7 @@ func main() {
 
 	photonClient := photon.NewPhotonClient(viper.GetString("photon.url"))
 	photonSuggester := services.NewPhotonSuggestEngineExecutor(photonClient, logger)
-	photonSuggester.AddEngine("polygons-engine", photonPolygonSuggestonEngine)
-
+	photonSuggester.AddEngine("polygons-engine", photonPolygonSuggestionEngine)
 
 	suggestService := services.NewSuggestionService(photonSuggester, elasticSuggester)
 
@@ -183,11 +182,14 @@ func main() {
 
 	tntRouteDao := services.NewTarantoolRouteDAO(tntClient, logger)
 
+	reverser := services.NewRegionResolver(viper.GetString("nominatim.url"), logger)
+
 	api := controllers.APIService{
 		CouriersDAO:        couriersDao,
 		OrdersDAO:          ordersDao,
 		CourierRouteDAO:    tntRouteDao,
 		GeoResolver:        services.NewCachedResolver(tntResolver, gmapsResolver),
+		RegionResolver:     reverser,
 		CourierSuggester:   couriersSuggester,
 		Logger:             logger,
 		SuggestionService:  suggestService,
