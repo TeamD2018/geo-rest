@@ -5,6 +5,7 @@ import (
 	"github.com/TeamD2018/geo-rest/controllers"
 	"github.com/TeamD2018/geo-rest/migrations"
 	"github.com/TeamD2018/geo-rest/services"
+	"github.com/TeamD2018/geo-rest/services/photon"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
@@ -156,11 +157,23 @@ func main() {
 		Field:              "destination.address",
 		Index:              ordersDao.GetIndex(),
 	}
+	photonPolygonSuggestonEngine := &services.PhotonSuggestEngine{
+		Limit:   5,
+		OSMType: "R",
+		Tags:    []string{"boundary:administrative"},
+	}
 
-	suggestersExecutor := services.NewSuggestEngineExecutor(elasticClient, logger)
-	suggestersExecutor.AddEngine("orders-engine", &ordersSuggestDestinationEngine)
-	suggestersExecutor.AddEngine("couriers-engine", &couriersSuggestEngine)
-	suggestersExecutor.AddEngine("orders-prefix-engine", &ordersPrefixSuggestEngine)
+	elasticSuggester := services.NewSuggestEngineExecutor(elasticClient, logger)
+	elasticSuggester.AddEngine("orders-engine", &ordersSuggestDestinationEngine)
+	elasticSuggester.AddEngine("couriers-engine", &couriersSuggestEngine)
+	elasticSuggester.AddEngine("orders-prefix-engine", &ordersPrefixSuggestEngine)
+
+	photonClient := photon.NewPhotonClient(viper.GetString("photon.url"))
+	photonSuggester := services.NewPhotonSuggestEngineExecutor(photonClient, logger)
+	photonSuggester.AddEngine("polygons-engine", photonPolygonSuggestonEngine)
+
+
+	suggestService := services.NewSuggestionService(photonSuggester, elasticSuggester)
 
 	if err := couriersDao.EnsureMapping(); err != nil {
 		logger.Fatal("Fail to ensure couriers mapping: ", zap.Error(err))
@@ -178,7 +191,7 @@ func main() {
 		GeoResolver:        services.NewCachedResolver(tntResolver, gmapsResolver),
 		CourierSuggester:   couriersSuggester,
 		Logger:             logger,
-		SuggesterExecutor:  suggestersExecutor,
+		SuggestionService:  suggestService,
 		OrdersCountTracker: ordersCountTracker,
 	}
 	router := gin.New()
