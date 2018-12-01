@@ -8,12 +8,20 @@ import (
 type Suggestion struct {
 	Couriers Couriers `json:"couriers"`
 	Orders   Orders   `json:"orders"`
+	Polygons []*OSMPolygonSuggestion
 }
 
-func SuggestionFromRawInput(ordersRaw, couriersRaw suggestions.EngineSuggestResults) (*Suggestion, error) {
+type OSMPolygonSuggestion struct {
+	OSMID   int64
+	OSMType string
+	Name    string
+}
+
+func SuggestionFromRawInput(ordersRaw, couriersRaw []suggestions.ElasticSuggestResult, polygons []*OSMPolygonSuggestion) (*Suggestion, error) {
 	suggestion := Suggestion{
 		Couriers: make(Couriers, 0, len(couriersRaw)),
 		Orders:   make(Orders, 0, len(ordersRaw)),
+		Polygons: polygons,
 	}
 	for _, rawOrder := range ordersRaw {
 		var order Order

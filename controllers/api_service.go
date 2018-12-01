@@ -12,6 +12,6 @@ type APIService struct {
 	GeoResolver        interfaces.GeoResolver
 	CourierSuggester   interfaces.CourierSuggester
 	Logger             *zap.Logger
-	SuggesterExecutor  interfaces.SuggestExecutor
+	SuggestionService  interfaces.SuggestionService
 	OrdersCountTracker interfaces.OrdersCountTracker
 }
