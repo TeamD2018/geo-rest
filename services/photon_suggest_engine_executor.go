@@ -30,9 +30,11 @@ func (see *PhotonSuggestEngineExecutor) Suggest(input string) (suggestions.Sugge
 		req := executor.CreateSearchRequest(input)
 		res, err := see.Photon.Search(req.(*photon.SearchQuery))
 		if err != nil {
+			see.Logger.Error("fail to get a response from photon geocoder", zap.Any("request", req), zap.Error(err))
 			return nil, err
 		}
 		if res, err := executor.ParseSearchResponse(res); err != nil {
+			see.Logger.Error("fail to parse search response", zap.Error(err))
 			return nil, err
 		} else {
 			results[executor.Name] = res

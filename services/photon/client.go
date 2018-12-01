@@ -23,7 +23,8 @@ func NewPhotonClient(baseurl string) *Client {
 func (p *Client) Search(query *SearchQuery) ([]byte, error) {
 	url := *p.baseURL
 	url.RawQuery = query.String()
-	response, err := http.Get(url.String())
+	queryString := url.String()
+	response, err := http.Get(queryString)
 	if err != nil {
 		return nil, err
 	}
