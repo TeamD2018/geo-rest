@@ -15,3 +15,7 @@ type CircleField struct {
 type Polygon struct {
 	Points []*elastic.GeoPoint
 }
+
+func NewPolygon(numPoints int) *Polygon {
+	return &Polygon{make([]*elastic.GeoPoint, numPoints)}
+}
