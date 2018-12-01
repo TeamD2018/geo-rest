@@ -22,6 +22,37 @@ type CouriersElasticDAO struct {
 	l                 *zap.Logger
 }
 
+func (c *CouriersElasticDAO) GetByPolygon(polygon *models.Polygon, size int, activeOnly bool) (models.Couriers, error) {
+	boolQuery := elastic.NewBoolQuery()
+	polygonQuery := elastic.NewGeoPolygonQuery("location.point")
+	for _, p := range polygon.Points {
+		polygonQuery.AddGeoPoint(p)
+	}
+	size = c.resolveDefaultReturnSize(size)
+	query := boolQuery.Filter(polygonQuery)
+	if activeOnly {
+		activeOnlyFilter := elastic.NewTermsQuery("is_active", true)
+		query = query.Filter(activeOnlyFilter)
+	}
+	result := models.Couriers{}
+
+	res, err := c.client.Search(c.index).Type("_doc").Size(size).Query(query).Do(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range res.Hits.Hits {
+		var courier models.Courier
+		if err := json.Unmarshal(*item.Source, &courier); err != nil {
+			return nil, err
+		}
+		courier.ID = item.Id
+		result = append(result, &courier)
+	}
+	return result, nil
+}
+
 func NewCouriersElasticDAO(client *elastic.Client, logger *zap.Logger, index string, defaultReturnSize int) *CouriersElasticDAO {
 	if logger == nil {
 		logger, _ = zap.NewDevelopment()

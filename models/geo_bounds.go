@@ -11,3 +11,7 @@ type CircleField struct {
 	Center *elastic.GeoPoint
 	Radius int
 }
+
+type Polygon struct {
+	Points []*elastic.GeoPoint
+}

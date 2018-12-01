@@ -44,6 +44,7 @@ var (
 		"TestGetCouriersByCircleFieldEmpty",
 		"TestGetCouriersByBoxFieldOK",
 		"TestGetCouriersByBoxFieldEmpty",
+		"TestGetCouriersByPolygonOK",
 		"TestExistsCourierNotFound",
 		"TestExistsCourierOK",
 		"TestSuggestByPhoneOK",
@@ -66,6 +67,7 @@ var (
 		"TestGetCouriersByCircleFieldEmpty",
 		"TestGetCouriersByBoxFieldOK",
 		"TestGetCouriersByBoxFieldEmpty",
+		"TestGetCouriersByPolygonOK",
 		"TestExistsCourierNotFound",
 		"TestExistsCourierOK",
 		"TestSuggestByPhoneOK",
@@ -475,6 +477,38 @@ func (s *CourierTestSuite) TestGetCouriersByBoxFieldActiveOnly() {
 		return
 	}
 	s.Equal(res[0].ID, idActive)
+}
+
+func (s *CourierTestSuite) TestGetCouriersByPolygonOK() {
+	service := s.GetService()
+	name := "Vasya"
+	phone := "79031189023"
+	courier := &models.CourierCreate{
+		Name:  name,
+		Phone: &phone,
+	}
+	id := s.CreateCourier(courier)
+	courierUpd := &models.CourierUpdate{
+		ID: &id,
+		Location: &models.Location{
+			Point: elastic.GeoPointFromLatLon(55.763615, 37.607687),
+		},
+	}
+	s.UpdateCourier(courierUpd)
+	s.client.Refresh(CourierIndex).Do(context.Background())
+	polygon := &models.Polygon{
+		Points: []*elastic.GeoPoint{
+			elastic.GeoPointFromLatLon(56.514792, 36.375407),
+			elastic.GeoPointFromLatLon(56.673754, 39.858289),
+			elastic.GeoPointFromLatLon(54.692269, 38.979383),
+			elastic.GeoPointFromLatLon(55.146880, 36.122938),
+			elastic.GeoPointFromLatLon(56.514792, 36.375407),
+		},
+	}
+	res, err := service.GetByPolygon(polygon, 1, false)
+	if !s.NoError(err) || !s.NotEmpty(res) {
+		return
+	}
 }
 
 func (s *CourierTestSuite) TestExistsCourierOK() {
