@@ -23,6 +23,7 @@ func (r *NominatimRegionResolver) Lookup(entity *models.OSMEntity) (string, erro
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -40,6 +41,7 @@ func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (*mode
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
