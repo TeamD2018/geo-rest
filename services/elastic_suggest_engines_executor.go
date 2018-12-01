@@ -36,7 +36,7 @@ func (see *SuggestEngineExecutor) Suggest(input string) (suggestions.SuggestResu
 	total := 0
 	for _, executor := range see.Executors {
 		req := executor.CreateSearchRequest(input)
-		multisearch.Add(req)
+		multisearch.Add(req.(*elastic.SearchRequest))
 		total++
 	}
 	res, err := multisearch.MaxConcurrentSearches(total).Do(context.Background())
