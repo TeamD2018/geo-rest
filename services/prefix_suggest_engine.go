@@ -14,7 +14,7 @@ type PrefixSuggestEngine struct {
 	FuzzinessThreshold int
 }
 
-func (ops *PrefixSuggestEngine) ParseSearchResponse(response interface{}) interface{} {
+func (ops *PrefixSuggestEngine) ParseSearchResponse(response interface{}) (interface{}, error) {
 	result := response.(*elastic.SearchResult)
 	suggestResults := result.Suggest[CouriersSuggesterName]
 	results := make([]suggestions.ElasticSuggestResult, 0)
@@ -23,7 +23,7 @@ func (ops *PrefixSuggestEngine) ParseSearchResponse(response interface{}) interf
 			results = append(results, suggestions.ElasticSuggestResult{Id: option.Id, Source: option.Source})
 		}
 	}
-	return results
+	return results, nil
 }
 
 func (ops *PrefixSuggestEngine) CreateSearchRequest(input string) (interface{}) {

@@ -24,7 +24,10 @@ func (s *PhotonSuggestEngineTestSuite) SetupSuite() {
 
 func (s *PhotonSuggestEngineTestSuite) TestPhotonSuggestEngine_ParseSearchResponse_OK() {
 	response := IzamilovoSuburbTagResponse.Bytes()
-	result := s.engine.ParseSearchResponse(response)
+	result, err := s.engine.ParseSearchResponse(response)
+	if !s.NoError(err) {
+		return
+	}
 	if !s.IsType(result, []*models.OSMPolygonSuggestion{}) {
 		return
 	}

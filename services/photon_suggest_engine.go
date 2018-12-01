@@ -45,10 +45,12 @@ func (p *Properties) String() string {
 	return builder.String()
 }
 
-func (ops *PhotonSuggestEngine) ParseSearchResponse(response interface{}) interface{} {
+func (ops *PhotonSuggestEngine) ParseSearchResponse(response interface{}) (interface{}, error) {
 	result := response.([]byte)
 	features := SuggestionFeatures{}
-	jsoniter.Unmarshal(result, &features)
+	if err := jsoniter.Unmarshal(result, &features); err != nil {
+		return nil, err
+	}
 	filteredFeatures := make([]*models.OSMPolygonSuggestion, 0, len(features.Features))
 	for _, feature := range features.Features {
 		props := feature.Properties
@@ -60,7 +62,7 @@ func (ops *PhotonSuggestEngine) ParseSearchResponse(response interface{}) interf
 			})
 		}
 	}
-	return filteredFeatures
+	return filteredFeatures, nil
 }
 
 func (ops *PhotonSuggestEngine) CreateSearchRequest(input string, ) (interface{}) {

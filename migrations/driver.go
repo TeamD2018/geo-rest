@@ -16,7 +16,7 @@ type Driver struct {
 func (d Driver) Run() error {
 	migrations := strings.Builder{}
 	box := packr.New("Migrations", "./tnt_stored_procedures")
-	box.Walk(func(name string, file packr.File) error {
+	err := box.Walk(func(name string, file packr.File) error {
 		if s, err := ioutil.ReadAll(file); err != nil {
 			return err
 		} else {
@@ -25,6 +25,9 @@ func (d Driver) Run() error {
 			return nil
 		}
 	})
-	_, err := d.Client.Eval(migrations.String(), []interface{}{})
+	if err != nil {
+		return err
+	}
+	_, err = d.Client.Eval(migrations.String(), []interface{}{})
 	return err
 }

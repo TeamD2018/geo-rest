@@ -41,7 +41,6 @@ func (api *APIService) GetCourierByID(ctx *gin.Context) {
 		api.Logger.Error("fail to sync courier counter", zap.Error(err))
 	}
 	ctx.JSON(http.StatusOK, courier)
-	return
 }
 
 func (api *APIService) MiddlewareGeoSearch(ctx *gin.Context) {
@@ -88,7 +87,6 @@ func (api *APIService) UpdateCourier(ctx *gin.Context) {
 		}
 	}
 	ctx.JSON(http.StatusOK, updated)
-	return
 }
 
 func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
@@ -106,7 +104,6 @@ func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
 		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
 	}
 	ctx.JSON(http.StatusOK, couriers)
-	return
 }
 
 func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
@@ -125,7 +122,6 @@ func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, couriers)
-	return
 }
 
 func (api *APIService) GetCourierByPolygon(ctx *gin.Context) {

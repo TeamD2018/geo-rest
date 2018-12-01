@@ -252,7 +252,7 @@ func (c *CouriersElasticDAO) EnsureMapping() error {
 		return err
 	}
 
-	if exists == false {
+	if !exists {
 		_, err := c.client.CreateIndex(indexName).BodyString(mapping).Do(ctx)
 		if err != nil {
 			c.l.Sugar().Errorw("", zap.Error(err))

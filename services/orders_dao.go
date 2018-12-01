@@ -200,7 +200,7 @@ func (od *OrdersElasticDAO) EnsureMapping() error {
 		return err
 	}
 
-	if exists == false {
+	if !exists {
 		_, err := od.Elastic.CreateIndex(indexName).BodyString(mapping).Do(ctx)
 		if err != nil {
 			return err
