@@ -156,10 +156,15 @@ func main() {
 		Field:              "destination.address",
 		Index:              ordersDao.GetIndex(),
 	}
-	photonPolygonSuggestonEngine := &services.PhotonSuggestEngine{
-		Limit:   5,
-		OSMType: "R",
-		Tags:    []string{"boundary:administrative"},
+	concurrentLookup := &services.ConcurrentLookupService{
+		LookupService: services.NewRegionResolver(viper.GetString("nominatim.url"), logger),
+		Concurrency:   viper.GetInt("photon.lookup_concurrency"),
+	}
+	photonPolygonSuggestionEngine := &services.PhotonSuggestEngine{
+		Limit:                   viper.GetInt("photon.limit"),
+		OSMType:                 "R",
+		Tags:                    viper.GetStringSlice("photon.tags"),
+		ConcurrentLookupService: concurrentLookup,
 	}
 
 	elasticSuggester := services.NewSuggestEngineExecutor(elasticClient, logger)
@@ -169,8 +174,7 @@ func main() {
 
 	photonClient := photon.NewPhotonClient(viper.GetString("photon.url"))
 	photonSuggester := services.NewPhotonSuggestEngineExecutor(photonClient, logger)
-	photonSuggester.AddEngine("polygons-engine", photonPolygonSuggestonEngine)
-
+	photonSuggester.AddEngine("polygons-engine", photonPolygonSuggestionEngine)
 
 	suggestService := services.NewSuggestionService(photonSuggester, elasticSuggester)
 
