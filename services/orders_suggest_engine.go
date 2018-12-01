@@ -13,18 +13,19 @@ type OrdersSuggestEngine struct {
 	FuzzinessThreshold int
 }
 
-func (ose *OrdersSuggestEngine) ParseSearchResponse(result *elastic.SearchResult) suggestions.EngineSuggestResults {
+func (ose *OrdersSuggestEngine) ParseSearchResponse(response interface{}) interface{} {
+	result := response.(*elastic.SearchResult)
 	if result.TotalHits() == 0 {
 		return nil
 	}
-	results := make(suggestions.EngineSuggestResults, 0, result.TotalHits())
+	results := make([]suggestions.ElasticSuggestResult, 0, result.TotalHits())
 	for _, hit := range result.Hits.Hits {
-		results = append(results, suggestions.SuggestResult{Id: hit.Id, Source: hit.Source})
+		results = append(results, suggestions.ElasticSuggestResult{Id: hit.Id, Source: hit.Source})
 	}
 	return results
 }
 
-func (ose *OrdersSuggestEngine) CreateSearchRequest(input string) (*elastic.SearchRequest) {
+func (ose *OrdersSuggestEngine) CreateSearchRequest(input string) (interface{}) {
 	query := elastic.NewMatchQuery(ose.Field, input).Operator("and")
 	if len(input) >= ose.FuzzinessThreshold {
 		query.Fuzziness(ose.Fuzziness)

@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-type SuggestEngineExecutor struct {
+type ElasticSuggestEngineExecutor struct {
 	Executors []NamedSuggestEngine
 	Logger    *zap.Logger
 	Elastic   *elastic.Client
@@ -19,18 +19,18 @@ type NamedSuggestEngine struct {
 	interfaces.SuggestEngine
 }
 
-func NewSuggestEngineExecutor(client *elastic.Client, logger *zap.Logger) *SuggestEngineExecutor {
-	return &SuggestEngineExecutor{
+func NewSuggestEngineExecutor(client *elastic.Client, logger *zap.Logger) *ElasticSuggestEngineExecutor {
+	return &ElasticSuggestEngineExecutor{
 		Elastic: client,
 		Logger:  logger,
 	}
 }
 
-func (see *SuggestEngineExecutor) AddEngine(name string, engine interfaces.SuggestEngine) {
+func (see *ElasticSuggestEngineExecutor) AddEngine(name string, engine interfaces.SuggestEngine) {
 	see.Executors = append(see.Executors, NamedSuggestEngine{name, engine})
 }
 
-func (see *SuggestEngineExecutor) Suggest(input string) (suggestions.SuggestResults, error) {
+func (see *ElasticSuggestEngineExecutor) Suggest(input string) (suggestions.SuggestResults, error) {
 	results := make(suggestions.SuggestResults)
 	multisearch := see.Elastic.MultiSearch()
 	total := 0

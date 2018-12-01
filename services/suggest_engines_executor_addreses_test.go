@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/TeamD2018/geo-rest/models"
+	"github.com/TeamD2018/geo-rest/services/suggestions"
 	"github.com/olivere/elastic"
 	"github.com/ory/dockertest"
 	"github.com/stretchr/testify/suite"
@@ -21,7 +22,7 @@ type TestSuggestEnginesExecutor struct {
 	couriersDao    *CouriersElasticDAO
 	ordersEngine   OrdersSuggestEngine
 	couriersEngine CouriersSuggestEngine
-	executor       *SuggestEngineExecutor
+	executor       *ElasticSuggestEngineExecutor
 	pool           *dockertest.Pool
 	resource       *dockertest.Resource
 	logger         *zap.Logger
@@ -192,9 +193,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -207,9 +208,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -222,9 +223,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -237,9 +238,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -252,9 +253,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -267,9 +268,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -282,9 +283,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -297,9 +298,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -312,9 +313,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -327,9 +328,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -342,9 +343,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -357,9 +358,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -372,9 +373,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -387,9 +388,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -402,9 +403,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -417,9 +418,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -432,9 +433,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -447,9 +448,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}
@@ -461,9 +462,9 @@ func (s *TestSuggestEnginesExecutor) TestSuggestEnginesExecutor_Suggest_TestAddr
 	if !s.NoError(err) {
 		return
 	}
-	orders := results[ordersEngine]
-	couriers := results[couriersEngine]
-	got, err := models.SuggestionFromRawInput(orders, couriers)
+	orders, _ := results[ordersEngine].([]suggestions.ElasticSuggestResult)
+	couriers, _ := results[couriersEngine].([]suggestions.ElasticSuggestResult)
+	got, err := models.SuggestionFromRawInput(orders, couriers, nil)
 	if !s.NoError(err) {
 		return
 	}

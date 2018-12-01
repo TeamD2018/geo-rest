@@ -2,10 +2,9 @@ package suggestions
 
 import "encoding/json"
 
-type SuggestResult struct {
+type ElasticSuggestResult struct {
 	Source *json.RawMessage
 	Id     string
 }
 
-type EngineSuggestResults []SuggestResult
-type SuggestResults map[string]EngineSuggestResults
+type SuggestResults map[string]interface{}
