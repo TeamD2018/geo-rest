@@ -7,7 +7,6 @@ import (
 	"github.com/TeamD2018/geo-rest/services"
 	"github.com/TeamD2018/geo-rest/services/photon"
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
 	"github.com/spf13/pflag"
@@ -199,8 +198,6 @@ func main() {
 	router.Use(func(ctx *gin.Context) {
 		ctx.Set(controllers.LoggerKey, logger)
 	}, controllers.LogBody)
-
-	pprof.Register(router)
 
 	config := cors.DefaultConfig()
 	config.AllowOrigins = viper.GetStringSlice("cors.origins")
