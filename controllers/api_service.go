@@ -10,6 +10,7 @@ type APIService struct {
 	CouriersDAO        interfaces.ICouriersDAO
 	CourierRouteDAO    interfaces.GeoRouteInterface
 	GeoResolver        interfaces.GeoResolver
+	RegionResolver     interfaces.IRegionResolver
 	CourierSuggester   interfaces.CourierSuggester
 	Logger             *zap.Logger
 	SuggestionService  interfaces.SuggestionService

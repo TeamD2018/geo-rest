@@ -43,3 +43,17 @@ func (c *CircleFieldQuery) ToCircleField() *models.CircleField {
 	}
 	return circleField
 }
+
+type PolygonQuery struct {
+	OSMID      int    `form:"osm_id"`
+	OSMType    string `form:"osm_type"`
+	Size       int    `form:"size"`
+	ActiveOnly bool   `form:"active_only"`
+}
+
+func (pq *PolygonQuery) ToOSMEntity() *models.OSMEntity {
+	return &models.OSMEntity{
+		OSMID:   pq.OSMID,
+		OSMType: pq.OSMType,
+	}
+}
