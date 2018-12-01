@@ -39,14 +39,18 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
+    volumes:
+      - tarantool_data:/var/lib/tarantool
     environment:
-      - TARANTOOL_USER_NAME=geo-rest-user
-      - TARANTOOL_USER_PASSWORD=bean4.tied
+      - TARANTOOL_USER_NAME=admin
+      - TARANTOOL_USER_PASSWORD=admin
     networks:
     - geo-rest
 
 volumes:
   esdata:
+    driver: local
+  tarantool_data:
     driver: local
 
 networks:
