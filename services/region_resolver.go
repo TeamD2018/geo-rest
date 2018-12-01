@@ -10,14 +10,14 @@ import (
 	"net/http"
 )
 
-type RegionResolver struct {
+type NominatimRegionResolver struct {
 	client     http.Client
 	logger     *zap.Logger
 	urlLookup  string
 	urlReverse string
 }
 
-func (r *RegionResolver) Lookup(entity *models.OSMEntity) (string, error) {
+func (r *NominatimRegionResolver) Lookup(entity *models.OSMEntity) (string, error) {
 	url := r.buildURLLookup(entity)
 	resp, err := r.client.Get(url)
 	if err != nil {
@@ -34,7 +34,7 @@ func (r *RegionResolver) Lookup(entity *models.OSMEntity) (string, error) {
 	return lookupResponse[0].DisplayName, nil
 }
 
-func (r *RegionResolver) ResolveRegion(entity *models.OSMEntity) (*models.Polygon, error) {
+func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (*models.Polygon, error) {
 	url := r.buildURLReverse(entity)
 	resp, err := r.client.Get(url)
 	if err != nil {
@@ -55,8 +55,8 @@ func (r *RegionResolver) ResolveRegion(entity *models.OSMEntity) (*models.Polygo
 	return polygon, nil
 }
 
-func NewRegionResolver(nominatimURL string, logger *zap.Logger) *RegionResolver {
-	return &RegionResolver{
+func NewNominatimRegionResolver(nominatimURL string, logger *zap.Logger) *NominatimRegionResolver {
+	return &NominatimRegionResolver{
 		client:     http.Client{},
 		urlLookup:  nominatimURL + "/lookup?format=json&osm_ids=%s&accept-language=ru&osm_type=%s",
 		urlReverse: nominatimURL + "/reverse?format=json&osm_id=%d&osm_type=%s&polygon_geojson=1&accept_language=ru",
@@ -64,10 +64,10 @@ func NewRegionResolver(nominatimURL string, logger *zap.Logger) *RegionResolver 
 	}
 }
 
-func (r *RegionResolver) buildURLReverse(entity *models.OSMEntity) string {
+func (r *NominatimRegionResolver) buildURLReverse(entity *models.OSMEntity) string {
 	return fmt.Sprintf(r.urlReverse, entity.OSMID, entity.OSMType)
 }
 
-func (r *RegionResolver) buildURLLookup(entity *models.OSMEntity) string {
+func (r *NominatimRegionResolver) buildURLLookup(entity *models.OSMEntity) string {
 	return fmt.Sprintf(r.urlLookup, fmt.Sprintf("%s%d", entity.OSMType, entity.OSMID))
 }

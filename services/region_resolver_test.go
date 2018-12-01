@@ -18,11 +18,11 @@ const (
 
 type NominatimTestSuite struct {
 	suite.Suite
-	resolver    *RegionResolver
+	resolver    *NominatimRegionResolver
 }
 
 func (s *NominatimTestSuite) BeforeTest(suiteName, testName string) {
-	s.resolver = NewRegionResolver(nominatimURL, zap.NewNop())
+	s.resolver = NewNominatimRegionResolver(nominatimURL, zap.NewNop())
 }
 
 func (s *NominatimTestSuite) TestResolveOK() {

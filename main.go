@@ -158,7 +158,7 @@ func main() {
 		Index:              ordersDao.GetIndex(),
 	}
 	concurrentLookup := &services.ConcurrentLookupService{
-		LookupService: services.NewRegionResolver(viper.GetString("nominatim.url"), logger),
+		LookupService: services.NewNominatimRegionResolver(viper.GetString("nominatim.url"), logger),
 		Concurrency:   viper.GetInt("photon.lookup_concurrency"),
 	}
 	photonPolygonSuggestionEngine := &services.PhotonSuggestEngine{
@@ -188,14 +188,19 @@ func main() {
 
 	tntRouteDao := services.NewTarantoolRouteDAO(tntClient, logger)
 
-	reverser := services.NewRegionResolver(viper.GetString("nominatim.url"), logger)
+	nominatimResolver := services.NewNominatimRegionResolver(viper.GetString("nominatim.url"), logger)
+	tarantoolRegionResolver := services.NewTarantoolRegionResolver(tntClient, logger)
+	cachedRegionResolver := &services.CachedRegionResolver{
+		TarantoolResolver: tarantoolRegionResolver,
+		NominatimResolver: nominatimResolver,
+	}
 
 	api := controllers.APIService{
 		CouriersDAO:        couriersDao,
 		OrdersDAO:          ordersDao,
 		CourierRouteDAO:    tntRouteDao,
 		GeoResolver:        services.NewCachedResolver(tntResolver, gmapsResolver),
-		RegionResolver:     reverser,
+		RegionResolver:     cachedRegionResolver,
 		CourierSuggester:   couriersSuggester,
 		Logger:             logger,
 		SuggestionService:  suggestService,
