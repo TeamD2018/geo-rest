@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   backend:
-    image: teamd2018/geo-rest
+    image: teamd2018/geo-rest:new
     command: --config=/geo_rest_config.toml
     ports:
     - 8081:8080
@@ -31,7 +31,8 @@ services:
     volumes:
     - esdata:/usr/share/elasticsearch/data
   tarantool:
-    image: tarantool/tarantool:1.10.2
+    image: teamd2018/tarantool
+    build: docker/tarantool
     ports:
       - 3301:3301
     deploy:
