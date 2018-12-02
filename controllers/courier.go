@@ -103,7 +103,7 @@ func (api *APIService) GetCouriersByCircleField(ctx *gin.Context) {
 	if err := api.OrdersCountTracker.Sync(couriers); err != nil {
 		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
 	}
-	ctx.JSON(http.StatusOK, models.CouriersResponse{Couriers: couriers})
+	ctx.JSON(http.StatusOK, couriers)
 }
 
 func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
@@ -121,7 +121,7 @@ func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
 		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
 	}
 
-	ctx.JSON(http.StatusOK, models.CouriersResponse{Couriers: couriers})
+	ctx.JSON(http.StatusOK, couriers)
 }
 
 func (api *APIService) GetCourierByPolygon(ctx *gin.Context) {
@@ -143,7 +143,7 @@ func (api *APIService) GetCourierByPolygon(ctx *gin.Context) {
 	if err := api.OrdersCountTracker.Sync(couriers); err != nil {
 		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
 	}
-	ctx.JSON(http.StatusOK, models.CouriersResponse{Couriers: couriers})
+	ctx.JSON(http.StatusOK, couriers)
 }
 
 func (api *APIService) SuggestCourier(ctx *gin.Context) {

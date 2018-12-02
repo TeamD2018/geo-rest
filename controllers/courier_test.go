@@ -176,12 +176,12 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByCircleField()
 	w := httptest.NewRecorder()
 	ts.router.ServeHTTP(w, req)
 
-	var got models.CouriersResponse
+	var got models.Couriers
 	err := json.Unmarshal(w.Body.Bytes(), &got)
 
 	ts.NoError(err)
 	ts.Equal(http.StatusOK, w.Code)
-	ts.Equal(testCouriers, got.Couriers)
+	ts.Equal(testCouriers, got)
 }
 
 func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByBoxField() {
@@ -206,10 +206,10 @@ func (ts *ControllerCouriersTestSuite) TestAPIService_GetCouriersByBoxField() {
 	w := httptest.NewRecorder()
 	ts.router.ServeHTTP(w, req)
 
-	var got models.CouriersResponse
+	var got models.Couriers
 	err := json.Unmarshal(w.Body.Bytes(), &got)
 
 	ts.NoError(err)
 	ts.Equal(http.StatusOK, w.Code)
-	ts.Equal(testCouriers, got.Couriers)
+	ts.Equal(testCouriers, got)
 }
