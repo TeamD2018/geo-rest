@@ -56,7 +56,7 @@ func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (model
 	}
 	polygon := make(models.Polygon, len(regionResp.Geojson.Coordinates[0]))
 	for i, p := range regionResp.Geojson.Coordinates[0] {
-		polygon[i] = elastic.GeoPointFromLatLon(p[0], p[1])
+		polygon[i] = elastic.GeoPointFromLatLon(p[1], p[0])
 	}
 	return polygon, nil
 }
