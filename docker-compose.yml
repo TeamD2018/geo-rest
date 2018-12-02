@@ -1,7 +1,8 @@
 version: '3.5'
 services:
   backend:
-    image: teamd2018/geo-rest:new
+#    image: teamd2018/geo-rest:new
+    build: ./
     command: --config=/geo_rest_config.toml
     ports:
     - 8081:8080

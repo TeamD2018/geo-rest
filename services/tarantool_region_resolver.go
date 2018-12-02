@@ -25,7 +25,7 @@ func NewTarantoolRegionResolver(client *tarantool.Connection, logger *zap.Logger
 	}
 }
 
-func (t *TarantoolRegionResolver) ResolveRegion(entity *models.OSMEntity) (*models.Polygon, error) {
+func (t *TarantoolRegionResolver) ResolveRegion(entity *models.OSMEntity) (models.Polygon, error) {
 	var polygonInterface = make([]interface{}, 0)
 	err := t.c.Call17Typed(regionResolveFuncName, tarantool.IntKey{I: entity.OSMID}, &polygonInterface)
 	if err != nil {
@@ -38,20 +38,20 @@ func (t *TarantoolRegionResolver) ResolveRegion(entity *models.OSMEntity) (*mode
 	t.l.Sugar().Debugw("asd", "resp", polygonInterface)
 	polygonInterface = polygonInterface[0].([]interface{})
 	polygonFromTnt := polygonInterface[1].([]interface{})
-	polygon := models.NewPolygon(len(polygonFromTnt))
+	polygon := make(models.Polygon, len(polygonFromTnt))
 	for i, p := range polygonFromTnt {
 		pp := p.([]interface{})
-		polygon.Points[i] = elastic.GeoPointFromLatLon(pp[0].(float64), pp[1].(float64))
+		polygon[i] = elastic.GeoPointFromLatLon(pp[0].(float64), pp[1].(float64))
 	}
 	return polygon, nil
 }
 
-func (t *TarantoolRegionResolver) SaveToCache(osmID int, polygon *models.Polygon) error {
+func (t *TarantoolRegionResolver) SaveToCache(osmID int, polygon models.Polygon) error {
 	if polygon == nil {
 		return errors.New("nil polygon")
 	}
 	polygonTnt := make([]interface{}, 0)
-	for _, p := range polygon.Points {
+	for _, p := range polygon {
 		polygonTnt = append(polygonTnt, [2]float64{p.Lat, p.Lon})
 	}
 	_, err := t.c.Call17(saveToCacheRegionFuncName, []interface{}{osmID, polygonTnt})

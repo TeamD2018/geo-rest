@@ -17,8 +17,8 @@ import (
 
 var (
 	clearRegionCacheFuncName = "clear_cache_region"
-	resolveRegionFuncName = "resolve_region"
-	testOSMID = 1255680
+	resolveRegionFuncName    = "resolve_region"
+	testOSMID                = 1255680
 )
 
 type TarantoolRegionResolverTestSuite struct {
@@ -76,14 +76,12 @@ func (s *TarantoolRegionResolverTestSuite) SetupSuite() {
 }
 
 func (s *TarantoolRegionResolverTestSuite) TestSaveToCache_OK() {
-	polygon := &models.Polygon{
-		Points: []*elastic.GeoPoint{
-			elastic.GeoPointFromLatLon(56.514792, 36.375407),
-			elastic.GeoPointFromLatLon(56.673754, 39.858289),
-			elastic.GeoPointFromLatLon(54.692269, 38.979383),
-			elastic.GeoPointFromLatLon(55.146880, 36.122938),
-			elastic.GeoPointFromLatLon(56.514792, 36.375407),
-		},
+	polygon := models.Polygon{
+		elastic.GeoPointFromLatLon(56.514792, 36.375407),
+		elastic.GeoPointFromLatLon(56.673754, 39.858289),
+		elastic.GeoPointFromLatLon(54.692269, 38.979383),
+		elastic.GeoPointFromLatLon(55.146880, 36.122938),
+		elastic.GeoPointFromLatLon(56.514792, 36.375407),
 	}
 	err := s.resolver.SaveToCache(testOSMID, polygon)
 	if !s.NoError(err) {
@@ -103,14 +101,12 @@ func (s *TarantoolRegionResolverTestSuite) TestSaveToCache_OK() {
 }
 
 func (s *TarantoolRegionResolverTestSuite) TestResolve_OK() {
-	polygon := &models.Polygon{
-		Points: []*elastic.GeoPoint{
-			elastic.GeoPointFromLatLon(56.514792, 36.375407),
-			elastic.GeoPointFromLatLon(56.673754, 39.858289),
-			elastic.GeoPointFromLatLon(54.692269, 38.979383),
-			elastic.GeoPointFromLatLon(55.146880, 36.122938),
-			elastic.GeoPointFromLatLon(56.514792, 36.375407),
-		},
+	polygon := models.Polygon{
+		elastic.GeoPointFromLatLon(56.514792, 36.375407),
+		elastic.GeoPointFromLatLon(56.673754, 39.858289),
+		elastic.GeoPointFromLatLon(54.692269, 38.979383),
+		elastic.GeoPointFromLatLon(55.146880, 36.122938),
+		elastic.GeoPointFromLatLon(56.514792, 36.375407),
 	}
 	err := s.resolver.SaveToCache(testOSMID, polygon)
 	if !s.NoError(err) {
@@ -127,7 +123,7 @@ func (s *TarantoolRegionResolverTestSuite) TestResolve_OK() {
 		return
 	}
 
-	if !s.Len(polygon.Points, 5) {
+	if !s.Len(polygon, 5) {
 		return
 	}
 }

@@ -39,7 +39,7 @@ func (r *NominatimRegionResolver) prettifyLookupResult(response *models.LookupRe
 	return fmt.Sprintf("%s, %s, %s", response.Address.City, response.Address.StateDistrict, response.Address.State)
 }
 
-func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (*models.Polygon, error) {
+func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (models.Polygon, error) {
 	url := r.buildURLReverse(entity)
 	resp, err := r.client.Get(url)
 	if err != nil {
@@ -54,9 +54,9 @@ func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (*mode
 	if err := jsoniter.Unmarshal(body, regionResp); err != nil {
 		return nil, err
 	}
-	polygon := models.NewPolygon(len(regionResp.Geojson.Coordinates[0]))
+	polygon := make(models.Polygon, len(regionResp.Geojson.Coordinates[0]))
 	for i, p := range regionResp.Geojson.Coordinates[0] {
-		polygon.Points[i] = elastic.GeoPointFromLatLon(p[0], p[1])
+		polygon[i] = elastic.GeoPointFromLatLon(p[0], p[1])
 	}
 	return polygon, nil
 }

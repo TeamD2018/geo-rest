@@ -497,13 +497,11 @@ func (s *CourierTestSuite) TestGetCouriersByPolygonOK() {
 	s.UpdateCourier(courierUpd)
 	s.client.Refresh(CourierIndex).Do(context.Background())
 	polygon := &models.Polygon{
-		Points: []*elastic.GeoPoint{
-			elastic.GeoPointFromLatLon(56.514792, 36.375407),
-			elastic.GeoPointFromLatLon(56.673754, 39.858289),
-			elastic.GeoPointFromLatLon(54.692269, 38.979383),
-			elastic.GeoPointFromLatLon(55.146880, 36.122938),
-			elastic.GeoPointFromLatLon(56.514792, 36.375407),
-		},
+		elastic.GeoPointFromLatLon(56.514792, 36.375407),
+		elastic.GeoPointFromLatLon(56.673754, 39.858289),
+		elastic.GeoPointFromLatLon(54.692269, 38.979383),
+		elastic.GeoPointFromLatLon(55.146880, 36.122938),
+		elastic.GeoPointFromLatLon(56.514792, 36.375407),
 	}
 	res, err := service.GetByPolygon(polygon, 1, false)
 	if !s.NoError(err) || !s.NotEmpty(res) {

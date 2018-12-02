@@ -12,10 +12,4 @@ type CircleField struct {
 	Radius int
 }
 
-type Polygon struct {
-	Points []*elastic.GeoPoint
-}
-
-func NewPolygon(numPoints int) *Polygon {
-	return &Polygon{make([]*elastic.GeoPoint, numPoints)}
-}
+type Polygon []*elastic.GeoPoint
