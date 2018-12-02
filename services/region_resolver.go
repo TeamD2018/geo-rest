@@ -32,7 +32,11 @@ func (r *NominatimRegionResolver) Lookup(entity *models.OSMEntity) (string, erro
 	if err := jsoniter.Unmarshal(body, &lookupResponse); err != nil {
 		return "", err
 	}
-	return lookupResponse[0].DisplayName, nil
+	return r.prettifyLookupResult(lookupResponse[0]), nil
+}
+
+func (r *NominatimRegionResolver) prettifyLookupResult(response *models.LookupResp) string {
+	return fmt.Sprintf("%s, %s, %s", response.Address.City, response.Address.StateDistrict, response.Address.State)
 }
 
 func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (*models.Polygon, error) {

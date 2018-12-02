@@ -15,8 +15,15 @@ type NominatimReverseResponse struct {
 	Geojson *Geojson `json:"geojson"`
 }
 
+type Address struct {
+	StateDistrict string `json:"state_district"`
+	City          string `json:"city"`
+	State         string `json:"state"`
+}
+
 type LookupResp struct {
-	DisplayName string `json:"display_name"`
+	DisplayName string   `json:"display_name"`
+	Address     *Address `json:"address"`
 }
 
 type NominatimLookupResponse []*LookupResp

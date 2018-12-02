@@ -12,13 +12,13 @@ import (
 const nominatimURL = "http://95.163.181.132:8080"
 
 const (
-	testOSMID = 1255680
+	testOSMID   = 1255680
 	testOSMType = "R"
 )
 
 type NominatimTestSuite struct {
 	suite.Suite
-	resolver    *NominatimRegionResolver
+	resolver *NominatimRegionResolver
 }
 
 func (s *NominatimTestSuite) BeforeTest(suiteName, testName string) {
@@ -27,7 +27,7 @@ func (s *NominatimTestSuite) BeforeTest(suiteName, testName string) {
 
 func (s *NominatimTestSuite) TestResolveOK() {
 	osmEntity := models.OSMEntity{
-		OSMID: testOSMID,
+		OSMID:   testOSMID,
 		OSMType: testOSMType,
 	}
 	polygon, err := s.resolver.ResolveRegion(&osmEntity)
@@ -42,14 +42,14 @@ func (s *NominatimTestSuite) TestResolveOK() {
 
 func (s *NominatimTestSuite) TestLookupOK() {
 	osmEntity := models.OSMEntity{
-		OSMID: testOSMID,
+		OSMID:   testOSMID,
 		OSMType: testOSMType,
 	}
 	address, err := s.resolver.Lookup(&osmEntity)
 	if !s.NoError(err) {
 		return
 	}
-	if !s.Equal("район Северное Измайлово, Восточный административный округ, Москва, Центральный федеральный округ, Россия", address) {
+	if !s.Equal("район Северное Измайлово, Восточный административный округ, Москва", address) {
 		return
 	}
 }
