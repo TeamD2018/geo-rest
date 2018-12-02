@@ -126,7 +126,7 @@ func (api *APIService) GetCouriersByBoxField(ctx *gin.Context) {
 
 func (api *APIService) GetCourierByPolygon(ctx *gin.Context) {
 	searchParams := parameters.PolygonQuery{}
-	if err := ctx.Bind(&searchParams); err != nil {
+	if err := ctx.BindQuery(&searchParams); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, models.ErrOneOfParameterHaveIncorrectFormat)
 		return
 	}
