@@ -24,4 +24,5 @@ func SetupRouters(router *gin.Engine, api *APIService) {
 
 	router.GET("/suggestions/couriers", api.SuggestCourier)
 	router.GET("/suggestions", api.Suggest)
+	router.GET("/polygon", api.GetPolygon)
 }

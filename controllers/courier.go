@@ -143,7 +143,7 @@ func (api *APIService) GetCourierByPolygon(ctx *gin.Context) {
 	if err := api.OrdersCountTracker.Sync(couriers); err != nil {
 		api.Logger.Error("fail to sync couriers counters", zap.Error(err))
 	}
-	ctx.JSON(http.StatusOK, models.CouriersResponse{Couriers: couriers, Polygon: polygon})
+	ctx.JSON(http.StatusOK, models.CouriersResponse{Couriers: couriers})
 }
 
 func (api *APIService) SuggestCourier(ctx *gin.Context) {
