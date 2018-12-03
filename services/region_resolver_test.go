@@ -12,7 +12,7 @@ import (
 const nominatimURL = "http://95.163.181.132:8080"
 
 const (
-	testOSMID   = 1255680
+	testOSMID   = 1278703
 	testOSMType = "R"
 )
 

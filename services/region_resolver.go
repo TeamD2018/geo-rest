@@ -71,9 +71,12 @@ func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (model
 	if err := jsoniter.Unmarshal(body, regionResp); err != nil {
 		return nil, err
 	}
-	polygon := make(models.Polygon, len(regionResp.Geojson.Coordinates[0]))
-	for i, p := range regionResp.Geojson.Coordinates[0] {
-		polygon[i] = elastic.GeoPointFromLatLon(p[1], p[0])
+	polygon := make(models.Polygon, 0)
+	for k, pp := range regionResp.Geojson.Coordinates {
+		polygon[k] = make([]*elastic.GeoPoint, 0)
+		for _, p := range pp {
+			polygon[k] = append(polygon[k], p[])
+		}
 	}
 	return polygon, nil
 }
