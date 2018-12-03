@@ -19,6 +19,7 @@ type Address struct {
 	StateDistrict string `json:"state_district"`
 	City          string `json:"city"`
 	State         string `json:"state"`
+	County        string `json:"county"`
 }
 
 type LookupResp struct {

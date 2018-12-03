@@ -38,6 +38,9 @@ func (r *NominatimRegionResolver) Lookup(entity *models.OSMEntity) (string, erro
 
 func (r *NominatimRegionResolver) prettifyLookupResult(response *models.LookupResp) string {
 	builder := strings.Builder{}
+	if response.Address.County != "" {
+		builder.WriteString(response.Address.County)
+	}
 	if response.Address.City != "" {
 		builder.WriteString(response.Address.City)
 	}
