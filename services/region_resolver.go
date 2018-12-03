@@ -40,15 +40,16 @@ func (r *NominatimRegionResolver) prettifyLookupResult(response *models.LookupRe
 	builder := strings.Builder{}
 	if response.Address.County != "" {
 		builder.WriteString(response.Address.County)
+		builder.WriteString(", ")
 	}
 	if response.Address.City != "" {
 		builder.WriteString(response.Address.City)
+		builder.WriteString(", ")
 	}
-	builder.WriteString(", ")
 	if response.Address.StateDistrict != "" {
 		builder.WriteString(response.Address.StateDistrict)
+		builder.WriteString(", ")
 	}
-	builder.WriteString(", ")
 	if response.Address.State != "" {
 		builder.WriteString(response.Address.State)
 	}
