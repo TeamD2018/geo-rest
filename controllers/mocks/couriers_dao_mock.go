@@ -9,7 +9,7 @@ type CouriersDAOMock struct {
 	mock.Mock
 }
 
-func (c *CouriersDAOMock) GetByPolygon(polygon models.Polygon, size int, activeOnly bool) (models.Couriers, error) {
+func (c *CouriersDAOMock) GetByPolygon(polygon models.FlatPolygon, size int, activeOnly bool) (models.Couriers, error) {
 	args := c.Called(polygon, size, activeOnly)
 	return args.Get(0).(models.Couriers), args.Error(1)
 }

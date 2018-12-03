@@ -76,7 +76,7 @@ func (s *TarantoolRegionResolverTestSuite) SetupSuite() {
 }
 
 func (s *TarantoolRegionResolverTestSuite) TestSaveToCache_OK() {
-	polygon := models.Polygon{
+	polygon := models.FlatPolygon{
 		elastic.GeoPointFromLatLon(56.514792, 36.375407),
 		elastic.GeoPointFromLatLon(56.673754, 39.858289),
 		elastic.GeoPointFromLatLon(54.692269, 38.979383),
@@ -101,7 +101,7 @@ func (s *TarantoolRegionResolverTestSuite) TestSaveToCache_OK() {
 }
 
 func (s *TarantoolRegionResolverTestSuite) TestResolve_OK() {
-	polygon := models.Polygon{
+	polygon := models.FlatPolygon{
 		elastic.GeoPointFromLatLon(56.514792, 36.375407),
 		elastic.GeoPointFromLatLon(56.673754, 39.858289),
 		elastic.GeoPointFromLatLon(54.692269, 38.979383),
