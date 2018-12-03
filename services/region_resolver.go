@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type NominatimRegionResolver struct {
@@ -36,7 +37,19 @@ func (r *NominatimRegionResolver) Lookup(entity *models.OSMEntity) (string, erro
 }
 
 func (r *NominatimRegionResolver) prettifyLookupResult(response *models.LookupResp) string {
-	return fmt.Sprintf("%s, %s, %s", response.Address.City, response.Address.StateDistrict, response.Address.State)
+	builder := strings.Builder{}
+	if response.Address.City != "" {
+		builder.WriteString(response.Address.City)
+	}
+	builder.WriteString(", ")
+	if response.Address.StateDistrict != "" {
+		builder.WriteString(response.Address.StateDistrict)
+	}
+	builder.WriteString(", ")
+	if response.Address.State != "" {
+		builder.WriteString(response.Address.State)
+	}
+	return builder.String()
 }
 
 func (r *NominatimRegionResolver) ResolveRegion(entity *models.OSMEntity) (models.Polygon, error) {
