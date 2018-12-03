@@ -10,7 +10,7 @@ type CachedRegionResolver struct {
 	TarantoolResolver *TarantoolRegionResolver
 }
 
-func (r *CachedRegionResolver) ResolveRegion(entity *models.OSMEntity) (polygon models.Polygon, err error) {
+func (r *CachedRegionResolver) ResolveRegion(entity *models.OSMEntity) (polygon models.FlatPolygon, err error) {
 	if entity == nil {
 		return nil, errors.New("entity is nil")
 	}

@@ -12,4 +12,4 @@ type CircleField struct {
 	Radius int
 }
 
-type Polygon []*elastic.GeoPoint
+type FlatPolygon []*elastic.GeoPoint

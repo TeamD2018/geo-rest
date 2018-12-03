@@ -22,7 +22,7 @@ type CouriersElasticDAO struct {
 	l                 *zap.Logger
 }
 
-func (c *CouriersElasticDAO) GetByPolygon(polygon models.Polygon, size int, activeOnly bool) (models.Couriers, error) {
+func (c *CouriersElasticDAO) GetByPolygon(polygon models.FlatPolygon, size int, activeOnly bool) (models.Couriers, error) {
 	boolQuery := elastic.NewBoolQuery()
 	polygonQuery := elastic.NewGeoPolygonQuery("location.point")
 	for _, p := range polygon {

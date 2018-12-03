@@ -40,6 +40,21 @@ func (s *NominatimTestSuite) TestResolveOK() {
 	}
 }
 
+func (s *NominatimTestSuite) TestResolveMultipolygonOK() {
+	osmEntity := models.OSMEntity{
+		OSMID:   1278703,
+		OSMType: "R",
+	}
+	polygon, err := s.resolver.ResolveRegion(&osmEntity)
+	if !s.NoError(err) {
+		return
+	}
+
+	if !s.NotNil(polygon) {
+		return
+	}
+}
+
 func (s *NominatimTestSuite) TestLookupOK() {
 	osmEntity := models.OSMEntity{
 		OSMID:   testOSMID,
