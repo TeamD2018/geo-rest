@@ -7,9 +7,7 @@ jobs:
     name: "Unit Tests"
     language: go
     go:
-    - '1.11'
-    env:
-    - GO111MODULE=on
+    - '1.12'
     script: go test ./services ./controllers -v
     cache:
       directories:
@@ -25,9 +23,7 @@ jobs:
     name: "Integration Tests"
     language: go
     go:
-    - '1.11'
-    env:
-    - GO111MODULE=on
+    - '1.12'
     services:
     - docker
     script: go test -tags=elastic -run Integration ./services -v
