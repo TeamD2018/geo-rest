@@ -1,5 +1,6 @@
 # DC Courier Monitor Service
 [![Build Status](https://travis-ci.com/TeamD2018/geo-rest.svg?branch=suite_test)](https://travis-ci.com/TeamD2018/geo-rest)
+[![codecov](https://codecov.io/gh/TeamD2018/geo-rest/branch/develop/graph/badge.svg)](https://codecov.io/gh/TeamD2018/geo-rest)
 
 Микросервис, позволяющий отслеживать геолокацию курьеров в рамках приложения [Delivery Club](https://www.delivery-club.ru).
 
